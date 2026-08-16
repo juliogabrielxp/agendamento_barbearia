@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: agendamento_barbearia_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo, pdo_mysql
+          coverage: none
+
+      - name: Instalar dependências (Composer)
+        run: composer install --prefer-dist --no-progress
+
+      - name: Copiar .env de testes
+        run: |
+          cp .env.example .env.testing
+          php artisan key:generate --env=testing
+
+      - name: Ajustar .env.testing pro banco do CI
+        run: |
+          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env.testing
+          sed -i 's/DB_PORT=.*/DB_PORT=3306/' .env.testing
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=agendamento_barbearia_test/' .env.testing
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/' .env.testing
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=root/' .env.testing
+
+      - name: Rodar testes unitários
+        run: php artisan test --testsuite=Unit --env=testing
+
+      - name: Rodar testes de integração
+        run: php artisan test --testsuite=Feature --env=testing
