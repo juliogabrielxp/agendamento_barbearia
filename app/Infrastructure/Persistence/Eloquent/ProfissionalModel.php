@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Persistence\Eloquent;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ProfissionalModel extends Model
@@ -21,5 +22,10 @@ class ProfissionalModel extends Model
             'profissional_id',
             'servico_id'
         );
+    }
+
+    public function barbearia(): BelongsTo
+    {
+        return $this->belongsTo(BarbeariaModel::class, 'barbearia_id');
     }
 }

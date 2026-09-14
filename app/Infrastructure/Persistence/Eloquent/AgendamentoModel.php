@@ -26,4 +26,14 @@ class AgendamentoModel extends Model
     {
         return $this->belongsTo(ServicoModel::class, 'servico_id');
     }
+
+    public function profissional(): BelongsTo
+    {
+        return $this->belongsTo(ProfissionalModel::class, 'profissional_id');
+    }
+
+    public function cliente(): BelongsTo
+    {
+        return $this->belongsTo(ClienteModel::class, 'cliente_id');
+    }
 }
