@@ -9,6 +9,10 @@ Route::get('/auth/google/barbearia/callback', [GoogleAuthController::class, 'cal
 Route::get('/auth/google/cliente/redirect', [GoogleAuthController::class, 'redirectCliente'])->name('auth.google.cliente.redirect');
 Route::get('/auth/google/cliente/callback', [GoogleAuthController::class, 'callbackCliente'])->name('auth.google.cliente.callback');
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/login', function () {
+    return redirect('/app');
+})->name('login');
+
+Route::get('/app/{any?}', function () {
+    return view('spa');
+})->where('any', '.*');
