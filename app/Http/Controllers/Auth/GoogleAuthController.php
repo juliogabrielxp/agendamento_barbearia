@@ -48,7 +48,7 @@ class GoogleAuthController extends Controller
 
         Auth::login(UserModel::find($dadosUser['id']));
 
-        return redirect('/dashboard-barbearia');
+        return redirect('/app/dashboard-barbearia');
     }
 
     public function callbackCliente(): RedirectResponse
@@ -67,7 +67,7 @@ class GoogleAuthController extends Controller
 
         Auth::login(UserModel::find($dadosUser['id']));
 
-        return redirect('/dashboard-cliente');
+        return redirect('/app/dashboard-cliente');
     }
 
     private function driver(string $tipo)
@@ -88,4 +88,4 @@ class GoogleAuthController extends Controller
 
         return $this->useCase->executar($input);
     }
-} 
+}
