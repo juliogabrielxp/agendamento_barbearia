@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfissionalController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\BarbeariaPublicaController;
 use App\Http\Controllers\MeusAgendamentosController;
+use App\Http\Controllers\HorarioDisponivelController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [MeController::class, 'show']);
@@ -21,4 +22,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/meus-agendamentos', [MeusAgendamentosController::class, 'index']);
 
     Route::post('/agendamentos', [AgendamentoController::class, 'store']);
+
+    Route::get('/horarios-disponiveis', [HorarioDisponivelController::class, 'index']);
 });
