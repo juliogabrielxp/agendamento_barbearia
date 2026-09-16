@@ -1,230 +1,51 @@
 import { useEffect, useState } from 'react';
 import api from '../lib/api';
+import NavBarCliente from '../components/NavBarCliente';
+import AgendarTab from '../components/AgendarTab';
+import MeusAgendamentosTab from '../components/MeusAgendamentosTab';
 
 export default function DashboardCliente() {
-    const [barbearias, setBarbearias] = useState([]);
-    const [barbeariaSelecionada, setBarbeariaSelecionada] = useState(null);
-    const [erroCarregamento, setErroCarregamento] = useState(false);
-
-    const [profissionalId, setProfissionalId] = useState('');
-    const [servicoId, setServicoId] = useState('');
-    const [data, setData] = useState('');
-    const [horarios, setHorarios] = useState([]);
-    const [horarioEscolhido, setHorarioEscolhido] = useState('');
-    const [carregandoHorarios, setCarregandoHorarios] = useState(false);
-    const [mensagem, setMensagem] = useState(null);
-    const [enviando, setEnviando] = useState(false);
+    const [dados, setDados] = useState(null);
+    const [carregando, setCarregando] = useState(true);
+    const [erro, setErro] = useState(false);
+    const [abaAtiva, setAbaAtiva] = useState('agendar');
 
     useEffect(() => {
-        api.get('/api/barbearias')
-            .then(response => setBarbearias(response.data))
-            .catch(() => setErroCarregamento(true));
+        api.get('/api/me')
+            .then(response => setDados(response.data))
+            .catch(() => setErro(true))
+            .finally(() => setCarregando(false));
     }, []);
 
-    function abrirBarbearia(id) {
-        api.get(`/api/barbearias/${id}`).then(response => {
-            setBarbeariaSelecionada(response.data);
-            resetarSelecao();
-        });
+    if (carregando) {
+        return <div className="min-h-screen flex items-center justify-center bg-neutral-50 text-neutral-400 text-sm">Carregando...</div>;
     }
 
-    function resetarSelecao() {
-        setProfissionalId('');
-        setServicoId('');
-        setData('');
-        setHorarios([]);
-        setHorarioEscolhido('');
-        setMensagem(null);
-    }
-
-    const servicoEscolhido = barbeariaSelecionada?.servicos.find(s => s.id === Number(servicoId));
-
-    const servicosDoProfissional = profissionalId
-        ? barbeariaSelecionada?.profissionais
-            .find(p => p.id === Number(profissionalId))
-            ?.servicos ?? []
-        : [];
-
-    useEffect(() => {
-        if (!profissionalId || !servicoId || !data) {
-            setHorarios([]);
-            return;
-        }
-
-        setCarregandoHorarios(true);
-        setHorarioEscolhido('');
-
-        api.get('/api/horarios-disponiveis', {
-            params: {
-                profissional_id: profissionalId,
-                duracao_em_minutos: servicoEscolhido?.duracao_em_minutos,
-                data,
-            },
-        })
-            .then(response => setHorarios(response.data))
-            .finally(() => setCarregandoHorarios(false));
-    }, [profissionalId, servicoId, data]);
-
-    function handleAgendar() {
-        setEnviando(true);
-        setMensagem(null);
-
-        api.post('/api/agendamentos', {
-            profissional_id: Number(profissionalId),
-            servico_id: Number(servicoId),
-            duracao_em_minutos: servicoEscolhido.duracao_em_minutos,
-            inicio: `${data} ${horarioEscolhido}:00`,
-        })
-            .then(() => {
-                setMensagem({ tipo: 'sucesso', texto: 'Agendamento confirmado com sucesso!' });
-                resetarSelecao();
-            })
-            .catch(error => {
-                const texto = error.response?.status === 409
-                    ? 'Esse horário acabou de ser ocupado. Escolha outro.'
-                    : 'Não foi possível agendar. Confira os dados.';
-                setMensagem({ tipo: 'erro', texto });
-            })
-            .finally(() => setEnviando(false));
-    }
-
-    if (erroCarregamento) {
+    if (erro || !dados) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 gap-3 px-4">
-                <p className="text-neutral-500 text-sm text-center">Não foi possível carregar as barbearias. Faça login novamente.</p>
+                <p className="text-neutral-500 text-sm text-center">Não foi possível carregar seus dados. Faça login novamente.</p>
                 <a href="/app" className="text-sm font-medium text-neutral-900 underline">Voltar para o login</a>
             </div>
         );
     }
 
-    if (!barbeariaSelecionada) {
-        return (
-            <div className="min-h-screen bg-neutral-50 px-4 py-6">
-                <h1 className="text-lg font-semibold text-neutral-900 mb-4 max-w-lg mx-auto">Escolha uma barbearia</h1>
-                <div className="max-w-lg mx-auto space-y-2">
-                    {barbearias.map(barbearia => (
-                        <button
-                            key={barbearia.id}
-                            onClick={() => abrirBarbearia(barbearia.id)}
-                            className="w-full bg-white border border-neutral-200 rounded-xl p-4 text-left hover:border-neutral-400 transition"
-                        >
-                            <p className="font-medium text-neutral-900 text-sm">{barbearia.nome}</p>
-                            <p className="text-xs text-neutral-400 mt-0.5">{barbearia.endereco}</p>
-                        </button>
-                    ))}
-                    {barbearias.length === 0 && (
-                        <p className="text-neutral-400 text-sm text-center py-8">Nenhuma barbearia disponível ainda.</p>
-                    )}
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="min-h-screen bg-neutral-50 px-4 py-6">
-            <div className="max-w-lg mx-auto">
-                <button onClick={() => setBarbeariaSelecionada(null)} className="text-sm text-neutral-400 mb-4 hover:text-neutral-600 transition">
-                    ← Voltar
-                </button>
-
-                <div className="bg-white border border-neutral-200 rounded-xl p-5">
-                    <h1 className="text-lg font-semibold text-neutral-900 mb-0.5">{barbeariaSelecionada.nome}</h1>
-                    <p className="text-xs text-neutral-400 mb-5">{barbeariaSelecionada.endereco}</p>
-
-                    <div className="space-y-4">
-                        {/* 1. Profissional */}
-                        <div>
-                            <label className="text-xs font-medium text-neutral-500 block mb-1.5">Profissional</label>
-                            <select
-                                value={profissionalId}
-                                onChange={e => { setProfissionalId(e.target.value); setServicoId(''); setData(''); }}
-                                className="border border-neutral-200 rounded-lg px-3 py-2.5 w-full text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
-                            >
-                                <option value="">Selecione...</option>
-                                {barbeariaSelecionada.profissionais.map(p => (
-                                    <option key={p.id} value={p.id}>{p.nome}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* 2. Serviço (só os que esse profissional faz) */}
-                        {profissionalId && (
-                            <div>
-                                <label className="text-xs font-medium text-neutral-500 block mb-1.5">Serviço</label>
-                                <select
-                                    value={servicoId}
-                                    onChange={e => { setServicoId(e.target.value); setData(''); }}
-                                    className="border border-neutral-200 rounded-lg px-3 py-2.5 w-full text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
-                                >
-                                    <option value="">Selecione...</option>
-                                    {servicosDoProfissional.map(s => (
-                                        <option key={s.id} value={s.id}>{s.nome} — {s.duracao_em_minutos} min — R$ {s.preco}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        )}
-
-                        {/* 3. Data */}
-                        {servicoId && (
-                            <div>
-                                <label className="text-xs font-medium text-neutral-500 block mb-1.5">Data</label>
-                                <input
-                                    type="date"
-                                    value={data}
-                                    min={new Date().toISOString().split('T')[0]}
-                                    onChange={e => setData(e.target.value)}
-                                    className="border border-neutral-200 rounded-lg px-3 py-2.5 w-full text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
-                                />
-                            </div>
-                        )}
-
-                        {/* 4. Grade de horários disponíveis */}
-                        {data && (
-                            <div>
-                                <label className="text-xs font-medium text-neutral-500 block mb-2">Horários disponíveis</label>
-                                {carregandoHorarios ? (
-                                    <p className="text-sm text-neutral-400">Carregando horários...</p>
-                                ) : horarios.length === 0 ? (
-                                    <p className="text-sm text-neutral-400">Nenhum horário disponível nesse dia.</p>
-                                ) : (
-                                    <div className="grid grid-cols-4 gap-2">
-                                        {horarios.map(horario => (
-                                            <button
-                                                key={horario}
-                                                onClick={() => setHorarioEscolhido(horario)}
-                                                className={`py-2 rounded-lg text-sm font-medium border transition ${
-                                                    horarioEscolhido === horario
-                                                        ? 'bg-neutral-900 text-white border-neutral-900'
-                                                        : 'bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400'
-                                                }`}
-                                            >
-                                                {horario}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* 5. Confirmar */}
-                        {horarioEscolhido && (
-                            <button
-                                onClick={handleAgendar}
-                                disabled={enviando}
-                                className="w-full bg-neutral-900 text-white py-3 rounded-lg text-sm font-medium hover:bg-neutral-700 transition disabled:opacity-50"
-                            >
-                                {enviando ? 'Agendando...' : `Confirmar às ${horarioEscolhido}`}
-                            </button>
-                        )}
-
-                        {mensagem && (
-                            <p className={`text-sm ${mensagem.tipo === 'sucesso' ? 'text-green-600' : 'text-red-600'}`}>
-                                {mensagem.texto}
-                            </p>
-                        )}
-                    </div>
+        <div className="min-h-screen bg-neutral-50">
+            <header className="fixed top-0 inset-x-0 bg-white border-b border-neutral-200 px-4 md:px-6 py-3.5 flex items-center gap-3 z-10">
+                {dados.user.avatar && <img src={dados.user.avatar} alt="" className="w-9 h-9 rounded-full" />}
+                <div className="min-w-0">
+                    <p className="font-semibold text-neutral-900 text-sm truncate">{dados.user.nome}</p>
+                    <p className="text-xs text-neutral-400 truncate">{dados.user.email}</p>
                 </div>
-            </div>
+            </header>
+
+            <NavBarCliente abaAtiva={abaAtiva} onMudarAba={setAbaAtiva} />
+
+            <main className="pt-20 pb-24 md:pb-8 px-4 md:pl-64 md:pr-6 max-w-2xl md:max-w-3xl">
+                {abaAtiva === 'agendar' && <AgendarTab />}
+                {abaAtiva === 'meus-agendamentos' && <MeusAgendamentosTab />}
+            </main>
         </div>
     );
 }
