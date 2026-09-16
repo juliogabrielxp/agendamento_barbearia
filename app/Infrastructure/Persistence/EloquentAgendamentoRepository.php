@@ -42,4 +42,11 @@ class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
             'inicio' => $agendamento->inicio(),
         ]);
     }
+
+    public function cancelar(int $agendamentoId, int $clienteId): void
+    {
+        AgendamentoModel::where('id', $agendamentoId)
+            ->where('cliente_id', $clienteId)
+            ->delete();
+    }
 }

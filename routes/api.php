@@ -24,4 +24,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/agendamentos', [AgendamentoController::class, 'store']);
 
     Route::get('/horarios-disponiveis', [HorarioDisponivelController::class, 'index']);
+
+    Route::delete('/meus-agendamentos/{id}', [MeusAgendamentosController::class, 'destroy']);
 });

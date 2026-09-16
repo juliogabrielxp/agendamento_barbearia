@@ -1,15 +1,32 @@
 import { useEffect, useState } from 'react';
+import { X } from 'lucide-react';
 import api from '../lib/api';
 
 export default function MeusAgendamentosTab() {
     const [agendamentos, setAgendamentos] = useState([]);
     const [carregando, setCarregando] = useState(true);
+    const [cancelandoId, setCancelandoId] = useState(null);
 
-    useEffect(() => {
+    function carregarAgendamentos() {
         api.get('/api/meus-agendamentos')
             .then(response => setAgendamentos(response.data))
             .finally(() => setCarregando(false));
+    }
+
+    useEffect(() => {
+        carregarAgendamentos();
     }, []);
+
+    function handleCancelar(id) {
+        if (!confirm('Tem certeza que deseja cancelar esse agendamento?')) {
+            return;
+        }
+
+        setCancelandoId(id);
+        api.delete(`/api/meus-agendamentos/${id}`)
+            .then(() => carregarAgendamentos())
+            .finally(() => setCancelandoId(null));
+    }
 
     function formatarData(dataHora) {
         return new Date(dataHora).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
@@ -34,12 +51,20 @@ export default function MeusAgendamentosTab() {
                             <div>{formatarData(agendamento.inicio)}</div>
                             <div className="text-[11px] opacity-80">{formatarHora(agendamento.inicio)}</div>
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                             <p className="font-medium text-neutral-900 text-sm truncate">{agendamento.servico?.nome}</p>
                             <p className="text-xs text-neutral-400 truncate">
                                 {agendamento.profissional?.barbearia?.nome} · com {agendamento.profissional?.nome}
                             </p>
                         </div>
+                        <button
+                            onClick={() => handleCancelar(agendamento.id)}
+                            disabled={cancelandoId === agendamento.id}
+                            className="p-2 text-neutral-400 hover:text-red-600 transition shrink-0 disabled:opacity-50"
+                            aria-label="Cancelar agendamento"
+                        >
+                            <X size={18} />
+                        </button>
                     </div>
                 ))}
                 {agendamentos.length === 0 && (
