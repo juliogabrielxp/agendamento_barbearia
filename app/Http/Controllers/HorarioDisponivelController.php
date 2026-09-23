@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Application\UseCases\ListarHorariosDisponiveisUseCase;
+use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use DateTimeImmutable;
@@ -24,10 +25,17 @@ class HorarioDisponivelController extends Controller
             'data' => 'required|date',
         ]);
 
+        $profissional = ProfissionalModel::with('barbearia')->findOrFail($dados['profissional_id']);
+        $barbearia = $profissional->barbearia;
+
         $horarios = $this->useCase->executar(
             (int) $dados['profissional_id'],
             (int) $dados['duracao_em_minutos'],
-            new DateTimeImmutable($dados['data'])
+            new DateTimeImmutable($dados['data']),
+            substr($barbearia->hora_abertura, 0, 5),
+            substr($barbearia->hora_fechamento, 0, 5),
+            $barbearia->intervalo_inicio ? substr($barbearia->intervalo_inicio, 0, 5) : null,
+            $barbearia->intervalo_fim ? substr($barbearia->intervalo_fim, 0, 5) : null
         );
 
         return response()->json(

@@ -9,6 +9,8 @@ use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\BarbeariaPublicaController;
 use App\Http\Controllers\MeusAgendamentosController;
 use App\Http\Controllers\HorarioDisponivelController;
+use App\Http\Controllers\BarbeariaConfiguracaoController;
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [MeController::class, 'show']);
@@ -26,4 +28,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/horarios-disponiveis', [HorarioDisponivelController::class, 'index']);
 
     Route::delete('/meus-agendamentos/{id}', [MeusAgendamentosController::class, 'destroy']);
+
+    Route::get('/configuracao-barbearia', [BarbeariaConfiguracaoController::class, 'show']);
+    
+    Route::put('/configuracao-barbearia', [BarbeariaConfiguracaoController::class, 'update']);
 });

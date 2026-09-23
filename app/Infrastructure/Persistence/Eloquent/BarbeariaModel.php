@@ -11,7 +11,10 @@ class BarbeariaModel extends Model
 {
     protected $table = 'barbearias';
 
-    protected $fillable = ['user_id', 'nome', 'telefone', 'email', 'endereco'];
+    protected $fillable = [
+    'user_id', 'nome', 'telefone', 'email', 'endereco',
+    'hora_abertura', 'hora_fechamento', 'intervalo_inicio', 'intervalo_fim',
+    ];
 
     public function servicos(): HasMany
     {
