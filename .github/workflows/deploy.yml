@@ -8,10 +8,36 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Build do front-end
+        run: |
+          npm ci
+          npm run build
+
+      - name: Enviar build para a EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "public/build/*"
+          target: "/var/www/barbearia.juliogabrieldev.com/public/build"
+          strip_components: 2
+          overwrite: true
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 10m
           script: bash /var/www/barbearia.juliogabrieldev.com/deploy.sh
