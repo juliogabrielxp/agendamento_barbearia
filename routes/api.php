@@ -10,6 +10,7 @@ use App\Http\Controllers\BarbeariaPublicaController;
 use App\Http\Controllers\MeusAgendamentosController;
 use App\Http\Controllers\HorarioDisponivelController;
 use App\Http\Controllers\BarbeariaConfiguracaoController;
+use App\Http\Controllers\LogoutController;
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -30,6 +31,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/meus-agendamentos/{id}', [MeusAgendamentosController::class, 'destroy']);
 
     Route::get('/configuracao-barbearia', [BarbeariaConfiguracaoController::class, 'show']);
-    
+
     Route::put('/configuracao-barbearia', [BarbeariaConfiguracaoController::class, 'update']);
+
+    Route::post('/logout', [LogoutController::class, 'logout']);
 });

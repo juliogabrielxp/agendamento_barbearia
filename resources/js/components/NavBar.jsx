@@ -1,4 +1,5 @@
 import { Scissors, Users, Calendar } from 'lucide-react';
+import LogoutButton from './LogoutButton';
 
 const ITENS = [
     { id: 'servicos', label: 'Serviços', Icon: Scissors },
@@ -39,6 +40,10 @@ export default function NavBar({ abaAtiva, onMudarAba }) {
                         {label}
                     </button>
                 ))}
+
+                <div className="mt-auto mb-4 px-3">
+                    <LogoutButton />
+                </div>
             </nav>
         </>
     );

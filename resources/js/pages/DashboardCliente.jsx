@@ -3,6 +3,7 @@ import api from '../lib/api';
 import NavBarCliente from '../components/NavBarCliente';
 import AgendarTab from '../components/AgendarTab';
 import MeusAgendamentosTab from '../components/MeusAgendamentosTab';
+import PerfilTab from '../components/PerfilTab';
 
 export default function DashboardCliente() {
     const [dados, setDados] = useState(null);
@@ -45,6 +46,7 @@ export default function DashboardCliente() {
             <main className="pt-20 pb-24 md:pb-8 px-4 md:pl-64 md:pr-6 max-w-2xl md:max-w-3xl">
                 {abaAtiva === 'agendar' && <AgendarTab />}
                 {abaAtiva === 'meus-agendamentos' && <MeusAgendamentosTab />}
+                {abaAtiva === 'perfil' && <PerfilTab usuario={dados.user} />}
             </main>
         </div>
     );
