@@ -10,6 +10,7 @@ export default function DashboardCliente() {
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(false);
     const [abaAtiva, setAbaAtiva] = useState('agendar');
+    const [feedback, setFeedback] = useState(null);
 
     useEffect(() => {
         api.get('/api/me')
@@ -17,6 +18,17 @@ export default function DashboardCliente() {
             .catch(() => setErro(true))
             .finally(() => setCarregando(false));
     }, []);
+
+    useEffect(() => {
+        if (!feedback) return;
+        const timer = setTimeout(() => setFeedback(null), 4000);
+        return () => clearTimeout(timer);
+    }, [feedback]);
+
+    function handleAgendado() {
+        setAbaAtiva('meus-agendamentos');
+        setFeedback({ tipo: 'sucesso', texto: 'Agendamento confirmado com sucesso!' });
+    }
 
     if (carregando) {
         return <div className="min-h-screen flex items-center justify-center bg-neutral-50 text-neutral-400 text-sm">Carregando...</div>;
@@ -43,8 +55,18 @@ export default function DashboardCliente() {
 
             <NavBarCliente abaAtiva={abaAtiva} onMudarAba={setAbaAtiva} />
 
+            {feedback && (
+                <div className="fixed top-20 inset-x-4 md:left-64 md:right-6 z-20">
+                    <div className={`rounded-lg px-4 py-3 text-sm font-medium text-white shadow-lg ${
+                        feedback.tipo === 'sucesso' ? 'bg-green-600' : 'bg-red-600'
+                    }`}>
+                        {feedback.texto}
+                    </div>
+                </div>
+            )}
+
             <main className="pt-20 pb-24 md:pb-8 px-4 md:pl-64 md:pr-6 max-w-2xl md:max-w-3xl">
-                {abaAtiva === 'agendar' && <AgendarTab />}
+                {abaAtiva === 'agendar' && <AgendarTab onAgendado={handleAgendado} />}
                 {abaAtiva === 'meus-agendamentos' && <MeusAgendamentosTab />}
                 {abaAtiva === 'perfil' && <PerfilTab usuario={dados.user} />}
             </main>

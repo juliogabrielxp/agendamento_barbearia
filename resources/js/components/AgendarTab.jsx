@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../lib/api';
 
-export default function AgendarTab() {
+export default function AgendarTab({ onAgendado }) {
     const [barbearias, setBarbearias] = useState([]);
     const [barbeariaSelecionada, setBarbeariaSelecionada] = useState(null);
     const [erroCarregamento, setErroCarregamento] = useState(false);
@@ -66,7 +66,7 @@ export default function AgendarTab() {
             .finally(() => setCarregandoHorarios(false));
     }, [profissionalId, servicoId, data]);
 
-    function handleAgendar() {
+     function handleAgendar() {
         setEnviando(true);
         setMensagem(null);
 
@@ -77,8 +77,7 @@ export default function AgendarTab() {
             inicio: `${data} ${horarioEscolhido}:00`,
         })
             .then(() => {
-                setMensagem({ tipo: 'sucesso', texto: 'Agendamento confirmado com sucesso!' });
-                resetarSelecao();
+                onAgendado();
             })
             .catch(error => {
                 const texto = error.response?.status === 409
