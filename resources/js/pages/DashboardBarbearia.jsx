@@ -4,6 +4,7 @@ import NavBar from '../components/NavBar';
 import ServicosTab from '../components/ServicosTab';
 import ProfissionaisTab from '../components/ProfissionaisTab';
 import AgendaTab from '../components/AgendaTab';
+import ConfiguracoesTab from '../components/ConfiguracoesTab';
 
 export default function DashboardBarbearia() {
     const [dados, setDados] = useState(null);
@@ -47,6 +48,7 @@ export default function DashboardBarbearia() {
                 {abaAtiva === 'servicos' && <ServicosTab />}
                 {abaAtiva === 'profissionais' && <ProfissionaisTab />}
                 {abaAtiva === 'agenda' && <AgendaTab />}
+                {abaAtiva === 'configuracoes' && <ConfiguracoesTab />}
             </main>
         </div>
     );

@@ -11,6 +11,7 @@ use App\Http\Controllers\MeusAgendamentosController;
 use App\Http\Controllers\HorarioDisponivelController;
 use App\Http\Controllers\BarbeariaConfiguracaoController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\BarbeariaPerfilController;
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -37,4 +38,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [LogoutController::class, 'logout']);
 
     Route::patch('/agenda/{id}/status', [AgendaController::class, 'atualizarStatus']);
+
+    Route::get('/perfil-barbearia', [BarbeariaPerfilController::class, 'show']);
+
+    Route::put('/perfil-barbearia', [BarbeariaPerfilController::class, 'update']);
 });
