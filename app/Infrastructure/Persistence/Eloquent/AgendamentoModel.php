@@ -16,6 +16,7 @@ class AgendamentoModel extends Model
         'cliente_id',
         'servico_id',
         'inicio',
+        'status',
     ];
 
     protected $casts = [

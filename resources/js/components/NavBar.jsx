@@ -1,10 +1,10 @@
-import { Scissors, Users, Calendar } from 'lucide-react';
+import { Calendar,Scissors, Users,  } from 'lucide-react';
 import LogoutButton from './LogoutButton';
 
 const ITENS = [
+    { id: 'agenda', label: 'Agenda', Icon: Calendar },
     { id: 'servicos', label: 'Serviços', Icon: Scissors },
     { id: 'profissionais', label: 'Profissionais', Icon: Users },
-    { id: 'agenda', label: 'Agenda', Icon: Calendar },
 ];
 
 export default function NavBar({ abaAtiva, onMudarAba }) {

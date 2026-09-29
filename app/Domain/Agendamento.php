@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain;
 
 use DateTimeImmutable;
+use DomainException;
 
 class Agendamento
 {
@@ -13,28 +14,40 @@ class Agendamento
         private readonly int $clienteId,
         private readonly int $servicoId,
         private readonly DateTimeImmutable $inicio,
-        private readonly int $duracaoEmMinutos
+        private readonly int $duracaoEmMinutos,
+        private readonly ?int $id = null,
+        private string $status = 'confirmado',
     ) {
     }
 
-    public function profissionalId() :int
+    public function id(): ?int
+    {
+        return $this->id;
+    }
+
+    public function status(): string
+    {
+        return $this->status;
+    }
+
+    public function profissionalId(): int
     {
         return $this->profissionalId;
     }
 
-    public function clienteId() :int
+    public function clienteId(): int
     {
         return $this->clienteId;
     }
 
-    public function servicoId() :int
+    public function servicoId(): int
     {
         return $this->servicoId;
     }
 
     public function inicio(): DateTimeImmutable
     {
-    return $this->inicio;
+        return $this->inicio;
     }
 
     public function fim(): DateTimeImmutable
@@ -51,5 +64,21 @@ class Agendamento
         return $this->inicio < $outro->fim() && $this->fim() > $outro->inicio;
     }
 
+    public function concluir(): void
+    {
+        if ($this->status === 'cancelado') {
+            throw new DomainException('Não é possível concluir um agendamento cancelado.');
+        }
 
+        $this->status = 'concluido';
+    }
+
+    public function cancelar(): void
+    {
+        if ($this->status === 'concluido') {
+            throw new DomainException('Não é possível cancelar um agendamento já concluído.');
+        }
+
+        $this->status = 'cancelado';
+    }
 }

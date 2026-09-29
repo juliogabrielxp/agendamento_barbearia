@@ -1,21 +1,42 @@
 import { useEffect, useState } from 'react';
 import api from '../lib/api';
 
+const STATUS_CONFIG = {
+    confirmado: { label: 'Confirmado', className: 'bg-blue-50 text-blue-700' },
+    concluido: { label: 'Concluído', className: 'bg-green-50 text-green-700' },
+    cancelado: { label: 'Cancelado', className: 'bg-red-50 text-red-700' },
+};
+
 export default function AgendaTab() {
     const hoje = new Date().toISOString().split('T')[0];
     const [data, setData] = useState(hoje);
     const [agendamentos, setAgendamentos] = useState([]);
     const [carregando, setCarregando] = useState(true);
+    const [atualizandoId, setAtualizandoId] = useState(null);
 
-    useEffect(() => {
+    function carregar() {
         setCarregando(true);
         api.get(`/api/agenda?data=${data}`)
             .then(response => setAgendamentos(response.data))
             .finally(() => setCarregando(false));
-    }, [data]);
+    }
+
+    useEffect(carregar, [data]);
 
     function formatarHora(dataHora) {
         return new Date(dataHora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    async function atualizarStatus(id, status) {
+        setAtualizandoId(id);
+        try {
+            await api.patch(`/api/agenda/${id}/status`, { status });
+            carregar();
+        } catch (error) {
+            console.error('Erro ao atualizar status', error);
+        } finally {
+            setAtualizandoId(null);
+        }
     }
 
     return (
@@ -31,17 +52,46 @@ export default function AgendaTab() {
                 <p className="text-neutral-400 text-sm text-center py-8">Carregando...</p>
             ) : (
                 <div className="space-y-2">
-                    {agendamentos.map(agendamento => (
-                        <div key={agendamento.id} className="bg-white border border-neutral-200 rounded-xl p-4 flex items-center gap-3">
-                            <div className="bg-neutral-900 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg shrink-0">
-                                {formatarHora(agendamento.inicio)}
+                    {agendamentos.map(agendamento => {
+                        const status = STATUS_CONFIG[agendamento.status] ?? STATUS_CONFIG.confirmado;
+                        const podeAgir = agendamento.status === 'confirmado';
+
+                        return (
+                            <div key={agendamento.id} className="bg-white border border-neutral-200 rounded-xl p-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-neutral-900 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg shrink-0">
+                                        {formatarHora(agendamento.inicio)}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="font-medium text-neutral-900 text-sm truncate">{agendamento.servico?.nome}</p>
+                                        <p className="text-xs text-neutral-400 truncate">{agendamento.cliente?.nome} · {agendamento.profissional?.nome}</p>
+                                    </div>
+                                    <span className={`text-xs font-medium px-2 py-1 rounded-lg shrink-0 ${status.className}`}>
+                                        {status.label}
+                                    </span>
+                                </div>
+
+                                {podeAgir && (
+                                    <div className="flex gap-2 mt-3 pt-3 border-t border-neutral-100">
+                                        <button
+                                            onClick={() => atualizarStatus(agendamento.id, 'concluido')}
+                                            disabled={atualizandoId === agendamento.id}
+                                            className="flex-1 text-xs font-medium bg-neutral-900 text-white rounded-lg py-2 disabled:opacity-50"
+                                        >
+                                            Concluir
+                                        </button>
+                                        <button
+                                            onClick={() => atualizarStatus(agendamento.id, 'cancelado')}
+                                            disabled={atualizandoId === agendamento.id}
+                                            className="flex-1 text-xs font-medium bg-white border border-neutral-200 text-neutral-600 rounded-lg py-2 disabled:opacity-50"
+                                        >
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                )}
                             </div>
-                            <div className="min-w-0">
-                                <p className="font-medium text-neutral-900 text-sm truncate">{agendamento.servico?.nome}</p>
-                                <p className="text-xs text-neutral-400 truncate">{agendamento.cliente?.nome} · {agendamento.profissional?.nome}</p>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                     {agendamentos.length === 0 && <p className="text-neutral-400 text-sm text-center py-8">Nenhum agendamento para esse dia.</p>}
                 </div>
             )}

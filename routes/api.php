@@ -35,4 +35,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/configuracao-barbearia', [BarbeariaConfiguracaoController::class, 'update']);
 
     Route::post('/logout', [LogoutController::class, 'logout']);
+
+    Route::patch('/agenda/{id}/status', [AgendaController::class, 'atualizarStatus']);
 });

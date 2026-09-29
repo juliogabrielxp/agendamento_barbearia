@@ -49,4 +49,28 @@ class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
             ->where('cliente_id', $clienteId)
             ->delete();
     }
+
+    public function buscarPorId(int $agendamentoId): ?Agendamento
+    {
+        $registro = AgendamentoModel::with('servico')->find($agendamentoId);
+
+        if (!$registro) {
+            return null;
+        }
+
+        return new Agendamento(
+            profissionalId: $registro->profissional_id,
+            clienteId: $registro->cliente_id,
+            servicoId: $registro->servico_id,
+            inicio: new DateTimeImmutable($registro->inicio->format('Y-m-d H:i:s')),
+            duracaoEmMinutos: $registro->servico->duracao_em_minutos,
+            id: $registro->id,
+            status: $registro->status,
+        );
+    }
+
+    public function atualizarStatus(int $agendamentoId, string $status): void
+    {
+        AgendamentoModel::where('id', $agendamentoId)->update(['status' => $status]);
+    }
 }

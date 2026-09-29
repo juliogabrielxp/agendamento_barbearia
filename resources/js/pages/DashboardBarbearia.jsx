@@ -9,7 +9,7 @@ export default function DashboardBarbearia() {
     const [dados, setDados] = useState(null);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(false);
-    const [abaAtiva, setAbaAtiva] = useState('servicos');
+    const [abaAtiva, setAbaAtiva] = useState('agenda');
 
     useEffect(() => {
         api.get('/api/me')
