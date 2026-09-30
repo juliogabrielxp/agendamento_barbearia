@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import DashboardBarbearia from './pages/DashboardBarbearia';
 import DashboardCliente from './pages/DashboardCliente';
 import '../css/app.css';
+import LoginBarbearia from './pages/LoginBarbearia';
 
 function App() {
     return (
@@ -13,6 +14,7 @@ function App() {
                 <Route path="/app" element={<Login />} />
                 <Route path="/app/dashboard-barbearia" element={<DashboardBarbearia />} />
                 <Route path="/app/dashboard-cliente" element={<DashboardCliente />} />
+                <Route path="/app/entrar-barbearia" element={<LoginBarbearia />} />
             </Routes>
         </BrowserRouter>
     );

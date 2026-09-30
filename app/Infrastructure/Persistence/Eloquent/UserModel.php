@@ -11,5 +11,11 @@ class UserModel extends Authenticatable
 {
     protected $table = 'users';
 
-    protected $fillable = ['google_id', 'nome', 'email', 'avatar'];
+    protected $fillable = ['google_id', 'nome', 'email', 'avatar', 'password'];
+
+    protected $hidden = ['password'];
+
+    protected $casts = [
+        'password' => 'hashed',
+    ];
 }
