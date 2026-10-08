@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Scissors, Search, Clock, CalendarCheck } from 'lucide-react';
+import api from '../lib/api';
 
 const BENEFICIOS = [
     { Icon: Search, texto: 'Encontre barbearias perto de você' },
@@ -6,9 +8,57 @@ const BENEFICIOS = [
     { Icon: CalendarCheck, texto: 'Sem conflito: seu horário fica garantido' },
 ];
 
+const INPUT_CLASSE =
+    'w-full bg-white border border-neutral-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900';
+
 export default function Login() {
-    function entrarComoCliente() {
+    const [modo, setModo] = useState('entrar');
+    const [form, setForm] = useState({ nome: '', email: '', password: '', password_confirmation: '' });
+    const [erros, setErros] = useState({});
+    const [enviando, setEnviando] = useState(false);
+
+    const criando = modo === 'criar';
+    const erro = campo => erros[campo]?.[0];
+
+    function entrarComGoogle() {
         window.location.href = '/auth/google/cliente/redirect';
+    }
+
+    function handleChange(campo, valor) {
+        setForm(prev => ({ ...prev, [campo]: valor }));
+    }
+
+    function alternarModo() {
+        setModo(criando ? 'entrar' : 'criar');
+        setErros({});
+    }
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setEnviando(true);
+        setErros({});
+
+        try {
+            await api.get('/sanctum/csrf-cookie');
+
+            if (criando) {
+                await api.post('/cadastro-cliente', form);
+            } else {
+                await api.post('/login-cliente', { email: form.email, password: form.password });
+            }
+
+            window.location.href = '/app/dashboard-cliente';
+        } catch (error) {
+            if (error.response?.status === 422) {
+                setErros(error.response.data.errors ?? {});
+            } else if (error.response?.status === 429) {
+                setErros({ geral: ['Muitas tentativas. Aguarde um minuto.'] });
+            } else {
+                setErros({ geral: ['Não foi possível continuar. Tente novamente.'] });
+            }
+        } finally {
+            setEnviando(false);
+        }
     }
 
     return (
@@ -38,16 +88,91 @@ export default function Login() {
             </div>
 
             <div className="max-w-sm mx-auto w-full">
+                <form onSubmit={handleSubmit} className="space-y-3">
+                    {criando && (
+                        <div>
+                            <input
+                                type="text"
+                                placeholder="Seu nome"
+                                value={form.nome}
+                                onChange={e => handleChange('nome', e.target.value)}
+                                required
+                                autoComplete="name"
+                                className={INPUT_CLASSE}
+                            />
+                            {erro('nome') && <p className="text-xs text-red-600 mt-1">{erro('nome')}</p>}
+                        </div>
+                    )}
+
+                    <div>
+                        <input
+                            type="email"
+                            placeholder="E-mail"
+                            value={form.email}
+                            onChange={e => handleChange('email', e.target.value)}
+                            required
+                            autoComplete="email"
+                            className={INPUT_CLASSE}
+                        />
+                        {erro('email') && <p className="text-xs text-red-600 mt-1">{erro('email')}</p>}
+                    </div>
+
+                    <div>
+                        <input
+                            type="password"
+                            placeholder="Senha"
+                            value={form.password}
+                            onChange={e => handleChange('password', e.target.value)}
+                            required
+                            autoComplete={criando ? 'new-password' : 'current-password'}
+                            className={INPUT_CLASSE}
+                        />
+                        {erro('password') && <p className="text-xs text-red-600 mt-1">{erro('password')}</p>}
+                    </div>
+
+                    {criando && (
+                        <input
+                            type="password"
+                            placeholder="Confirme a senha"
+                            value={form.password_confirmation}
+                            onChange={e => handleChange('password_confirmation', e.target.value)}
+                            required
+                            autoComplete="new-password"
+                            className={INPUT_CLASSE}
+                        />
+                    )}
+
+                    {erro('geral') && <p className="text-xs text-red-600">{erro('geral')}</p>}
+
+                    <button
+                        type="submit"
+                        disabled={enviando}
+                        className="w-full bg-neutral-900 text-white py-3 rounded-lg text-sm font-medium hover:bg-neutral-700 transition disabled:opacity-50"
+                    >
+                        {enviando ? 'Aguarde...' : criando ? 'Criar conta' : 'Entrar'}
+                    </button>
+                </form>
+
                 <button
-                    onClick={entrarComoCliente}
-                    className="w-full flex items-center justify-center gap-3 bg-neutral-900 text-white py-3.5 rounded-lg text-sm font-medium hover:bg-neutral-700 transition"
+                    onClick={alternarModo}
+                    className="w-full text-xs text-neutral-500 hover:text-neutral-800 transition mt-3"
+                >
+                    {criando ? 'Já tem conta? Entrar' : 'Não tem conta? Criar conta'}
+                </button>
+
+                <div className="flex items-center gap-3 my-5">
+                    <div className="flex-1 h-px bg-neutral-200" />
+                    <span className="text-xs text-neutral-400">ou</span>
+                    <div className="flex-1 h-px bg-neutral-200" />
+                </div>
+
+                <button
+                    onClick={entrarComGoogle}
+                    className="w-full flex items-center justify-center gap-3 bg-white border border-neutral-200 text-neutral-900 py-3 rounded-lg text-sm font-medium hover:border-neutral-400 transition"
                 >
                     <GoogleIcon />
-                    Entrar com Google
+                    Continuar com Google
                 </button>
-                <p className="text-xs text-neutral-400 text-center mt-4">
-                    Ao continuar, você concorda em usar sua conta Google para agendamentos.
-                </p>
             </div>
         </div>
     );
