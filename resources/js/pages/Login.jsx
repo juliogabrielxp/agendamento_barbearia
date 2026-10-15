@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Scissors, Search, Clock, CalendarCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Scissors, Search, Clock, CalendarCheck, Store } from 'lucide-react';
 import api from '../lib/api';
 
 const BENEFICIOS = [
@@ -173,6 +174,16 @@ export default function Login() {
                     <GoogleIcon />
                     Continuar com Google
                 </button>
+
+                <div className="mt-6 pt-5 border-t border-neutral-200">
+                    <Link
+                        to="/app/entrar-barbearia"
+                        className="flex items-center justify-center gap-2 text-xs font-medium text-neutral-500 hover:text-neutral-800 transition"
+                    >
+                        <Store size={14} />
+                        Tem uma barbearia? Acesse o painel
+                    </Link>
+                </div>
             </div>
         </div>
     );

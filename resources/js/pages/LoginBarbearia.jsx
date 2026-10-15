@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Scissors } from 'lucide-react';
 import api from '../lib/api';
+import { Link } from 'react-router-dom';
 
 export default function LoginBarbearia() {
     const [email, setEmail] = useState('');
@@ -77,6 +78,12 @@ export default function LoginBarbearia() {
                         {enviando ? 'Entrando...' : 'Entrar'}
                     </button>
                 </form>
+                <Link
+                    to="/app"
+                    className="block text-center text-xs text-neutral-500 hover:text-neutral-800 transition mt-6"
+                >
+                  ← Sou cliente, voltar
+                </Link>
             </div>
         </div>
     );

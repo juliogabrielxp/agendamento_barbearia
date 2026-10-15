@@ -4,47 +4,46 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
+use App\Application\UseCases\AutenticarComSenhaInput;
+use App\Application\UseCases\AutenticarComSenhaUseCase;
+use App\Application\UseCases\CadastrarClienteInput;
+use App\Application\UseCases\CadastrarClienteUseCase;
+use App\Domain\Exceptions\CredenciaisInvalidasException;
+use App\Domain\Exceptions\EmailJaCadastradoException;
+use App\Domain\TipoDeConta;
 use App\Http\Controllers\Controller;
-use App\Infrastructure\Persistence\Eloquent\ClienteModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class ClienteAuthController extends Controller
 {
+    public function __construct(
+        private readonly CadastrarClienteUseCase $cadastrarCliente,
+        private readonly AutenticarComSenhaUseCase $autenticarComSenha
+    ) {
+    }
+
     public function cadastrar(Request $request): JsonResponse
     {
         $dados = $request->validate([
             'nome' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email',
+            'email' => 'required|email|max:255',
             'password' => 'required|string|min:8|confirmed',
-        ], [
-            'email.unique' => 'Este e-mail já está cadastrado. Faça login.',
         ]);
 
-        $user = DB::transaction(function () use ($dados) {
-            $user = UserModel::create([
-                'nome' => $dados['nome'],
-                'email' => $dados['email'],
-                'password' => $dados['password'],
-            ]);
+        try {
+            $usuario = $this->cadastrarCliente->executar(new CadastrarClienteInput(
+                nome: $dados['nome'],
+                email: $dados['email'],
+                senha: $dados['password'],
+            ));
+        } catch (EmailJaCadastradoException $e) {
+            return response()->json(['message' => $e->getMessage(), 'errors' => ['email' => [$e->getMessage()]]], 422);
+        }
 
-            ClienteModel::create([
-                'user_id' => $user->id,
-                'nome' => $dados['nome'],
-                'email' => $dados['email'],
-                'telefone' => '',
-            ]);
-
-            return $user;
-        });
-
-        Auth::login($user);
-        $request->session()->regenerate();
+        $this->abrirSessao($request, $usuario['id']);
 
         return response()->json(['message' => 'Conta criada com sucesso'], 201);
     }
@@ -56,22 +55,24 @@ class ClienteAuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = UserModel::where('email', $dados['email'])->first();
-
-        $credenciaisValidas = $user
-            && $user->password
-            && Hash::check($dados['password'], $user->password)
-            && ClienteModel::where('user_id', $user->id)->exists();
-
-        if (!$credenciaisValidas) {
-            throw ValidationException::withMessages([
-                'email' => ['E-mail ou senha inválidos.'],
-            ]);
+        try {
+            $usuario = $this->autenticarComSenha->executar(new AutenticarComSenhaInput(
+                email: $dados['email'],
+                senha: $dados['password'],
+                tipoDeConta: TipoDeConta::Cliente,
+            ));
+        } catch (CredenciaisInvalidasException $e) {
+            return response()->json(['message' => $e->getMessage(), 'errors' => ['email' => [$e->getMessage()]]], 422);
         }
 
-        Auth::login($user);
-        $request->session()->regenerate();
+        $this->abrirSessao($request, $usuario['id']);
 
         return response()->json(['message' => 'Login realizado com sucesso']);
+    }
+
+    private function abrirSessao(Request $request, int $userId): void
+    {
+        Auth::login(UserModel::findOrFail($userId));
+        $request->session()->regenerate();
     }
 }

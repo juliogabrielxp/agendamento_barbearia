@@ -27,4 +27,36 @@ class EloquentUserRepository implements UserRepositoryInterface
 
         return $user->toArray();
     }
+
+    public function buscarCredenciaisPorEmail(string $email): ?array
+    {
+        $user = UserModel::where('email', $email)->first();
+
+        if (!$user) {
+            return null;
+        }
+
+        return [
+            'id' => $user->id,
+            'nome' => $user->nome,
+            'email' => $user->email,
+            'password_hash' => $user->password,
+        ];
+    }
+
+    public function emailJaCadastrado(string $email): bool
+    {
+        return UserModel::where('email', $email)->exists();
+    }
+
+    public function criarComSenha(string $nome, string $email, string $senhaHash): array
+    {
+        $user = UserModel::create([
+            'nome' => $nome,
+            'email' => $email,
+            'password' => $senhaHash,
+        ]);
+
+        return $user->toArray();
+    }
 }

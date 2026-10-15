@@ -10,10 +10,27 @@ use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Infrastructure\Persistence\Eloquent\UserModel;
 
 class AgendamentoIntegrationTest extends TestCase
 {
+
     use RefreshDatabase;
+
+    private UserModel $usuario;
+
+    protected function setUp(): void
+    {
+       parent::setUp();
+
+        $this->usuario = UserModel::create([
+            'nome' => 'Usuário de Teste',
+            'email' => 'usuario.teste@email.com',
+            'password' => 'senha-segura-123',
+        ]);
+
+        $this->actingAs($this->usuario);
+    }
 
     public function test_deve_criar_agendamento_via_http_e_persistir_no_banco(): void
     {
@@ -38,6 +55,7 @@ class AgendamentoIntegrationTest extends TestCase
         ]);
 
         $cliente = ClienteModel::create([
+            'user_id' => $this->usuario->id,
             'nome' => 'Maria',
             'telefone' => '83988888888',
             'email' => 'maria@teste.com',
@@ -84,9 +102,10 @@ class AgendamentoIntegrationTest extends TestCase
         ]);
 
         $cliente = ClienteModel::create([
-            'nome' => 'Ana',
-            'telefone' => '83977777777',
-            'email' => 'ana@teste.com',
+            'user_id' => $this->usuario->id,
+            'nome' => 'Maria',
+            'telefone' => '83988888888',
+            'email' => 'maria@teste.com',
         ]);
 
 
@@ -107,7 +126,7 @@ class AgendamentoIntegrationTest extends TestCase
             'inicio' => '2026-09-01 15:15:00',
         ]);
 
-        
+
         $response->assertStatus(409);
     }
 }
