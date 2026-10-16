@@ -8,6 +8,7 @@ use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\Rule;
 
 class ProfissionalController extends Controller
 {
@@ -40,6 +41,26 @@ class ProfissionalController extends Controller
         }
 
         return response()->json($profissional->load('servicos'), 201);
+    }
+
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $profissional = ProfissionalModel::where('barbearia_id', $barbearia->id)->findOrFail($id);
+
+        $dados = $request->validate([
+            'nome' => 'required|string|max:255',
+            'servicos' => 'array',
+            'servicos.*' => [
+                'integer',
+                Rule::exists('servicos', 'id')->where('barbearia_id', $barbearia->id),
+            ],
+        ]);
+
+        $profissional->update(['nome' => $dados['nome']]);
+        $profissional->servicos()->sync($dados['servicos'] ?? []);
+
+        return response()->json($profissional->load('servicos'));
     }
 
     public function destroy(Request $request, int $id): JsonResponse
