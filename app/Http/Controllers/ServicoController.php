@@ -8,6 +8,7 @@ use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Infrastructure\Storage\ArmazenadorDeImagens;
 
 class ServicoController extends Controller
 {
@@ -51,10 +52,13 @@ class ServicoController extends Controller
         return response()->json($servico);
     }
 
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(Request $request, int $id, ArmazenadorDeImagens $armazenador): JsonResponse
     {
         $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
-        ServicoModel::where('barbearia_id', $barbearia->id)->findOrFail($id)->delete();
+        $servico = ServicoModel::where('barbearia_id', $barbearia->id)->findOrFail($id);
+
+        $servico->delete();
+        $armazenador->remover($servico->imagem_path);
 
         return response()->json(null, 204);
     }

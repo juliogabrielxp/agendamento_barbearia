@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../lib/api';
+import ImagemComFallback from './ImagemComFallback';
 
 export default function AgendarTab({ onAgendado }) {
     const [barbearias, setBarbearias] = useState([]);
@@ -98,15 +99,18 @@ export default function AgendarTab({ onAgendado }) {
                 <h1 className="text-lg font-semibold text-neutral-900 mb-4">Escolha uma barbearia</h1>
                 <div className="space-y-2">
                     {barbearias.map(barbearia => (
-                        <button
-                            key={barbearia.id}
-                            onClick={() => abrirBarbearia(barbearia.id)}
-                            className="w-full bg-white border border-neutral-200 rounded-xl p-4 text-left hover:border-neutral-400 transition"
-                        >
-                            <p className="font-medium text-neutral-900 text-sm">{barbearia.nome}</p>
-                            <p className="text-xs text-neutral-400 mt-0.5">{barbearia.endereco}</p>
-                        </button>
-                    ))}
+                    <button
+                      key={barbearia.id}
+                      onClick={() => abrirBarbearia(barbearia.id)}
+                      className="w-full bg-white border border-neutral-200 rounded-xl p-4 text-left flex items-center gap-4 hover:border-neutral-400 transition"
+                    >
+                  <ImagemComFallback src={barbearia.imagem_url} nome={barbearia.nome} tamanho={52} />
+                    <div className="min-w-0">
+                    <p className="font-medium text-neutral-900 text-sm truncate">{barbearia.nome}</p>
+                    <p className="text-xs text-neutral-400 mt-0.5 truncate">{barbearia.endereco}</p>
+                  </div>
+                  </button>
+                  ))}
                     {barbearias.length === 0 && (
                         <p className="text-neutral-400 text-sm text-center py-8">Nenhuma barbearia disponível ainda.</p>
                     )}
@@ -122,9 +126,13 @@ export default function AgendarTab({ onAgendado }) {
             </button>
 
             <div className="bg-white border border-neutral-200 rounded-xl p-5">
-                <h1 className="text-lg font-semibold text-neutral-900 mb-0.5">{barbeariaSelecionada.nome}</h1>
-                <p className="text-xs text-neutral-400 mb-5">{barbeariaSelecionada.endereco}</p>
-
+                <div className="flex items-center gap-4 mb-5">
+                  <ImagemComFallback src={barbeariaSelecionada.imagem_url} nome={barbeariaSelecionada.nome} tamanho={56} />
+                  <div className="min-w-0">
+                  <h1 className="text-lg font-semibold text-neutral-900 mb-0.5 truncate">{barbeariaSelecionada.nome}</h1>
+                <p className="text-xs text-neutral-400 truncate">{barbeariaSelecionada.endereco}</p>
+                </div>
+                </div>
                 <div className="space-y-4">
                     <div>
                         <label className="text-xs font-medium text-neutral-500 block mb-1.5">Profissional</label>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../lib/api';
 import LogoutButton from './LogoutButton';
+import SeletorDeImagem from './SeletorDeImagem';
 
 export default function ConfiguracoesTab() {
     const [form, setForm] = useState({ nome: '', telefone: '', email: '', endereco: '' });
@@ -12,12 +13,14 @@ export default function ConfiguracoesTab() {
     const [errosHorario, setErrosHorario] = useState({});
     const [sucesso, setSucesso] = useState(false);
     const [sucessoHorario, setSucessoHorario] = useState(false);
+    const [imagemUrl, setImagemUrl] = useState(null);
 
     useEffect(() => {
         Promise.all([
             api.get('/api/perfil-barbearia'),
             api.get('/api/configuracao-barbearia'),
         ]).then(([perfilResponse, configResponse]) => {
+            setImagemUrl(perfilResponse.data.imagem_url ?? null);
             setForm({
                 nome: perfilResponse.data.nome ?? '',
                 telefone: perfilResponse.data.telefone ?? '',
@@ -32,6 +35,14 @@ export default function ConfiguracoesTab() {
             });
         }).finally(() => setCarregando(false));
     }, []);
+
+    async function enviarFoto(arquivo) {
+
+      const formData = new FormData();
+      formData.append('imagem', arquivo);
+
+      await api.post('/api/perfil-barbearia/imagem', formData);
+    }
 
     function handleChange(campo, valor) {
         setForm(prev => ({ ...prev, [campo]: valor }));
@@ -94,6 +105,15 @@ export default function ConfiguracoesTab() {
 
     return (
         <div className="space-y-6">
+          <div className="bg-white border border-neutral-200 rounded-xl p-4">
+              <SeletorDeImagem
+                  imagemAtualUrl={imagemUrl}
+                  nome={form.nome}
+                  tamanho={80}
+                  rotulo="Alterar foto da barbearia"
+                  onSelecionar={enviarFoto}
+              />
+            </div>
             <div>
                 <h1 className="text-lg font-semibold text-neutral-900 mb-4">Dados da barbearia</h1>
 
