@@ -1,0 +1,29 @@
+[90m= [39m[34;4mIlluminate\Support\Collection[39;24m {#8203
+    [34mall[39m: [
+      {#8202
+        +"[1mid[22m": [35m1[39m,
+        +"[1mnome[22m": [32m"[39m[32mBarbearia 1995[39m[32m"[39m,
+        +"[1mimagem_path[22m": [36mnull[39m,
+      },
+      {#8199
+        +"[1mid[22m": [35m2[39m,
+        +"[1mnome[22m": [32m"[39m[32mGabriel do Corte[39m[32m"[39m,
+        +"[1mimagem_path[22m": [36mnull[39m,
+      },
+      {#8198
+        +"[1mid[22m": [35m3[39m,
+        +"[1mnome[22m": [32m"[39m[32mLa Corte[39m[32m"[39m,
+        +"[1mimagem_path[22m": [36mnull[39m,
+      },
+      {#8197
+        +"[1mid[22m": [35m4[39m,
+        +"[1mnome[22m": [32m"[39m[32mJulio Gabriel[39m[32m"[39m,
+        +"[1mimagem_path[22m": [36mnull[39m,
+      },
+      {#8196
+        +"[1mid[22m": [35m5[39m,
+        +"[1mnome[22m": [32m"[39m[32mTeste Foto Barber[39m[32m"[39m,
+        +"[1mimagem_path[22m": [32m"[39m[32mimagens/barbearias/GyyNUJzd2vc6J3gAupC3VNp0JonrWt7Wrtv2HUdq.png[39m[32m"[39m,
+      },
+    ],
+  }

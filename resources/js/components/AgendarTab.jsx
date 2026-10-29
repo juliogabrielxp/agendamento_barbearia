@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import api from '../lib/api';
 import ImagemComFallback from './ImagemComFallback';
+import { Check } from 'lucide-react';
+import ImagemAmpliavel from './ImagemAmpliavel';
 
 export default function AgendarTab({ onAgendado }) {
     const [barbearias, setBarbearias] = useState([]);
@@ -27,6 +29,11 @@ export default function AgendarTab({ onAgendado }) {
             setBarbeariaSelecionada(response.data);
             resetarSelecao();
         });
+    }
+
+    function selecionarServico(id) {
+      setServicoId(String(id));
+      setData('');
     }
 
     function resetarSelecao() {
@@ -149,21 +156,52 @@ export default function AgendarTab({ onAgendado }) {
                     </div>
 
                     {profissionalId && (
-                        <div>
-                            <label className="text-xs font-medium text-neutral-500 block mb-1.5">Serviço</label>
-                            <select
-                                value={servicoId}
-                                onChange={e => { setServicoId(e.target.value); setData(''); }}
-                                className="border border-neutral-200 rounded-lg px-3 py-2.5 w-full text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
-                            >
-                                <option value="">Selecione...</option>
-                                {servicosDoProfissional.map(s => (
-                                    <option key={s.id} value={s.id}>{s.nome} — {s.duracao_em_minutos} min — R$ {s.preco}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
+    <div>
+        <label className="text-xs font-medium text-neutral-500 block mb-1.5">Serviço</label>
+        <div className="space-y-2" role="radiogroup" aria-label="Serviço">
+            {servicosDoProfissional.map(servico => {
+                const selecionado = servicoId === String(servico.id);
 
+                return (
+                    <div
+                        key={servico.id}
+                        role="radio"
+                        aria-checked={selecionado}
+                        tabIndex={0}
+                        onClick={() => selecionarServico(servico.id)}
+                        onKeyDown={event => {
+                            if (event.target !== event.currentTarget) return;
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                selecionarServico(servico.id);
+                            }
+                        }}
+                        className={`flex items-center gap-3 border rounded-xl p-3 cursor-pointer transition ${
+                            selecionado
+                                ? 'border-neutral-900 bg-neutral-50'
+                                : 'border-neutral-200 hover:border-neutral-400'
+                        }`}
+                    >
+                        <ImagemAmpliavel src={servico.imagem_url} nome={servico.nome} tamanho={56} redonda={false} />
+
+                        <div className="min-w-0 flex-1">
+                            <p className="font-medium text-neutral-900 text-sm truncate">{servico.nome}</p>
+                            <p className="text-xs text-neutral-400 mt-0.5">
+                                {servico.duracao_em_minutos} min · {Number(servico.preco).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            </p>
+                        </div>
+
+                        {selecionado && <Check size={18} className="text-neutral-900 shrink-0" />}
+                    </div>
+                );
+            })}
+
+            {servicosDoProfissional.length === 0 && (
+                <p className="text-sm text-neutral-400">Este profissional ainda não tem serviços.</p>
+            )}
+        </div>
+    </div>
+)}
                     {servicoId && (
                         <div>
                             <label className="text-xs font-medium text-neutral-500 block mb-1.5">Data</label>

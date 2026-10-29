@@ -11,7 +11,7 @@ class BarbeariaPublicaController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(BarbeariaModel::all(['id', 'nome', 'endereco']));
+        return response()->json(BarbeariaModel::all(['id', 'nome', 'endereco', 'imagem_path']));
     }
 
     public function show(int $id): JsonResponse
