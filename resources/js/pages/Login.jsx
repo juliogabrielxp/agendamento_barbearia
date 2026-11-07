@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Scissors, Search, Clock, CalendarCheck, Store } from 'lucide-react';
 import api from '../lib/api';
@@ -20,6 +20,16 @@ export default function Login() {
 
     const criando = modo === 'criar';
     const erro = campo => erros[campo]?.[0];
+
+    useEffect(() => {
+    api.get('/api/me')
+        .then(({ data }) => {
+            window.location.replace(
+                data.barbearia ? '/app/dashboard-barbearia' : '/app/dashboard-cliente'
+            );
+        })
+        .catch(() => {});
+}, []);
 
     function entrarComGoogle() {
         window.location.href = '/auth/google/cliente/redirect';
@@ -199,3 +209,5 @@ function GoogleIcon() {
         </svg>
     );
 }
+
+

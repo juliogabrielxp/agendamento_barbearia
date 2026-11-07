@@ -15,6 +15,8 @@ use App\Infrastructure\Persistence\EloquentUserRepository;
 use App\Infrastructure\Persistence\LaravelTransacao;
 use App\Infrastructure\Security\LaravelPasswordHasher;
 use Illuminate\Support\ServiceProvider;
+use App\Domain\Contracts\NotificadorDePushInterface;
+use App\Infrastructure\Notifications\WebPushNotificador;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BarbeariaRepositoryInterface::class, EloquentBarbeariaRepository::class);
         $this->app->bind(PasswordHasherInterface::class, LaravelPasswordHasher::class);
         $this->app->bind(TransacaoInterface::class, LaravelTransacao::class);
+        $this->app->bind(NotificadorDePushInterface::class, WebPushNotificador::class);
     }
 
     public function boot(): void

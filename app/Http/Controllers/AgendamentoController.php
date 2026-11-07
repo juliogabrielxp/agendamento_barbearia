@@ -11,6 +11,7 @@ use App\Infrastructure\Persistence\Eloquent\ClienteModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use DateTimeImmutable;
+use App\Events\AgendamentoCriado;
 
 class AgendamentoController extends Controller
 {
@@ -43,6 +44,13 @@ class AgendamentoController extends Controller
         } catch (ConflitoDeHorarioException $e) {
             return response()->json(['erro' => $e->getMessage()], 409);
         }
+
+        AgendamentoCriado::dispatch(
+            profissionalId: $dados['profissional_id'],
+            servicoId: $dados['servico_id'],
+            clienteId: $cliente->id,
+            inicio: $input->inicio->format('Y-m-d H:i:s'),
+        );
 
         return response()->json(['mensagem' => 'Agendamento realizado com sucesso'], 201);
     }

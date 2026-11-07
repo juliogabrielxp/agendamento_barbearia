@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api from '../lib/api';
 import LogoutButton from './LogoutButton';
 import SeletorDeImagem from './SeletorDeImagem';
+import AtivarNotificacoes from './AtivarNotificacoes';
 
 export default function ConfiguracoesTab() {
     const [form, setForm] = useState({ nome: '', telefone: '', email: '', endereco: '' });
@@ -113,6 +114,7 @@ export default function ConfiguracoesTab() {
                   rotulo="Alterar foto da barbearia"
                   onSelecionar={enviarFoto}
               />
+              <AtivarNotificacoes />
             </div>
             <div>
                 <h1 className="text-lg font-semibold text-neutral-900 mb-4">Dados da barbearia</h1>

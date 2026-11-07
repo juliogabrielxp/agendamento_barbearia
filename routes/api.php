@@ -13,6 +13,7 @@ use App\Http\Controllers\BarbeariaConfiguracaoController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\BarbeariaPerfilController;
 use App\Http\Controllers\ImagemController;
+use App\Http\Controllers\PushAssinaturaController;
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -45,6 +46,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/perfil-barbearia', [BarbeariaPerfilController::class, 'update']);
 
     Route::post('/perfil-barbearia/imagem', [ImagemController::class, 'barbearia']);
-    
+
     Route::post('/servicos/{id}/imagem', [ImagemController::class, 'servico']);
+
+
+    Route::get('/push/chave-publica', [PushAssinaturaController::class, 'chavePublica']);
+
+    Route::post('/push/assinaturas', [PushAssinaturaController::class, 'store']);
+    
+    Route::delete('/push/assinaturas', [PushAssinaturaController::class, 'destroy']);
 });
