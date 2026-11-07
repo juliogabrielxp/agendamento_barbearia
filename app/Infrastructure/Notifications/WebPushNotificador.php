@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Notifications;
 
+use GuzzleHttp\Client;
 use App\Domain\Contracts\NotificadorDePushInterface;
 use App\Infrastructure\Persistence\Eloquent\PushSubscriptionModel;
 use Illuminate\Support\Facades\Log;
@@ -20,13 +21,17 @@ class WebPushNotificador implements NotificadorDePushInterface
             return 0;
         }
 
-        $webPush = new WebPush([
-            'VAPID' => [
-                'subject' => config('services.webpush.subject'),
-                'publicKey' => config('services.webpush.public_key'),
-                'privateKey' => config('services.webpush.private_key'),
-            ],
-        ], [], 3);
+        $webPush = new WebPush(
+        [
+        'VAPID' => [
+            'subject' => config('services.webpush.subject'),
+            'publicKey' => config('services.webpush.public_key'),
+            'privateKey' => config('services.webpush.private_key'),
+        ],
+        ],
+        [],
+        new Client(['timeout' => 3])
+        );
 
         $conteudo = json_encode(
             ['titulo' => $titulo, 'mensagem' => $mensagem, 'url' => $url],
