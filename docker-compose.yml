@@ -6,8 +6,14 @@ services:
       MYSQL_DATABASE: agendamento_barbearia_test
     ports:
       - "3308:3306"
+    # Banco de teste é descartável: dados em memória deixam o migrate:fresh ~100x mais rápido
+    tmpfs:
+      - /var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      # TCP (127.0.0.1), não socket: o servidor temporário da inicialização não escuta TCP,
+      # então "healthy" só aparece quando o servidor definitivo está pronto
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 180s

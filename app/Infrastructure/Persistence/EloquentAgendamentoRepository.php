@@ -7,10 +7,17 @@ namespace App\Infrastructure\Persistence;
 use App\Domain\Agendamento;
 use App\Domain\Contracts\AgendamentoRepositoryInterface;
 use App\Infrastructure\Persistence\Eloquent\AgendamentoModel;
+use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use DateTimeImmutable;
 
 class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
 {
+    public function travarAgendaDoProfissional(int $profissionalId): void
+    {
+        // SELECT ... FOR UPDATE: só tem efeito dentro de uma transação
+        ProfissionalModel::query()->whereKey($profissionalId)->lockForUpdate()->first();
+    }
+
     public function buscarPorProfissionalEData(int $profissionalId, DateTimeImmutable $data): array
     {
         $inicioDoDia = $data->setTime(0, 0);

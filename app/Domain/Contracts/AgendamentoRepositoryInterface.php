@@ -8,6 +8,12 @@ use App\Domain\Agendamento;
 
 interface AgendamentoRepositoryInterface
 {
+    /**
+     * Trava a agenda do profissional até o fim da transação atual,
+     * serializando agendamentos concorrentes para o mesmo profissional.
+     */
+    public function travarAgendaDoProfissional(int $profissionalId): void;
+
     public function buscarPorProfissionalEData(int $profissionalId, \DateTimeImmutable $data): array;
 
     public function buscarPorId(int $agendamentoId): ?Agendamento;
