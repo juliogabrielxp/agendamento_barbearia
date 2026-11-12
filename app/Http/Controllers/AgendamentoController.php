@@ -8,6 +8,7 @@ use App\Application\UseCases\AgendarHorarioUseCase;
 use App\Application\UseCases\AgendarHorarioInput;
 use App\Domain\Exceptions\ConflitoDeHorarioException;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
+use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use DateTimeImmutable;
@@ -26,16 +27,18 @@ class AgendamentoController extends Controller
 
         $dados = $request->validate([
             'profissional_id' => 'required|integer',
-            'servico_id' => 'required|integer',
-            'duracao_em_minutos' => 'required|integer',
+            'servico_id' => 'required|integer|exists:servicos,id',
             'inicio' => 'required|date',
         ]);
+
+        // A duração sempre vem do cadastro do serviço, nunca do cliente
+        $servico = ServicoModel::findOrFail($dados['servico_id']);
 
         $input = new AgendarHorarioInput(
             profissionalId: $dados['profissional_id'],
             clienteId: $cliente->id,
-            servicoId: $dados['servico_id'],
-            duracaoEmMinutos: $dados['duracao_em_minutos'],
+            servicoId: $servico->id,
+            duracaoEmMinutos: $servico->duracao_em_minutos,
             inicio: new DateTimeImmutable($dados['inicio'])
         );
 

@@ -129,4 +129,53 @@ class AgendamentoIntegrationTest extends TestCase
 
         $response->assertStatus(409);
     }
+
+    public function test_duracao_enviada_pelo_cliente_e_ignorada_e_conflito_retorna_409(): void
+    {
+        $barbearia = BarbeariaModel::create([
+            'nome' => 'Barbearia Teste',
+            'telefone' => '83999999999',
+            'email' => 'teste3@barbearia.com',
+            'endereco' => 'Rua Teste, 1',
+        ]);
+
+        $servico = ServicoModel::create([
+            'barbearia_id' => $barbearia->id,
+            'nome' => 'Corte + Barba',
+            'duracao_em_minutos' => 60,
+            'preco' => 80.0,
+        ]);
+
+        $profissional = ProfissionalModel::create([
+            'barbearia_id' => $barbearia->id,
+            'nome' => 'Carlos',
+        ]);
+
+        ClienteModel::create([
+            'user_id' => $this->usuario->id,
+            'nome' => 'Maria',
+            'telefone' => '83988888888',
+            'email' => 'maria@teste.com',
+        ]);
+
+        // Agendamento existente: 10:00 às 11:00 (duração enviada é ignorada pelo servidor)
+        $this->postJson('/api/agendamentos', [
+            'profissional_id' => $profissional->id,
+            'servico_id' => $servico->id,
+            'duracao_em_minutos' => 60,
+            'inicio' => '2030-01-10 10:00:00',
+        ])->assertStatus(201);
+
+        // 09:30 com duração real de 60 min invade o horário das 10:00.
+        // Com duracao_em_minutos = 1 vindo do cliente, o conflito passaria despercebido.
+        $response = $this->postJson('/api/agendamentos', [
+            'profissional_id' => $profissional->id,
+            'servico_id' => $servico->id,
+            'duracao_em_minutos' => 1,
+            'inicio' => '2030-01-10 09:30:00',
+        ]);
+
+        $response->assertStatus(409);
+        $this->assertDatabaseCount('agendamentos', 1);
+    }
 }

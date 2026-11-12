@@ -81,7 +81,6 @@ export default function AgendarTab({ onAgendado }) {
         api.post('/api/agendamentos', {
             profissional_id: Number(profissionalId),
             servico_id: Number(servicoId),
-            duracao_em_minutos: servicoEscolhido.duracao_em_minutos,
             inicio: `${data} ${horarioEscolhido}:00`,
         })
             .then(() => {
