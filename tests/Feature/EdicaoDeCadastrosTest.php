@@ -69,6 +69,24 @@ class EdicaoDeCadastrosTest extends TestCase
         $this->assertDatabaseMissing('profissional_servico', ['servico_id' => $servicoDaOutra->id]);
     }
 
+    public function test_dono_nao_vincula_servico_de_outra_barbearia_ao_criar_profissional(): void
+    {
+        $minha = $this->criarBarbeariaComDono('minha@barbearia.com');
+        $outra = $this->criarBarbeariaComDono('outra@barbearia.com');
+        $servicoDaOutra = $this->criarServico($outra, 'Corte da Outra');
+
+        $this->actingAs(UserModel::find($minha->user_id));
+
+        $response = $this->postJson('/api/profissionais', [
+            'nome' => 'João',
+            'servicos' => [$servicoDaOutra->id],
+        ]);
+
+        $this->assertSame(422, $response->getStatusCode(), $response->getContent());
+        $this->assertDatabaseMissing('profissional_servico', ['servico_id' => $servicoDaOutra->id]);
+        $this->assertDatabaseMissing('profissionais', ['barbearia_id' => $minha->id]);
+    }
+
     public function test_dono_nao_edita_servico_de_outra_barbearia(): void
     {
         $minha = $this->criarBarbeariaComDono('minha@barbearia.com');

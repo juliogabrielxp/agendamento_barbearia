@@ -28,7 +28,10 @@ class ProfissionalController extends Controller
         $dados = $request->validate([
             'nome' => 'required|string|max:255',
             'servicos' => 'array',
-            'servicos.*' => 'integer|exists:servicos,id',
+            'servicos.*' => [
+                'integer',
+                Rule::exists('servicos', 'id')->where('barbearia_id', $barbearia->id),
+            ],
         ]);
 
         $profissional = ProfissionalModel::create([
