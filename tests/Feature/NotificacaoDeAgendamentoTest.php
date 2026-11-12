@@ -47,6 +47,7 @@ class NotificacaoDeAgendamentoTest extends TestCase
         ]);
 
         $this->profissional = ProfissionalModel::create(['barbearia_id' => $barbearia->id, 'nome' => 'João']);
+        $this->profissional->servicos()->attach($this->servico->id);
 
         $usuarioCliente = UserModel::create(['nome' => 'Maria', 'email' => 'maria@email.com', 'password' => 'senha-segura-123']);
 
@@ -83,7 +84,7 @@ class NotificacaoDeAgendamentoTest extends TestCase
             'profissional_id' => $this->profissional->id,
             'cliente_id' => $this->cliente->id,
             'servico_id' => $this->servico->id,
-            'inicio' => '2026-09-01 10:00:00',
+            'inicio' => '2030-01-10 10:00:00',
         ]);
 
         $this->mock(NotificadorDePushInterface::class, function (MockInterface $mock) {
@@ -101,7 +102,7 @@ class NotificacaoDeAgendamentoTest extends TestCase
             'profissional_id' => $this->profissional->id,
             'servico_id' => $this->servico->id,
             'duracao_em_minutos' => 30,
-            'inicio' => '2026-09-01 10:00:00',
+            'inicio' => '2030-01-10 10:00:00',
         ]);
     }
 }

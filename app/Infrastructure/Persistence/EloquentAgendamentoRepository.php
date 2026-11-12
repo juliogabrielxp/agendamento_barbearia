@@ -6,9 +6,11 @@ namespace App\Infrastructure\Persistence;
 
 use App\Domain\Agendamento;
 use App\Domain\Contracts\AgendamentoRepositoryInterface;
+use App\Domain\Expediente;
 use App\Infrastructure\Persistence\Eloquent\AgendamentoModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use DateTimeImmutable;
+use Illuminate\Support\Facades\DB;
 
 class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
 {
@@ -18,6 +20,32 @@ class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
         ProfissionalModel::query()->whereKey($profissionalId)->lockForUpdate()->first();
     }
 
+    public function buscarExpedienteDoProfissional(int $profissionalId): ?Expediente
+    {
+        $barbearia = ProfissionalModel::with('barbearia')->find($profissionalId)?->barbearia;
+
+        if ($barbearia === null) {
+            return null;
+        }
+
+        $horario = fn (?string $valor) => $valor ? substr($valor, 0, 5) : null;
+
+        return new Expediente(
+            abertura: $horario($barbearia->hora_abertura),
+            fechamento: $horario($barbearia->hora_fechamento),
+            intervaloInicio: $horario($barbearia->intervalo_inicio),
+            intervaloFim: $horario($barbearia->intervalo_fim),
+        );
+    }
+
+    public function profissionalRealizaServico(int $profissionalId, int $servicoId): bool
+    {
+        return DB::table('profissional_servico')
+            ->where('profissional_id', $profissionalId)
+            ->where('servico_id', $servicoId)
+            ->exists();
+    }
+
     public function buscarPorProfissionalEData(int $profissionalId, DateTimeImmutable $data): array
     {
         $inicioDoDia = $data->setTime(0, 0);
@@ -25,6 +53,7 @@ class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
 
         $registros = AgendamentoModel::query()
             ->where('profissional_id', $profissionalId)
+            ->where('status', '!=', 'cancelado') // cancelado libera o horário
             ->whereBetween('inicio', [$inicioDoDia, $fimDoDia])
             ->with('servico') // eager load pra pegar a duração
             ->get();

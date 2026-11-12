@@ -6,7 +6,9 @@ use App\Domain\Contracts\AgendamentoRepositoryInterface;
 use App\Domain\Contracts\BarbeariaRepositoryInterface;
 use App\Domain\Contracts\ClienteRepositoryInterface;
 use App\Domain\Contracts\PasswordHasherInterface;
+use App\Domain\Contracts\RelogioInterface;
 use App\Domain\Contracts\TransacaoInterface;
+use App\Infrastructure\LaravelRelogio;
 use App\Domain\Contracts\UserRepositoryInterface;
 use App\Infrastructure\Persistence\EloquentAgendamentoRepository;
 use App\Infrastructure\Persistence\EloquentBarbeariaRepository;
@@ -28,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BarbeariaRepositoryInterface::class, EloquentBarbeariaRepository::class);
         $this->app->bind(PasswordHasherInterface::class, LaravelPasswordHasher::class);
         $this->app->bind(TransacaoInterface::class, LaravelTransacao::class);
+        $this->app->bind(RelogioInterface::class, LaravelRelogio::class);
         $this->app->bind(NotificadorDePushInterface::class, WebPushNotificador::class);
     }
 

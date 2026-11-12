@@ -7,6 +7,8 @@ namespace Tests\Unit\Application;
 use App\Application\UseCases\AgendarHorarioUseCase;
 use App\Application\UseCases\AgendarHorarioInput;
 use App\Domain\Contracts\AgendamentoRepositoryInterface;
+use App\Domain\Contracts\RelogioInterface;
+use App\Domain\Expediente;
 use App\Domain\Contracts\TransacaoInterface;
 use App\Domain\Exceptions\ConflitoDeHorarioException;
 use PHPUnit\Framework\TestCase;
@@ -28,7 +30,7 @@ class AgendarHorarioUseCaseTest extends TestCase
                 $this->chamadas[] = 'salvar';
             });
 
-        $useCase = new AgendarHorarioUseCase($repositorio, $this->transacaoQueRegistra());
+        $useCase = new AgendarHorarioUseCase($repositorio, $this->transacaoQueRegistra(), $this->relogioParado());
 
         // Act
         $useCase->executar($this->input('2026-08-10 10:00'));
@@ -56,7 +58,7 @@ class AgendarHorarioUseCaseTest extends TestCase
         $repositorio->expects($this->never())
             ->method('salvar');
 
-        $useCase = new AgendarHorarioUseCase($repositorio, $this->transacaoQueRegistra());
+        $useCase = new AgendarHorarioUseCase($repositorio, $this->transacaoQueRegistra(), $this->relogioParado());
 
         // Assert
         $this->expectException(ConflitoDeHorarioException::class);
@@ -75,6 +77,10 @@ class AgendarHorarioUseCaseTest extends TestCase
             ->willReturnCallback(function () {
                 $this->chamadas[] = 'travar';
             });
+
+        // Regras da barbearia satisfeitas: o foco destes testes é o conflito
+        $repositorio->method('buscarExpedienteDoProfissional')->willReturn(new Expediente('08:00', '19:00'));
+        $repositorio->method('profissionalRealizaServico')->willReturn(true);
 
         $repositorio->method('buscarPorProfissionalEData')
             ->willReturnCallback(function () use ($agendamentosDoDia) {
@@ -99,6 +105,16 @@ class AgendarHorarioUseCaseTest extends TestCase
                 $this->chamadas[] = 'fim_transacao';
 
                 return $resultado;
+            }
+        };
+    }
+
+    private function relogioParado(): RelogioInterface
+    {
+        return new class implements RelogioInterface {
+            public function agora(): DateTimeImmutable
+            {
+                return new DateTimeImmutable('2026-08-01 09:00');
             }
         };
     }

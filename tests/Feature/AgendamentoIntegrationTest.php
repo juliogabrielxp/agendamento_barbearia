@@ -53,6 +53,7 @@ class AgendamentoIntegrationTest extends TestCase
             'barbearia_id' => $barbearia->id,
             'nome' => 'João',
         ]);
+        $profissional->servicos()->attach($servico->id);
 
         $cliente = ClienteModel::create([
             'user_id' => $this->usuario->id,
@@ -67,7 +68,7 @@ class AgendamentoIntegrationTest extends TestCase
             'cliente_id' => $cliente->id,
             'servico_id' => $servico->id,
             'duracao_em_minutos' => 30,
-            'inicio' => '2026-09-01 10:00:00',
+            'inicio' => '2030-01-10 10:00:00',
         ]);
 
 
@@ -100,6 +101,7 @@ class AgendamentoIntegrationTest extends TestCase
             'barbearia_id' => $barbearia->id,
             'nome' => 'Pedro',
         ]);
+        $profissional->servicos()->attach($servico->id);
 
         $cliente = ClienteModel::create([
             'user_id' => $this->usuario->id,
@@ -114,7 +116,7 @@ class AgendamentoIntegrationTest extends TestCase
             'cliente_id' => $cliente->id,
             'servico_id' => $servico->id,
             'duracao_em_minutos' => 30,
-            'inicio' => '2026-09-01 15:00:00',
+            'inicio' => '2030-01-10 15:00:00',
         ])->assertStatus(201);
 
 
@@ -123,7 +125,7 @@ class AgendamentoIntegrationTest extends TestCase
             'cliente_id' => $cliente->id,
             'servico_id' => $servico->id,
             'duracao_em_minutos' => 30,
-            'inicio' => '2026-09-01 15:15:00',
+            'inicio' => '2030-01-10 15:15:00',
         ]);
 
 
@@ -150,6 +152,7 @@ class AgendamentoIntegrationTest extends TestCase
             'barbearia_id' => $barbearia->id,
             'nome' => 'Carlos',
         ]);
+        $profissional->servicos()->attach($servico->id);
 
         ClienteModel::create([
             'user_id' => $this->usuario->id,

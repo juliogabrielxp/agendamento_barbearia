@@ -89,7 +89,7 @@ export default function AgendarTab({ onAgendado }) {
             .catch(error => {
                 const texto = error.response?.status === 409
                     ? 'Esse horário acabou de ser ocupado. Escolha outro.'
-                    : 'Não foi possível agendar. Confira os dados.';
+                    : error.response?.data?.erro ?? 'Não foi possível agendar. Confira os dados.';
                 setMensagem({ tipo: 'erro', texto });
             })
             .finally(() => setEnviando(false));

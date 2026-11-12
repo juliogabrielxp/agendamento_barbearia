@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Application\UseCases\AgendarHorarioUseCase;
 use App\Application\UseCases\AgendarHorarioInput;
+use App\Domain\Exceptions\AgendamentoInvalidoException;
 use App\Domain\Exceptions\ConflitoDeHorarioException;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
@@ -46,6 +47,8 @@ class AgendamentoController extends Controller
             $this->useCase->executar($input);
         } catch (ConflitoDeHorarioException $e) {
             return response()->json(['erro' => $e->getMessage()], 409);
+        } catch (AgendamentoInvalidoException $e) {
+            return response()->json(['erro' => $e->getMessage()], 422);
         }
 
         AgendamentoCriado::dispatch(
