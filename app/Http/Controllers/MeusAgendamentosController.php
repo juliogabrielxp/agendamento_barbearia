@@ -5,17 +5,18 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Application\UseCases\CancelarAgendamentoUseCase;
+use App\Domain\Exceptions\AgendamentoNaoEncontradoException;
 use App\Infrastructure\Persistence\Eloquent\AgendamentoModel;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
-use Illuminate\Http\Request;
+use DomainException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class MeusAgendamentosController extends Controller
 {
     public function __construct(
         private readonly CancelarAgendamentoUseCase $useCase
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -33,7 +34,13 @@ class MeusAgendamentosController extends Controller
     {
         $cliente = ClienteModel::where('user_id', $request->user()->id)->firstOrFail();
 
-        $this->useCase->executar($id, $cliente->id);
+        try {
+            $this->useCase->executar($id, $cliente->id);
+        } catch (AgendamentoNaoEncontradoException $e) {
+            return response()->json(['message' => $e->getMessage()], 404);
+        } catch (DomainException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
 
         return response()->json(null, 204);
     }

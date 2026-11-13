@@ -25,6 +25,10 @@ export default function MeusAgendamentosTab() {
         setCancelandoId(id);
         api.delete(`/api/meus-agendamentos/${id}`)
             .then(() => carregarAgendamentos())
+            .catch(error => {
+                alert(error.response?.data?.message ?? 'Não foi possível cancelar o agendamento.');
+                carregarAgendamentos();
+            })
             .finally(() => setCancelandoId(null));
     }
 
@@ -57,6 +61,7 @@ export default function MeusAgendamentosTab() {
                                 {agendamento.profissional?.barbearia?.nome} · com {agendamento.profissional?.nome}
                             </p>
                         </div>
+                        {agendamento.status !== 'concluido' && (
                         <button
                             onClick={() => handleCancelar(agendamento.id)}
                             disabled={cancelandoId === agendamento.id}
@@ -65,6 +70,7 @@ export default function MeusAgendamentosTab() {
                         >
                             <X size={18} />
                         </button>
+                        )}
                     </div>
                 ))}
                 {agendamentos.length === 0 && (
