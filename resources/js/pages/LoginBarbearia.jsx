@@ -6,7 +6,11 @@ import { Link } from 'react-router-dom';
 export default function LoginBarbearia() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [erro, setErro] = useState(null);
+    const [erro, setErro] = useState(() =>
+        new URLSearchParams(window.location.search).get('erro') === 'google-email-em-uso'
+            ? 'Já existe uma conta com este e-mail. Entre com e-mail e senha.'
+            : null
+    );
     const [enviando, setEnviando] = useState(false);
 
     async function handleSubmit(e) {

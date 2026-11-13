@@ -16,6 +16,21 @@ class EloquentUserRepository implements UserRepositoryInterface
         return $user ? $user->toArray() : null;
     }
 
+    public function buscarPorEmail(string $email): ?array
+    {
+        return UserModel::where('email', $email)->first()?->toArray();
+    }
+
+    public function vincularGoogle(int $userId, string $googleId, ?string $avatar): array
+    {
+        $user = UserModel::findOrFail($userId);
+        $user->google_id = $googleId;
+        $user->avatar ??= $avatar;
+        $user->save();
+
+        return $user->toArray();
+    }
+
     public function criar(string $googleId, string $nome, string $email, ?string $avatar): array
     {
         $user = UserModel::create([
@@ -32,7 +47,7 @@ class EloquentUserRepository implements UserRepositoryInterface
     {
         $user = UserModel::where('email', $email)->first();
 
-        if (!$user) {
+        if (! $user) {
             return null;
         }
 

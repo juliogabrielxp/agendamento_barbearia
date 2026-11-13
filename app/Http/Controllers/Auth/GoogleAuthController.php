@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
-use App\Application\UseCases\AutenticarComGoogleUseCase;
 use App\Application\UseCases\AutenticarComGoogleInput;
+use App\Application\UseCases\AutenticarComGoogleUseCase;
+use App\Domain\Exceptions\EmailJaCadastradoException;
 use App\Http\Controllers\Controller;
 use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
@@ -18,8 +19,7 @@ class GoogleAuthController extends Controller
 {
     public function __construct(
         private readonly AutenticarComGoogleUseCase $useCase
-    ) {
-    }
+    ) {}
 
     public function redirectBarbearia(): RedirectResponse
     {
@@ -34,7 +34,12 @@ class GoogleAuthController extends Controller
     public function callbackBarbearia(): RedirectResponse
     {
         $googleUser = $this->driver('barbearia')->user();
-        $dadosUser = $this->autenticar($googleUser);
+
+        try {
+            $dadosUser = $this->autenticar($googleUser);
+        } catch (EmailJaCadastradoException) {
+            return redirect('/app/entrar-barbearia?erro=google-email-em-uso');
+        }
 
         $barbearia = BarbeariaModel::firstOrCreate(
             ['user_id' => $dadosUser['id']],
@@ -54,7 +59,12 @@ class GoogleAuthController extends Controller
     public function callbackCliente(): RedirectResponse
     {
         $googleUser = $this->driver('cliente')->user();
-        $dadosUser = $this->autenticar($googleUser);
+
+        try {
+            $dadosUser = $this->autenticar($googleUser);
+        } catch (EmailJaCadastradoException) {
+            return redirect('/app?erro=google-email-em-uso');
+        }
 
         $cliente = ClienteModel::firstOrCreate(
             ['user_id' => $dadosUser['id']],
@@ -83,7 +93,8 @@ class GoogleAuthController extends Controller
             googleId: $googleUser->getId(),
             nome: $googleUser->getName(),
             email: $googleUser->getEmail(),
-            avatar: $googleUser->getAvatar()
+            avatar: $googleUser->getAvatar(),
+            emailVerificado: ($googleUser->getRaw()['email_verified'] ?? false) === true
         );
 
         return $this->useCase->executar($input);

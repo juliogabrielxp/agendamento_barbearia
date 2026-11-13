@@ -15,7 +15,11 @@ const INPUT_CLASSE =
 export default function Login() {
     const [modo, setModo] = useState('entrar');
     const [form, setForm] = useState({ nome: '', email: '', password: '', password_confirmation: '' });
-    const [erros, setErros] = useState({});
+    const [erros, setErros] = useState(() =>
+        new URLSearchParams(window.location.search).get('erro') === 'google-email-em-uso'
+            ? { geral: ['Já existe uma conta com este e-mail. Entre com e-mail e senha.'] }
+            : {}
+    );
     const [enviando, setEnviando] = useState(false);
 
     const criando = modo === 'criar';

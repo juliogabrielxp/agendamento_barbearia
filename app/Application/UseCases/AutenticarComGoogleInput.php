@@ -10,7 +10,7 @@ final class AutenticarComGoogleInput
         public readonly string $googleId,
         public readonly string $nome,
         public readonly string $email,
-        public readonly ?string $avatar
-    ) {
-    }
+        public readonly ?string $avatar,
+        public readonly bool $emailVerificado = false
+    ) {}
 }
