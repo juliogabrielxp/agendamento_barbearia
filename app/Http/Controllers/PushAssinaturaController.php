@@ -23,9 +23,19 @@ class PushAssinaturaController extends Controller
             'keys.auth' => 'required|string|max:255',
         ]);
 
-        // Se o aparelho já estava ligado a outra conta, passa a ser da conta atual
+        $endpointHash = hash('sha256', $dados['endpoint']);
+        $existente = PushSubscriptionModel::where('endpoint_hash', $endpointHash)->first();
+
+        // O aparelho só passa para outra conta se ela provar que tem a assinatura: o segredo
+        // "auth" sai do navegador junto com o endpoint, e quem só conhece a URL não o tem.
+        if ($existente !== null
+            && (int) $existente->user_id !== (int) $request->user()->id
+            && ! hash_equals((string) $existente->auth, $dados['keys']['auth'])) {
+            return response()->json(['message' => 'Assinatura de notificação inválida.'], 409);
+        }
+
         PushSubscriptionModel::updateOrCreate(
-            ['endpoint_hash' => hash('sha256', $dados['endpoint'])],
+            ['endpoint_hash' => $endpointHash],
             [
                 'user_id' => $request->user()->id,
                 'endpoint' => $dados['endpoint'],
