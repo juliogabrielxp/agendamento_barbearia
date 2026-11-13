@@ -20,13 +20,13 @@ return [
 
     // currentRequestHost: a SPA é servida pelo mesmo host de cada estabelecimento
     // (trancas.juliogabrieldev.com...), então a sessão vale em qualquer um deles
-    // sem precisar listar todos aqui.
+    // sem precisar listar todos aqui. Ele entra sempre, mesmo quando o .env define
+    // SANCTUM_STATEFUL_DOMAINS: senão um host fora da lista entra e toma 401.
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
-        '%s%s%s',
+        '%s%s',
         'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
         Sanctum::currentApplicationUrlWithPort(),
-        Sanctum::currentRequestHost(),
-    ))),
+    )).Sanctum::currentRequestHost()),
 
     /*
     |--------------------------------------------------------------------------
