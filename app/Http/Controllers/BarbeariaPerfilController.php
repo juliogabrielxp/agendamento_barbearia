@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Domain\Barbearia;
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use InvalidArgumentException;
@@ -14,14 +13,14 @@ class BarbeariaPerfilController extends Controller
 {
     public function show(Request $request): JsonResponse
     {
-        $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $barbearia = $this->estabelecimentoDoDono($request);
 
         return response()->json($barbearia);
     }
 
     public function update(Request $request): JsonResponse
     {
-        $barbeariaModel = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $barbeariaModel = $this->estabelecimentoDoDono($request);
 
         $dados = $request->validate([
             'nome' => 'required|string|max:255',

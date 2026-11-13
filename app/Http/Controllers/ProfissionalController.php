@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -14,7 +13,7 @@ class ProfissionalController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $barbearia = $this->estabelecimentoDoDono($request);
 
         return response()->json(
             ProfissionalModel::where('barbearia_id', $barbearia->id)->with('servicos')->get()
@@ -23,7 +22,7 @@ class ProfissionalController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $barbearia = $this->estabelecimentoDoDono($request);
 
         $dados = $request->validate([
             'nome' => 'required|string|max:255',
@@ -48,7 +47,7 @@ class ProfissionalController extends Controller
 
     public function update(Request $request, int $id): JsonResponse
     {
-        $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $barbearia = $this->estabelecimentoDoDono($request);
         $profissional = ProfissionalModel::where('barbearia_id', $barbearia->id)->findOrFail($id);
 
         $dados = $request->validate([
@@ -68,7 +67,7 @@ class ProfissionalController extends Controller
 
     public function destroy(Request $request, int $id): JsonResponse
     {
-        $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $barbearia = $this->estabelecimentoDoDono($request);
         ProfissionalModel::where('barbearia_id', $barbearia->id)->findOrFail($id)->delete();
 
         return response()->json(null, 204);

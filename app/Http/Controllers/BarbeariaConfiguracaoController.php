@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -12,14 +11,14 @@ class BarbeariaConfiguracaoController extends Controller
 {
     public function show(Request $request): JsonResponse
     {
-        $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $barbearia = $this->estabelecimentoDoDono($request);
 
         return response()->json($barbearia);
     }
 
     public function update(Request $request): JsonResponse
     {
-        $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $barbearia = $this->estabelecimentoDoDono($request);
 
         $dados = $request->validate([
             'hora_abertura' => 'required|date_format:H:i',

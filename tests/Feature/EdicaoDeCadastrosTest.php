@@ -9,6 +9,7 @@ use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class EdicaoDeCadastrosTest extends TestCase
@@ -111,6 +112,8 @@ class EdicaoDeCadastrosTest extends TestCase
 
         return BarbeariaModel::create([
             'user_id' => $user->id,
+            // A primeira responde no host padrão dos testes; as outras ficam em outro endereço
+            'dominio' => BarbeariaModel::where('dominio', 'localhost')->exists() ? Str::slug($email).'.test' : 'localhost',
             'nome' => 'Barbearia ' . $email,
             'email' => $email,
             'telefone' => '',

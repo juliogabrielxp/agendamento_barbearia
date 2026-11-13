@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use App\Infrastructure\Storage\ArmazenadorDeImagens;
 use Illuminate\Http\JsonResponse;
@@ -23,7 +22,7 @@ class ImagemController extends Controller
 
     public function barbearia(Request $request): JsonResponse
     {
-        $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $barbearia = $this->estabelecimentoDoDono($request);
         $request->validate(self::REGRAS);
 
         $caminhoAntigo = $barbearia->imagem_path;
@@ -39,7 +38,7 @@ class ImagemController extends Controller
 
     public function servico(Request $request, int $id): JsonResponse
     {
-        $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $barbearia = $this->estabelecimentoDoDono($request);
         $servico = ServicoModel::where('barbearia_id', $barbearia->id)->findOrFail($id);
         $request->validate(self::REGRAS);
 

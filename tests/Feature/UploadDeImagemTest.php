@@ -8,6 +8,7 @@ use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -95,6 +96,8 @@ class UploadDeImagemTest extends TestCase
 
         return BarbeariaModel::create([
             'user_id' => $user->id,
+            // A primeira responde no host padrão dos testes; as outras ficam em outro endereço
+            'dominio' => BarbeariaModel::where('dominio', 'localhost')->exists() ? Str::slug($email).'.test' : 'localhost',
             'nome' => 'Barbearia ' . $email,
             'email' => $email,
             'telefone' => '',

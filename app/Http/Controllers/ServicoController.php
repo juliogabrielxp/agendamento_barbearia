@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use App\Infrastructure\Storage\ArmazenadorDeImagens;
@@ -15,7 +14,7 @@ final class ServicoController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $barbearia = $this->estabelecimentoDoDono($request);
 
         return response()->json(
             ServicoModel::where('barbearia_id', $barbearia->id)->get()
@@ -24,7 +23,7 @@ final class ServicoController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $barbearia = $this->estabelecimentoDoDono($request);
 
         $dados = $request->validate($this->regras());
 
@@ -42,7 +41,7 @@ final class ServicoController extends Controller
 
     public function update(Request $request, int $id): JsonResponse
     {
-        $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $barbearia = $this->estabelecimentoDoDono($request);
         $servico = ServicoModel::where('barbearia_id', $barbearia->id)->findOrFail($id);
 
         $dados = $request->validate($this->regras());
@@ -54,7 +53,7 @@ final class ServicoController extends Controller
 
     public function destroy(Request $request, int $id, ArmazenadorDeImagens $armazenador): JsonResponse
     {
-        $barbearia = BarbeariaModel::where('user_id', $request->user()->id)->firstOrFail();
+        $barbearia = $this->estabelecimentoDoDono($request);
         $servico = ServicoModel::where('barbearia_id', $barbearia->id)->findOrFail($id);
 
         $servico->delete();

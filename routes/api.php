@@ -28,8 +28,8 @@ Route::middleware(['auth:sanctum', 'estabelecimento'])->group(function () {
     Route::delete('/meus-agendamentos/{id}', [MeusAgendamentosController::class, 'destroy']);
 });
 
-// Painel da dona: tudo filtrado pelo estabelecimento do usuário logado
-Route::middleware('auth:sanctum')->group(function () {
+// Painel da dona: só abre no host do estabelecimento dela (ver Controller::estabelecimentoDoDono)
+Route::middleware(['auth:sanctum', 'estabelecimento'])->group(function () {
     Route::get('/me', [MeController::class, 'show']);
 
     Route::apiResource('servicos', ServicoController::class)->except(['show']);

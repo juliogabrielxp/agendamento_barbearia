@@ -20,4 +20,18 @@ abstract class Controller
 
         return $estabelecimento;
     }
+
+    /**
+     * Estabelecimento do host, desde que o usuário logado seja o dono dele.
+     * Dona logada no endereço de outro estabelecimento recebe 404: o painel só
+     * abre no próprio domínio, venha a sessão do login por senha ou do Google.
+     */
+    protected function estabelecimentoDoDono(Request $request): BarbeariaModel
+    {
+        $estabelecimento = $this->estabelecimento($request);
+
+        abort_unless((int) $estabelecimento->user_id === (int) $request->user()?->id, 404);
+
+        return $estabelecimento;
+    }
 }
