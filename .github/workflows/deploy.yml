@@ -1,7 +1,11 @@
 name: Deploy to EC2
 
+# Os testes rodam em toda branch e em PR para a main, para validar antes do merge.
+# O deploy só acontece em push na main (ver o "if" do job deploy).
 on:
   push:
+    branches: ['**']
+  pull_request:
     branches: [main]
 
 jobs:
@@ -33,6 +37,7 @@ jobs:
 
   deploy:
     needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
