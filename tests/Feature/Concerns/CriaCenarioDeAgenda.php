@@ -10,6 +10,8 @@ use App\Infrastructure\Persistence\Eloquent\ClienteModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 /**
  * Monta barbearias, clientes e agendamentos direto no banco,
@@ -17,14 +19,25 @@ use App\Infrastructure\Persistence\Eloquent\UserModel;
  */
 trait CriaCenarioDeAgenda
 {
-    /** @return array{dono: UserModel, barbearia: BarbeariaModel, profissional: ProfissionalModel, servico: ServicoModel} */
-    private function criarBarbearia(string $email): array
+    /**
+     * O primeiro estabelecimento do teste responde em "localhost", o host padrão das
+     * requisições de teste; os seguintes ganham um domínio próprio derivado do e-mail.
+     * Para falar com outro estabelecimento, use $this->noHost($barbearia['barbearia']->dominio).
+     *
+     * @return array{dono: UserModel, barbearia: BarbeariaModel, profissional: ProfissionalModel, servico: ServicoModel}
+     */
+    private function criarBarbearia(string $email, ?string $dominio = null): array
     {
-        $dono = UserModel::create(['nome' => 'Dono ' . $email, 'email' => $email, 'password' => 'senha-segura-123']);
+        $dominio ??= BarbeariaModel::where('dominio', 'localhost')->exists()
+            ? Str::slug($email).'.test'
+            : 'localhost';
+
+        $dono = UserModel::create(['nome' => 'Dono '.$email, 'email' => $email, 'password' => 'senha-segura-123']);
 
         $barbearia = BarbeariaModel::create([
             'user_id' => $dono->id,
-            'nome' => 'Barbearia ' . $email,
+            'dominio' => $dominio,
+            'nome' => 'Barbearia '.$email,
             'email' => $email,
             'telefone' => '',
             'endereco' => 'Rua Teste, 1',
@@ -66,5 +79,13 @@ trait CriaCenarioDeAgenda
             'cliente_id' => $cliente->id,
             'inicio' => $inicio,
         ]);
+    }
+
+    /** Faz as próximas requisições do teste chegarem pelo host informado */
+    private function noHost(string $dominio): static
+    {
+        URL::forceRootUrl("http://{$dominio}");
+
+        return $this;
     }
 }

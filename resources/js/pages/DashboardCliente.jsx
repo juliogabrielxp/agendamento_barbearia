@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import NavBarCliente from '../components/NavBarCliente';
-import AgendarTab from '../components/AgendarTab';
 import MeusAgendamentosTab from '../components/MeusAgendamentosTab';
 import PerfilTab from '../components/PerfilTab';
 
@@ -9,8 +9,12 @@ export default function DashboardCliente() {
     const [dados, setDados] = useState(null);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(false);
-    const [abaAtiva, setAbaAtiva] = useState('agendar');
-    const [feedback, setFeedback] = useState(null);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [abaAtiva, setAbaAtiva] = useState('meus-agendamentos');
+    const [feedback, setFeedback] = useState(() =>
+        location.state?.feedback ? { tipo: 'sucesso', texto: location.state.feedback } : null
+    );
 
     useEffect(() => {
         api.get('/api/me')
@@ -25,9 +29,17 @@ export default function DashboardCliente() {
         return () => clearTimeout(timer);
     }, [feedback]);
 
-    function handleAgendado() {
-        setAbaAtiva('meus-agendamentos');
-        setFeedback({ tipo: 'sucesso', texto: 'Agendamento confirmado com sucesso!' });
+    useEffect(() => {
+        // Não repete o aviso se a pessoa recarregar a página
+        if (location.state?.feedback) navigate(location.pathname, { replace: true, state: null });
+    }, []);
+
+    function mudarAba(aba) {
+        if (aba === 'agendar') {
+            navigate('/app');
+            return;
+        }
+        setAbaAtiva(aba);
     }
 
     if (carregando) {
@@ -38,7 +50,7 @@ export default function DashboardCliente() {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 gap-3 px-4">
                 <p className="text-neutral-500 text-sm text-center">Não foi possível carregar seus dados. Faça login novamente.</p>
-                <a href="/app" className="text-sm font-medium text-neutral-900 underline">Voltar para o login</a>
+                <a href="/app/entrar" className="text-sm font-medium text-neutral-900 underline">Entrar</a>
             </div>
         );
     }
@@ -53,7 +65,7 @@ export default function DashboardCliente() {
                 </div>
             </header>
 
-            <NavBarCliente abaAtiva={abaAtiva} onMudarAba={setAbaAtiva} />
+            <NavBarCliente abaAtiva={abaAtiva} onMudarAba={mudarAba} />
 
             {feedback && (
                 <div className="fixed top-20 inset-x-4 md:left-64 md:right-6 z-20">
@@ -66,7 +78,6 @@ export default function DashboardCliente() {
             )}
 
             <main className="pt-20 pb-24 md:pb-8 px-4 md:pl-64 md:pr-6 max-w-2xl md:max-w-3xl">
-                {abaAtiva === 'agendar' && <AgendarTab onAgendado={handleAgendado} />}
                 {abaAtiva === 'meus-agendamentos' && <MeusAgendamentosTab />}
                 {abaAtiva === 'perfil' && <PerfilTab usuario={dados.user} />}
             </main>

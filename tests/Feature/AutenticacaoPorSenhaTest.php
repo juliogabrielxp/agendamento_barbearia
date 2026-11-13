@@ -49,6 +49,7 @@ class AutenticacaoPorSenhaTest extends TestCase
     {
         $user = UserModel::create(['nome' => 'Dono', 'email' => 'dono@barbearia.com', 'password' => 'senha-segura-123']);
         BarbeariaModel::create([
+            'dominio' => 'localhost', // host padrão das requisições de teste
             'user_id' => $user->id,
             'nome' => 'Barbearia Teste',
             'email' => 'dono@barbearia.com',
@@ -62,8 +63,31 @@ class AutenticacaoPorSenhaTest extends TestCase
         ])->assertOk();
     }
 
+    public function test_dona_de_outro_estabelecimento_nao_entra_por_este_endereco(): void
+    {
+        $user = UserModel::create(['nome' => 'Dona', 'email' => 'dona@outro.com', 'password' => 'senha-segura-123']);
+        BarbeariaModel::create([
+            'dominio' => 'outro.test',
+            'user_id' => $user->id,
+            'nome' => 'Outro',
+            'email' => 'dona@outro.com',
+            'telefone' => '',
+            'endereco' => 'Rua Teste, 2',
+        ]);
+        $this->criarEstabelecimentoNoLocalhost();
+
+        $response = $this->postJson('/login-barbearia', [
+            'email' => 'dona@outro.com',
+            'password' => 'senha-segura-123',
+        ]);
+
+        $this->assertSame(422, $response->getStatusCode(), $response->getContent());
+        $this->assertGuest();
+    }
+
     public function test_cliente_nao_consegue_entrar_pela_tela_da_barbearia(): void
     {
+        $this->criarEstabelecimentoNoLocalhost();
         $user = UserModel::create(['nome' => 'Maria', 'email' => 'maria@email.com', 'password' => 'senha-segura-123']);
         ClienteModel::create([
             'user_id' => $user->id,
@@ -78,5 +102,18 @@ class AutenticacaoPorSenhaTest extends TestCase
         ]);
 
         $this->assertSame(422, $response->getStatusCode(), $response->getContent());
+    }
+
+    private function criarEstabelecimentoNoLocalhost(): void
+    {
+        $dona = UserModel::create(['nome' => 'Dona', 'email' => 'dona@studio.com', 'password' => 'senha-segura-123']);
+        BarbeariaModel::create([
+            'dominio' => 'localhost',
+            'user_id' => $dona->id,
+            'nome' => 'Studio',
+            'email' => 'dona@studio.com',
+            'telefone' => '',
+            'endereco' => 'Rua Teste, 1',
+        ]);
     }
 }

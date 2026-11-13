@@ -19,10 +19,11 @@ use Tests\TestCase;
  */
 class RegrasDeAgendamentoTest extends TestCase
 {
-    use RefreshDatabase;
     use CriaCenarioDeAgenda;
+    use RefreshDatabase;
 
     private array $barbearia;
+
     private UserModel $usuarioCliente;
 
     protected function setUp(): void
@@ -94,14 +95,39 @@ class RegrasDeAgendamentoTest extends TestCase
         );
     }
 
-    public function test_rejeita_servico_de_outra_barbearia(): void
+    public function test_rejeita_servico_de_outro_estabelecimento(): void
     {
         $outra = $this->criarBarbearia('outra@barbearia.com');
 
         $this->assertInvalido(
             $this->agendar('2030-01-10 10:00:00', servicoId: $outra['servico']->id),
-            AgendamentoInvalidoException::servicoNaoRealizadoPeloProfissional()
+            AgendamentoInvalidoException::servicoInexistente()
         );
+    }
+
+    public function test_rejeita_profissional_de_outro_estabelecimento(): void
+    {
+        $outra = $this->criarBarbearia('outra@barbearia.com');
+        // Mesmo que o profissional de fora realize o serviço daqui, o host manda
+        $outra['profissional']->servicos()->attach($this->barbearia['servico']->id);
+
+        $this->assertInvalido(
+            $this->agendar('2030-01-10 10:00:00', profissionalId: $outra['profissional']->id),
+            AgendamentoInvalidoException::profissionalInexistente()
+        );
+        $this->assertDatabaseCount('agendamentos', 0);
+    }
+
+    public function test_servico_que_pode_atravessar_o_intervalo_e_aceito_por_cima_do_almoco(): void
+    {
+        $this->barbearia['barbearia']->update(['intervalo_inicio' => '12:00', 'intervalo_fim' => '13:00']);
+        $this->barbearia['servico']->update(['duracao_em_minutos' => 240, 'pode_atravessar_intervalo' => true]);
+
+        // Começar dentro do intervalo continua proibido
+        $this->assertInvalido($this->agendar('2030-01-10 12:30:00'), AgendamentoInvalidoException::noIntervalo());
+
+        // 09:00–13:00 passa por cima do almoço
+        $this->agendar('2030-01-10 09:00:00')->assertCreated();
     }
 
     public function test_rejeita_profissional_inexistente_com_422_e_nao_500(): void

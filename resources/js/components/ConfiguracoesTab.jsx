@@ -111,13 +111,13 @@ export default function ConfiguracoesTab() {
                   imagemAtualUrl={imagemUrl}
                   nome={form.nome}
                   tamanho={80}
-                  rotulo="Alterar foto da barbearia"
+                  rotulo="Alterar logo do estabelecimento"
                   onSelecionar={enviarFoto}
               />
               <AtivarNotificacoes />
             </div>
             <div>
-                <h1 className="text-lg font-semibold text-neutral-900 mb-4">Dados da barbearia</h1>
+                <h1 className="text-lg font-semibold text-neutral-900 mb-4">Dados do estabelecimento</h1>
 
                 <form onSubmit={handleSubmit} className="bg-white border border-neutral-200 rounded-xl p-4 space-y-4">
                     <div>

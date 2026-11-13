@@ -13,7 +13,7 @@ final class AgendarHorarioInput
         public readonly int $clienteId,
         public readonly int $servicoId,
         public readonly int $duracaoEmMinutos,
-        public readonly DateTimeImmutable $inicio
-    ) {
-    }
+        public readonly DateTimeImmutable $inicio,
+        public readonly bool $podeAtravessarIntervalo = false
+    ) {}
 }

@@ -3,12 +3,14 @@ import { Trash2, Pencil } from 'lucide-react';
 import api from '../lib/api';
 import ImagemComFallback from './ImagemComFallback';
 import SeletorDeImagem from './SeletorDeImagem';
+import { formatarDuracao, formatarPreco } from '../lib/formatar';
 
 export default function ServicosTab() {
     const [servicos, setServicos] = useState([]);
     const [nome, setNome] = useState('');
     const [duracao, setDuracao] = useState('');
     const [preco, setPreco] = useState('');
+    const [podeAtravessarIntervalo, setPodeAtravessarIntervalo] = useState(false);
     const [erro, setErro] = useState(null);
     const [servicoEmEdicao, setServicoEmEdicao] = useState(null);
     const [arquivoImagem, setArquivoImagem] = useState(null);
@@ -25,6 +27,7 @@ export default function ServicosTab() {
 
     function limparFormulario() {
         setNome(''); setDuracao(''); setPreco('');
+        setPodeAtravessarIntervalo(false);
         setServicoEmEdicao(null);
         setArquivoImagem(null);
         setChaveSeletor(chave => chave + 1);
@@ -36,6 +39,7 @@ export default function ServicosTab() {
         setNome(servico.nome);
         setDuracao(String(servico.duracao_em_minutos));
         setPreco(String(servico.preco));
+        setPodeAtravessarIntervalo(Boolean(servico.pode_atravessar_intervalo));
         setArquivoImagem(null);
         setChaveSeletor(chave => chave + 1);
         setErro(null);
@@ -50,6 +54,7 @@ export default function ServicosTab() {
             nome,
             duracao_em_minutos: Number(duracao),
             preco: Number(preco),
+            pode_atravessar_intervalo: podeAtravessarIntervalo,
         };
 
         let servicoSalvo;
@@ -126,6 +131,21 @@ export default function ServicosTab() {
                     />
                 </div>
 
+                <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                        type="checkbox"
+                        checked={podeAtravessarIntervalo}
+                        onChange={e => setPodeAtravessarIntervalo(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 accent-neutral-900"
+                    />
+                    <span>
+                        <span className="block text-sm text-neutral-900">Pode atravessar o intervalo</span>
+                        <span className="block text-xs text-neutral-400">
+                            Para serviços longos, como tranças: podem passar por cima do horário de almoço, só não começam dentro dele.
+                        </span>
+                    </span>
+                </label>
+
                 {duracaoMudou && (
                     <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                         Alterar a duração muda o tempo ocupado dos agendamentos futuros deste serviço.
@@ -155,7 +175,10 @@ export default function ServicosTab() {
                             <ImagemComFallback src={servico.imagem_url} nome={servico.nome} tamanho={48} redonda={false} />
                             <div className="min-w-0">
                                 <p className="font-medium text-neutral-900 text-sm truncate">{servico.nome}</p>
-                                <p className="text-xs text-neutral-400 mt-0.5">{servico.duracao_em_minutos} min · R$ {servico.preco}</p>
+                                <p className="text-xs text-neutral-400 mt-0.5">
+                                    {formatarDuracao(servico.duracao_em_minutos)} · {formatarPreco(servico.preco)}
+                                    {servico.pode_atravessar_intervalo && ' · atravessa o intervalo'}
+                                </p>
                             </div>
                         </div>
                         <div className="flex items-center shrink-0">

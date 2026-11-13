@@ -16,8 +16,7 @@ final class NotificarDonoSobreNovoAgendamento
 {
     public function __construct(
         private readonly NotificadorDePushInterface $notificador
-    ) {
-    }
+    ) {}
 
     public function handle(AgendamentoCriado $evento): void
     {
@@ -45,7 +44,7 @@ final class NotificarDonoSobreNovoAgendamento
                     $inicio->format('d/m'),
                     $inicio->format('H:i')
                 ),
-                '/app/dashboard-barbearia'
+                '/app/painel'
             );
         } catch (Throwable $e) {
             report($e);

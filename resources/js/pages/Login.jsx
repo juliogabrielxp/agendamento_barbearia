@@ -1,18 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Scissors, Search, Clock, CalendarCheck, Store } from 'lucide-react';
 import api from '../lib/api';
-
-const BENEFICIOS = [
-    { Icon: Search, texto: 'Encontre barbearias perto de você' },
-    { Icon: Clock, texto: 'Escolha o profissional e o horário' },
-    { Icon: CalendarCheck, texto: 'Sem conflito: seu horário fica garantido' },
-];
+import ImagemComFallback from '../components/ImagemComFallback';
+import { lerPendente } from '../lib/agendamentoPendente';
 
 const INPUT_CLASSE =
     'w-full bg-white border border-neutral-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900';
 
 export default function Login() {
+    const [estabelecimento, setEstabelecimento] = useState(null);
     const [modo, setModo] = useState('entrar');
     const [form, setForm] = useState({ nome: '', email: '', password: '', password_confirmation: '' });
     const [erros, setErros] = useState(() =>
@@ -24,20 +20,17 @@ export default function Login() {
 
     const criando = modo === 'criar';
     const erro = campo => erros[campo]?.[0];
+    const temHorarioGuardado = lerPendente() !== null;
 
     useEffect(() => {
-    api.get('/api/me')
-        .then(({ data }) => {
-            window.location.replace(
-                data.barbearia ? '/app/dashboard-barbearia' : '/app/dashboard-cliente'
-            );
-        })
-        .catch(() => {});
-}, []);
+        api.get('/api/me')
+            .then(({ data }) => window.location.replace(data.barbearia ? '/app/painel' : '/app'))
+            .catch(() => {});
 
-    function entrarComGoogle() {
-        window.location.href = '/auth/google/cliente/redirect';
-    }
+        api.get('/api/estabelecimento')
+            .then(({ data }) => setEstabelecimento(data))
+            .catch(() => {});
+    }, []);
 
     function handleChange(campo, valor) {
         setForm(prev => ({ ...prev, [campo]: valor }));
@@ -62,7 +55,8 @@ export default function Login() {
                 await api.post('/login-cliente', { email: form.email, password: form.password });
             }
 
-            window.location.href = '/app/dashboard-cliente';
+            // A vitrine retoma o horário guardado, se houver
+            window.location.href = '/app';
         } catch (error) {
             if (error.response?.status === 422) {
                 setErros(error.response.data.errors ?? {});
@@ -77,32 +71,40 @@ export default function Login() {
     }
 
     return (
-        <div className="min-h-screen bg-neutral-50 flex flex-col justify-between px-6 py-10">
-            <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
-                <div className="w-12 h-12 bg-neutral-900 rounded-xl flex items-center justify-center mb-6">
-                    <Scissors size={22} className="text-white" strokeWidth={2} />
-                </div>
-
-                <h1 className="text-2xl font-semibold text-neutral-900 mb-2 leading-tight">
-                    Agende seu corte sem complicação
-                </h1>
-                <p className="text-sm text-neutral-500 mb-10">
-                    Encontre uma barbearia, escolha o profissional e marque seu horário em poucos minutos.
-                </p>
-
-                <div className="space-y-4 mb-10">
-                    {BENEFICIOS.map(({ Icon, texto }) => (
-                        <div key={texto} className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-lg bg-white border border-neutral-200 flex items-center justify-center shrink-0">
-                                <Icon size={16} className="text-neutral-700" />
-                            </div>
-                            <p className="text-sm text-neutral-700">{texto}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
+        <div className="min-h-screen bg-neutral-50 px-6 py-6">
             <div className="max-w-sm mx-auto w-full">
+                <Link to="/app" className="text-sm text-neutral-400 hover:text-neutral-700 transition">
+                    ← Voltar aos serviços
+                </Link>
+
+                <div className="flex flex-col items-center text-center mt-8 mb-8">
+                    {estabelecimento && (
+                        <ImagemComFallback src={estabelecimento.imagem_url} nome={estabelecimento.nome} tamanho={64} />
+                    )}
+                    <h1 className="text-xl font-semibold text-neutral-900 mt-4">
+                        {criando ? 'Crie sua conta' : 'Entre na sua conta'}
+                    </h1>
+                    <p className="text-sm text-neutral-500 mt-2">
+                        {temHorarioGuardado
+                            ? 'Falta pouco: seu horário está guardado e você confirma logo depois de entrar.'
+                            : `Para agendar e acompanhar seus horários${estabelecimento ? ` no ${estabelecimento.nome}` : ''}.`}
+                    </p>
+                </div>
+
+                <button
+                    onClick={() => { window.location.href = '/auth/google/cliente/redirect'; }}
+                    className="w-full flex items-center justify-center gap-3 bg-white border border-neutral-200 text-neutral-900 py-3 rounded-lg text-sm font-medium hover:border-neutral-400 transition"
+                >
+                    <GoogleIcon />
+                    Continuar com Google
+                </button>
+
+                <div className="flex items-center gap-3 my-5">
+                    <div className="flex-1 h-px bg-neutral-200" />
+                    <span className="text-xs text-neutral-400">ou com e-mail</span>
+                    <div className="flex-1 h-px bg-neutral-200" />
+                </div>
+
                 <form onSubmit={handleSubmit} className="space-y-3">
                     {criando && (
                         <div>
@@ -170,34 +172,10 @@ export default function Login() {
 
                 <button
                     onClick={alternarModo}
-                    className="w-full text-xs text-neutral-500 hover:text-neutral-800 transition mt-3"
+                    className="w-full text-sm text-neutral-500 hover:text-neutral-800 transition mt-4"
                 >
-                    {criando ? 'Já tem conta? Entrar' : 'Não tem conta? Criar conta'}
+                    {criando ? 'Já tem conta? Entrar' : 'Primeira vez aqui? Criar conta'}
                 </button>
-
-                <div className="flex items-center gap-3 my-5">
-                    <div className="flex-1 h-px bg-neutral-200" />
-                    <span className="text-xs text-neutral-400">ou</span>
-                    <div className="flex-1 h-px bg-neutral-200" />
-                </div>
-
-                <button
-                    onClick={entrarComGoogle}
-                    className="w-full flex items-center justify-center gap-3 bg-white border border-neutral-200 text-neutral-900 py-3 rounded-lg text-sm font-medium hover:border-neutral-400 transition"
-                >
-                    <GoogleIcon />
-                    Continuar com Google
-                </button>
-
-                <div className="mt-6 pt-5 border-t border-neutral-200">
-                    <Link
-                        to="/app/entrar-barbearia"
-                        className="flex items-center justify-center gap-2 text-xs font-medium text-neutral-500 hover:text-neutral-800 transition"
-                    >
-                        <Store size={14} />
-                        Tem uma barbearia? Acesse o painel
-                    </Link>
-                </div>
             </div>
         </div>
     );
@@ -205,7 +183,7 @@ export default function Login() {
 
 function GoogleIcon() {
     return (
-        <svg width="16" height="16" viewBox="0 0 48 48">
+        <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
             <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.7-.4-3.5z"/>
             <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l6-6C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
             <path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.3-5.1l-6.6-5.4C29.6 35.5 27 36.5 24 36.5c-5.2 0-9.6-3.3-11.3-8l-6.6 5.1C9.6 39.6 16.3 44 24 44z"/>
@@ -213,5 +191,3 @@ function GoogleIcon() {
         </svg>
     );
 }
-
-

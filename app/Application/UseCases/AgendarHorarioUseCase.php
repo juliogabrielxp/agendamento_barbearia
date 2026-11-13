@@ -17,11 +17,10 @@ final class AgendarHorarioUseCase
         private readonly AgendamentoRepositoryInterface $repositorio,
         private readonly TransacaoInterface $transacao,
         private readonly RelogioInterface $relogio
-    ) {
-    }
+    ) {}
 
     /**
-     * @throws AgendamentoInvalidoException quando o pedido viola uma regra da barbearia
+     * @throws AgendamentoInvalidoException quando o pedido viola uma regra do estabelecimento
      * @throws ConflitoDeHorarioException quando o horário já está ocupado
      */
     public function executar(AgendarHorarioInput $input): void
@@ -44,7 +43,7 @@ final class AgendarHorarioUseCase
         $this->transacao->executar(function () use ($input, $novoAgendamento): void {
             $this->repositorio->travarAgendaDoProfissional($input->profissionalId);
 
-            $this->validarRegrasDaBarbearia($novoAgendamento);
+            $this->validarRegrasDoEstabelecimento($novoAgendamento, $input->podeAtravessarIntervalo);
 
             $agendamentosDoDia = $this->repositorio->buscarPorProfissionalEData(
                 $input->profissionalId,
@@ -53,7 +52,7 @@ final class AgendarHorarioUseCase
 
             foreach ($agendamentosDoDia as $agendamentoExistente) {
                 if ($novoAgendamento->conflitaCom($agendamentoExistente)) {
-                    throw new ConflitoDeHorarioException();
+                    throw new ConflitoDeHorarioException;
                 }
             }
 
@@ -61,7 +60,7 @@ final class AgendarHorarioUseCase
         });
     }
 
-    private function validarRegrasDaBarbearia(Agendamento $agendamento): void
+    private function validarRegrasDoEstabelecimento(Agendamento $agendamento, bool $podeAtravessarIntervalo): void
     {
         $expediente = $this->repositorio->buscarExpedienteDoProfissional($agendamento->profissionalId());
 
@@ -69,15 +68,15 @@ final class AgendarHorarioUseCase
             throw AgendamentoInvalidoException::profissionalInexistente();
         }
 
-        if (!$this->repositorio->profissionalRealizaServico($agendamento->profissionalId(), $agendamento->servicoId())) {
+        if (! $this->repositorio->profissionalRealizaServico($agendamento->profissionalId(), $agendamento->servicoId())) {
             throw AgendamentoInvalidoException::servicoNaoRealizadoPeloProfissional();
         }
 
-        if (!$expediente->dentroDoHorarioDeFuncionamento($agendamento->inicio(), $agendamento->fim())) {
+        if (! $expediente->dentroDoHorarioDeFuncionamento($agendamento->inicio(), $agendamento->fim())) {
             throw AgendamentoInvalidoException::foraDoExpediente();
         }
 
-        if ($expediente->cruzaIntervalo($agendamento->inicio(), $agendamento->fim())) {
+        if ($expediente->bloqueadoPeloIntervalo($agendamento->inicio(), $agendamento->fim(), $podeAtravessarIntervalo)) {
             throw AgendamentoInvalidoException::noIntervalo();
         }
     }

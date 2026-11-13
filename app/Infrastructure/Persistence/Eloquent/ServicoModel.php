@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Persistence\Eloquent;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Infrastructure\Persistence\Eloquent\Concerns\TemImagem;
+use Illuminate\Database\Eloquent\Model;
 
 class ServicoModel extends Model
 {
@@ -17,5 +17,13 @@ class ServicoModel extends Model
 
     protected $table = 'servicos';
 
-    protected $fillable = ['barbearia_id', 'nome', 'duracao_em_minutos', 'preco', 'imagem_path'];
+    protected $fillable = ['barbearia_id', 'nome', 'duracao_em_minutos', 'preco', 'pode_atravessar_intervalo', 'imagem_path'];
+
+    protected $attributes = [
+        'pode_atravessar_intervalo' => false,
+    ];
+
+    protected $casts = [
+        'pode_atravessar_intervalo' => 'boolean',
+    ];
 }

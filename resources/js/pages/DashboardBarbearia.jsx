@@ -27,7 +27,7 @@ export default function DashboardBarbearia() {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 gap-3 px-4">
                 <p className="text-neutral-500 text-sm text-center">Não foi possível carregar seus dados. Faça login novamente.</p>
-                <a href="/app" className="text-sm font-medium text-neutral-900 underline">Voltar para o login</a>
+                <a href="/app/painel/entrar" className="text-sm font-medium text-neutral-900 underline">Entrar</a>
             </div>
         );
     }

@@ -25,7 +25,7 @@ self.addEventListener('push', event => {
         self.registration.showNotification(titulo, {
             body: dados.mensagem || '',
             icon: '/icons/icon-192.png',
-            data: { url: dados.url || '/app/dashboard-barbearia' },
+            data: { url: dados.url || '/app/painel' },
         })
     );
 });
@@ -34,7 +34,7 @@ self.addEventListener('notificationclick', event => {
     event.notification.close();
 
     const destino = new URL(
-        event.notification.data?.url || '/app/dashboard-barbearia',
+        event.notification.data?.url || '/app/painel',
         self.location.origin
     ).href;
 

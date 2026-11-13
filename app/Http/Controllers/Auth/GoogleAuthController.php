@@ -8,62 +8,32 @@ use App\Application\UseCases\AutenticarComGoogleInput;
 use App\Application\UseCases\AutenticarComGoogleUseCase;
 use App\Domain\Exceptions\EmailJaCadastradoException;
 use App\Http\Controllers\Controller;
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 
-class GoogleAuthController extends Controller
+final class GoogleAuthController extends Controller
 {
     public function __construct(
         private readonly AutenticarComGoogleUseCase $useCase
     ) {}
 
-    public function redirectBarbearia(): RedirectResponse
-    {
-        return $this->driver('barbearia')->redirect();
-    }
-
     public function redirectCliente(): RedirectResponse
     {
-        return $this->driver('cliente')->redirect();
+        return $this->driver()->redirect();
     }
 
-    public function callbackBarbearia(): RedirectResponse
+    public function callbackCliente(Request $request): RedirectResponse
     {
-        $googleUser = $this->driver('barbearia')->user();
+        $googleUser = $this->driver()->user();
 
         try {
             $dadosUser = $this->autenticar($googleUser);
         } catch (EmailJaCadastradoException) {
-            return redirect('/app/entrar-barbearia?erro=google-email-em-uso');
-        }
-
-        $barbearia = BarbeariaModel::firstOrCreate(
-            ['user_id' => $dadosUser['id']],
-            [
-                'nome' => $dadosUser['nome'],
-                'email' => $dadosUser['email'],
-                'telefone' => '',
-                'endereco' => '',
-            ]
-        );
-
-        Auth::login(UserModel::find($dadosUser['id']));
-
-        return redirect('/app/dashboard-barbearia');
-    }
-
-    public function callbackCliente(): RedirectResponse
-    {
-        $googleUser = $this->driver('cliente')->user();
-
-        try {
-            $dadosUser = $this->autenticar($googleUser);
-        } catch (EmailJaCadastradoException) {
-            return redirect('/app?erro=google-email-em-uso');
+            return redirect('/app/entrar?erro=google-email-em-uso');
         }
 
         $cliente = ClienteModel::firstOrCreate(
@@ -76,15 +46,16 @@ class GoogleAuthController extends Controller
         );
 
         Auth::login(UserModel::find($dadosUser['id']));
+        $request->session()->regenerate();
 
-        return redirect('/app/dashboard-cliente');
+        // A vitrine retoma o horário que o cliente montou antes de entrar
+        return redirect('/app');
     }
 
-    private function driver(string $tipo)
+    private function driver()
     {
-        return Socialite::driver('google')->redirectUrl(
-            route("auth.google.{$tipo}.callback")
-        );
+        // route() usa o host da requisição: cada estabelecimento volta para o próprio domínio
+        return Socialite::driver('google')->redirectUrl(route('auth.google.cliente.callback'));
     }
 
     private function autenticar($googleUser): array

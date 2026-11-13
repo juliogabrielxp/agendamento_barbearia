@@ -22,8 +22,12 @@ class MeusAgendamentosController extends Controller
     {
         $cliente = ClienteModel::where('user_id', $request->user()->id)->firstOrFail();
 
+        $estabelecimento = $this->estabelecimento($request);
+
+        // O cliente vê só os horários do estabelecimento em que está navegando
         $agendamentos = AgendamentoModel::where('cliente_id', $cliente->id)
-            ->with(['profissional.barbearia', 'servico'])
+            ->whereHas('profissional', fn ($query) => $query->where('barbearia_id', $estabelecimento->id))
+            ->with(['profissional', 'servico'])
             ->orderBy('inicio', 'desc')
             ->get();
 

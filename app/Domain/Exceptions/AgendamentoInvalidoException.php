@@ -15,12 +15,12 @@ class AgendamentoInvalidoException extends DomainException
 
     public static function foraDoExpediente(): self
     {
-        return new self('O horário escolhido está fora do horário de funcionamento da barbearia.');
+        return new self('O horário escolhido está fora do horário de funcionamento do estabelecimento.');
     }
 
     public static function noIntervalo(): self
     {
-        return new self('O horário escolhido cruza o intervalo da barbearia.');
+        return new self('O horário escolhido cruza o intervalo do estabelecimento.');
     }
 
     public static function servicoNaoRealizadoPeloProfissional(): self
@@ -31,5 +31,10 @@ class AgendamentoInvalidoException extends DomainException
     public static function profissionalInexistente(): self
     {
         return new self('Profissional não encontrado.');
+    }
+
+    public static function servicoInexistente(): self
+    {
+        return new self('Serviço não encontrado neste estabelecimento.');
     }
 }

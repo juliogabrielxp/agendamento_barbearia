@@ -46,7 +46,7 @@ export default function MeusAgendamentosTab() {
 
     return (
         <div>
-            <h1 className="text-lg font-semibold text-neutral-900 mb-4">Meus Agendamentos</h1>
+            <h1 className="text-lg font-semibold text-neutral-900 mb-4">Meus horários</h1>
 
             <div className="space-y-2">
                 {agendamentos.map(agendamento => (
@@ -58,7 +58,9 @@ export default function MeusAgendamentosTab() {
                         <div className="min-w-0 flex-1">
                             <p className="font-medium text-neutral-900 text-sm truncate">{agendamento.servico?.nome}</p>
                             <p className="text-xs text-neutral-400 truncate">
-                                {agendamento.profissional?.barbearia?.nome} · com {agendamento.profissional?.nome}
+                                com {agendamento.profissional?.nome}
+                                {agendamento.status === 'concluido' && ' · concluído'}
+                                {agendamento.status === 'cancelado' && ' · cancelado'}
                             </p>
                         </div>
                         {agendamento.status !== 'concluido' && (
@@ -74,7 +76,7 @@ export default function MeusAgendamentosTab() {
                     </div>
                 ))}
                 {agendamentos.length === 0 && (
-                    <p className="text-neutral-400 text-sm text-center py-8">Você ainda não tem agendamentos.</p>
+                    <p className="text-neutral-400 text-sm text-center py-8">Você ainda não tem horários marcados aqui.</p>
                 )}
             </div>
         </div>

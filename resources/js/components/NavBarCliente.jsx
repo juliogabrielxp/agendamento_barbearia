@@ -2,7 +2,7 @@ import { CalendarPlus, CalendarCheck, User } from 'lucide-react';
 
 const ITENS = [
     { id: 'agendar', label: 'Agendar', Icon: CalendarPlus },
-    { id: 'meus-agendamentos', label: 'Meus Agendamentos', Icon: CalendarCheck },
+    { id: 'meus-agendamentos', label: 'Meus horários', Icon: CalendarCheck },
     { id: 'perfil', label: 'Perfil', Icon: User },
 ];
 

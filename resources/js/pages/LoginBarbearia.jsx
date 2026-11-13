@@ -1,16 +1,12 @@
 import { useState } from 'react';
-import { Scissors } from 'lucide-react';
+import { LayoutDashboard } from 'lucide-react';
 import api from '../lib/api';
 import { Link } from 'react-router-dom';
 
 export default function LoginBarbearia() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [erro, setErro] = useState(() =>
-        new URLSearchParams(window.location.search).get('erro') === 'google-email-em-uso'
-            ? 'Já existe uma conta com este e-mail. Entre com e-mail e senha.'
-            : null
-    );
+    const [erro, setErro] = useState(null);
     const [enviando, setEnviando] = useState(false);
 
     async function handleSubmit(e) {
@@ -21,7 +17,7 @@ export default function LoginBarbearia() {
         try {
             await api.get('/sanctum/csrf-cookie');
             await api.post('/login-barbearia', { email, password });
-            window.location.href = '/app/dashboard-barbearia';
+            window.location.href = '/app/painel';
         } catch (error) {
             const mensagem = error.response?.data?.errors?.email?.[0]
                 ?? (error.response?.status === 429
@@ -37,14 +33,14 @@ export default function LoginBarbearia() {
         <div className="min-h-screen bg-neutral-50 flex flex-col justify-center px-6 py-10">
             <div className="max-w-sm mx-auto w-full">
                 <div className="w-12 h-12 bg-neutral-900 rounded-xl flex items-center justify-center mb-6">
-                    <Scissors size={22} className="text-white" strokeWidth={2} />
+                    <LayoutDashboard size={22} className="text-white" strokeWidth={2} />
                 </div>
 
                 <h1 className="text-2xl font-semibold text-neutral-900 mb-2 leading-tight">
-                    Acesso da barbearia
+                    Área da profissional
                 </h1>
                 <p className="text-sm text-neutral-500 mb-8">
-                    Entre com o e-mail e a senha da sua barbearia.
+                    Entre com o e-mail e a senha do estabelecimento para ver a agenda.
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -86,7 +82,7 @@ export default function LoginBarbearia() {
                     to="/app"
                     className="block text-center text-xs text-neutral-500 hover:text-neutral-800 transition mt-6"
                 >
-                  ← Sou cliente, voltar
+                  ← Voltar aos serviços
                 </Link>
             </div>
         </div>

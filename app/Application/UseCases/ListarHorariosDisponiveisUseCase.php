@@ -6,94 +6,83 @@ namespace App\Application\UseCases;
 
 use App\Domain\Agendamento;
 use App\Domain\Contracts\AgendamentoRepositoryInterface;
-use DateTimeImmutable;
+use App\Domain\Contracts\RelogioInterface;
+use App\Domain\Expediente;
 
+/**
+ * Horários em que o serviço cabe na agenda do profissional, seguindo as mesmas
+ * regras que o AgendarHorarioUseCase aplica na hora de gravar.
+ */
 final class ListarHorariosDisponiveisUseCase
 {
+    /**
+     * Os horários oferecidos andam numa grade fixa, independente da duração do serviço.
+     * Se andassem pela duração, um serviço de 6 h só ofereceria 2 horários no dia.
+     */
+    public const PASSO_DA_GRADE_EM_MINUTOS = 30;
+
     public function __construct(
-        private readonly AgendamentoRepositoryInterface $repositorio
-    ) {
-    }
+        private readonly AgendamentoRepositoryInterface $repositorio,
+        private readonly RelogioInterface $relogio
+    ) {}
 
-    public function executar(
-        int $profissionalId,
-        int $duracaoEmMinutos,
-        DateTimeImmutable $data,
-        string $horaAbertura,
-        string $horaFechamento,
-        ?string $intervaloInicio,
-        ?string $intervaloFim
-    ): array {
-        $agendamentosExistentes = $this->repositorio->buscarPorProfissionalEData($profissionalId, $data);
+    /** @return Agendamento[] candidatos livres, em ordem de horário */
+    public function executar(ListarHorariosDisponiveisInput $input): array
+    {
+        $expediente = $this->repositorio->buscarExpedienteDoProfissional($input->profissionalId);
 
-        $blocoAlmoco = $this->criarBlocoDeAlmoco($profissionalId, $data, $intervaloInicio, $intervaloFim);
-        if ($blocoAlmoco !== null) {
-            $agendamentosExistentes[] = $blocoAlmoco;
+        if ($expediente === null
+            || ! $this->repositorio->profissionalRealizaServico($input->profissionalId, $input->servicoId)) {
+            return [];
         }
 
-        $candidatos = $this->gerarHorariosCandidatos($profissionalId, $duracaoEmMinutos, $data, $horaAbertura, $horaFechamento);
+        $ocupados = $this->repositorio->buscarPorProfissionalEData($input->profissionalId, $input->data);
+        $agora = $this->relogio->agora();
 
-        return array_values(array_filter($candidatos, function (Agendamento $candidato) use ($agendamentosExistentes) {
-            foreach ($agendamentosExistentes as $existente) {
-                if ($candidato->conflitaCom($existente)) {
-                    return false;
-                }
-            }
-            return true;
-        }));
-    }
-
-    private function criarBlocoDeAlmoco(
-        int $profissionalId,
-        DateTimeImmutable $data,
-        ?string $intervaloInicio,
-        ?string $intervaloFim
-    ): ?Agendamento {
-        if ($intervaloInicio === null || $intervaloFim === null) {
-            return null;
-        }
-
-        [$horaI, $minI] = explode(':', $intervaloInicio);
-        [$horaF, $minF] = explode(':', $intervaloFim);
-
-        $inicio = $data->setTime((int) $horaI, (int) $minI);
-        $fim = $data->setTime((int) $horaF, (int) $minF);
-        $duracaoEmMinutos = (int) (($fim->getTimestamp() - $inicio->getTimestamp()) / 60);
-
-        return new Agendamento(
-            profissionalId: $profissionalId,
-            clienteId: 0,
-            servicoId: 0,
-            inicio: $inicio,
-            duracaoEmMinutos: $duracaoEmMinutos
+        $livres = array_filter(
+            $this->gerarCandidatos($input, $expediente),
+            fn (Agendamento $candidato) => $candidato->inicio() > $agora
+                && ! $expediente->bloqueadoPeloIntervalo(
+                    $candidato->inicio(),
+                    $candidato->fim(),
+                    $input->podeAtravessarIntervalo
+                )
+                && ! $this->conflitaComAlgum($candidato, $ocupados)
         );
+
+        return array_values($livres);
     }
 
-    private function gerarHorariosCandidatos(
-        int $profissionalId,
-        int $duracaoEmMinutos,
-        DateTimeImmutable $data,
-        string $horaAbertura,
-        string $horaFechamento
-    ): array {
-        [$horaA, $minA] = explode(':', $horaAbertura);
-        [$horaF, $minF] = explode(':', $horaFechamento);
-
+    /** @return Agendamento[] */
+    private function gerarCandidatos(ListarHorariosDisponiveisInput $input, Expediente $expediente): array
+    {
         $candidatos = [];
-        $horario = $data->setTime((int) $horaA, (int) $minA);
-        $fechamento = $data->setTime((int) $horaF, (int) $minF);
+        $inicio = $expediente->aberturaNoDia($input->data);
+        $fechamento = $expediente->fechamentoNoDia($input->data);
 
-        while ($horario->modify("+{$duracaoEmMinutos} minutes") <= $fechamento) {
+        while ($inicio->modify("+{$input->duracaoEmMinutos} minutes") <= $fechamento) {
             $candidatos[] = new Agendamento(
-                profissionalId: $profissionalId,
+                profissionalId: $input->profissionalId,
                 clienteId: 0,
-                servicoId: 0,
-                inicio: $horario,
-                duracaoEmMinutos: $duracaoEmMinutos
+                servicoId: $input->servicoId,
+                inicio: $inicio,
+                duracaoEmMinutos: $input->duracaoEmMinutos
             );
-            $horario = $horario->modify("+{$duracaoEmMinutos} minutes");
+            $inicio = $inicio->modify('+'.self::PASSO_DA_GRADE_EM_MINUTOS.' minutes');
         }
 
         return $candidatos;
+    }
+
+    /** @param Agendamento[] $ocupados */
+    private function conflitaComAlgum(Agendamento $candidato, array $ocupados): bool
+    {
+        foreach ($ocupados as $ocupado) {
+            if ($candidato->conflitaCom($ocupado)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

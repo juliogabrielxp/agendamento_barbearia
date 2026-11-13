@@ -21,8 +21,11 @@ class NotificacaoDeAgendamentoTest extends TestCase
     use RefreshDatabase;
 
     private UserModel $dono;
+
     private ProfissionalModel $profissional;
+
     private ServicoModel $servico;
+
     private ClienteModel $cliente;
 
     protected function setUp(): void
@@ -32,6 +35,7 @@ class NotificacaoDeAgendamentoTest extends TestCase
         $this->dono = UserModel::create(['nome' => 'Dono', 'email' => 'dono@barbearia.com', 'password' => 'senha-segura-123']);
 
         $barbearia = BarbeariaModel::create([
+            'dominio' => 'localhost', // host padrão das requisições de teste
             'user_id' => $this->dono->id,
             'nome' => 'Barbearia Teste',
             'email' => 'dono@barbearia.com',
@@ -68,8 +72,7 @@ class NotificacaoDeAgendamentoTest extends TestCase
         $this->mock(NotificadorDePushInterface::class, function (MockInterface $mock) use ($donoId) {
             $mock->shouldReceive('enviarParaUsuario')
                 ->once()
-                ->withArgs(fn (int $userId, string $titulo, string $mensagem) =>
-                    $userId === $donoId && str_contains($mensagem, 'Maria'))
+                ->withArgs(fn (int $userId, string $titulo, string $mensagem) => $userId === $donoId && str_contains($mensagem, 'Maria'))
                 ->andReturn(1);
         });
 

@@ -8,20 +8,19 @@ use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
+use App\Infrastructure\Persistence\Eloquent\UserModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Infrastructure\Persistence\Eloquent\UserModel;
 
 class AgendamentoIntegrationTest extends TestCase
 {
-
     use RefreshDatabase;
 
     private UserModel $usuario;
 
     protected function setUp(): void
     {
-       parent::setUp();
+        parent::setUp();
 
         $this->usuario = UserModel::create([
             'nome' => 'Usuário de Teste',
@@ -36,6 +35,7 @@ class AgendamentoIntegrationTest extends TestCase
     {
 
         $barbearia = BarbeariaModel::create([
+            'dominio' => 'localhost', // host padrão das requisições de teste
             'nome' => 'Barbearia Teste',
             'telefone' => '83999999999',
             'email' => 'teste@barbearia.com',
@@ -62,7 +62,6 @@ class AgendamentoIntegrationTest extends TestCase
             'email' => 'maria@teste.com',
         ]);
 
-
         $response = $this->postJson('/api/agendamentos', [
             'profissional_id' => $profissional->id,
             'cliente_id' => $cliente->id,
@@ -70,7 +69,6 @@ class AgendamentoIntegrationTest extends TestCase
             'duracao_em_minutos' => 30,
             'inicio' => '2030-01-10 10:00:00',
         ]);
-
 
         $response->assertStatus(201);
 
@@ -84,6 +82,7 @@ class AgendamentoIntegrationTest extends TestCase
     {
 
         $barbearia = BarbeariaModel::create([
+            'dominio' => 'localhost', // host padrão das requisições de teste
             'nome' => 'Barbearia Teste',
             'telefone' => '83999999999',
             'email' => 'teste2@barbearia.com',
@@ -110,7 +109,6 @@ class AgendamentoIntegrationTest extends TestCase
             'email' => 'maria@teste.com',
         ]);
 
-
         $this->postJson('/api/agendamentos', [
             'profissional_id' => $profissional->id,
             'cliente_id' => $cliente->id,
@@ -118,7 +116,6 @@ class AgendamentoIntegrationTest extends TestCase
             'duracao_em_minutos' => 30,
             'inicio' => '2030-01-10 15:00:00',
         ])->assertStatus(201);
-
 
         $response = $this->postJson('/api/agendamentos', [
             'profissional_id' => $profissional->id,
@@ -128,13 +125,13 @@ class AgendamentoIntegrationTest extends TestCase
             'inicio' => '2030-01-10 15:15:00',
         ]);
 
-
         $response->assertStatus(409);
     }
 
     public function test_duracao_enviada_pelo_cliente_e_ignorada_e_conflito_retorna_409(): void
     {
         $barbearia = BarbeariaModel::create([
+            'dominio' => 'localhost', // host padrão das requisições de teste
             'nome' => 'Barbearia Teste',
             'telefone' => '83999999999',
             'email' => 'teste3@barbearia.com',
