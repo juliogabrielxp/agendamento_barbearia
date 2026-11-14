@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 use Tests\Feature\Concerns\CriaCenarioDeAgenda;
 use Tests\TestCase;
@@ -50,6 +51,21 @@ class LogoutTest extends TestCase
         $this->comCookie($cookie)->getJson('/api/servicos')->assertUnauthorized();
     }
 
+    public function test_sessao_nova_depois_do_logout_nao_fica_no_nome_de_quem_saiu(): void
+    {
+        $this->criarBarbearia('dona@estudio.com');
+        $this->criarCliente('maria@email.com');
+        $cookie = $this->entrar('/login-cliente', 'maria@email.com');
+
+        $this->comCookie($cookie)->postJson('/api/logout')->assertOk();
+
+        // A sessão do login é apagada e a nova, gravada na mesma resposta, é anônima.
+        // Com user_id preenchido, "sair de todos os aparelhos" ou uma auditoria de
+        // sessões contaria como da Maria uma sessão que não é mais dela.
+        $this->assertDatabaseMissing('sessions', ['id' => $cookie]);
+        $this->assertSame(0, DB::table('sessions')->whereNotNull('user_id')->count());
+    }
+
     public function test_logout_sem_login_responde_401(): void
     {
         $this->criarBarbearia('dona@estudio.com');
@@ -74,6 +90,7 @@ class LogoutTest extends TestCase
     private function comCookie(string $idDaSessao): static
     {
         $this->app['auth']->forgetGuards();
+        $this->app->forgetInstance('auth.driver');
         $this->app['session']->forgetDrivers();
         $this->app->forgetInstance('session.store');
 
