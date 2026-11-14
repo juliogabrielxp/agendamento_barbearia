@@ -39,6 +39,7 @@ final class HorarioDisponivelController extends Controller
             duracaoEmMinutos: $servico->duracao_em_minutos,
             podeAtravessarIntervalo: $servico->pode_atravessar_intervalo,
             data: new DateTimeImmutable($dados['data']),
+            expediente: $estabelecimento->expediente(),
         ));
 
         return response()->json(

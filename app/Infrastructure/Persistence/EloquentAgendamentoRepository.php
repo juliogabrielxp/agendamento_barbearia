@@ -24,18 +24,7 @@ class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
     {
         $barbearia = ProfissionalModel::with('barbearia')->find($profissionalId)?->barbearia;
 
-        if ($barbearia === null) {
-            return null;
-        }
-
-        $horario = fn (?string $valor) => $valor ? substr($valor, 0, 5) : null;
-
-        return new Expediente(
-            abertura: $horario($barbearia->hora_abertura),
-            fechamento: $horario($barbearia->hora_fechamento),
-            intervaloInicio: $horario($barbearia->intervalo_inicio),
-            intervaloFim: $horario($barbearia->intervalo_fim),
-        );
+        return $barbearia?->expediente();
     }
 
     public function profissionalRealizaServico(int $profissionalId, int $servicoId): bool

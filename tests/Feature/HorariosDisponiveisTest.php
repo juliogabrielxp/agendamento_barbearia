@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 use Tests\Feature\Concerns\CriaCenarioDeAgenda;
 use Tests\TestCase;
@@ -122,6 +124,22 @@ class HorariosDisponiveisTest extends TestCase
         ]));
 
         $response->assertOk()->assertJsonCount(22);
+    }
+
+    public function test_estabelecimento_e_profissional_sao_lidos_uma_vez_so(): void
+    {
+        $tabelas = [];
+        DB::listen(function (QueryExecuted $query) use (&$tabelas): void {
+            if (preg_match('/^select .* from (\w+)/', str_replace(['`', '"'], '', $query->sql), $m)) {
+                $tabelas[] = $m[1];
+            }
+        });
+
+        $this->consultar('2030-01-10')->assertOk()->assertJsonCount(22);
+
+        $vezes = array_count_values($tabelas);
+        $this->assertSame(1, $vezes['barbearias'] ?? 0, 'barbearias: '.implode(', ', $tabelas));
+        $this->assertSame(1, $vezes['profissionais'] ?? 0, 'profissionais: '.implode(', ', $tabelas));
     }
 
     public function test_nao_consulta_servico_de_outro_estabelecimento(): void

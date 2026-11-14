@@ -29,10 +29,9 @@ final class ListarHorariosDisponiveisUseCase
     /** @return Agendamento[] candidatos livres, em ordem de horário */
     public function executar(ListarHorariosDisponiveisInput $input): array
     {
-        $expediente = $this->repositorio->buscarExpedienteDoProfissional($input->profissionalId);
+        $expediente = $input->expediente;
 
-        if ($expediente === null
-            || ! $this->repositorio->profissionalRealizaServico($input->profissionalId, $input->servicoId)) {
+        if (! $this->repositorio->profissionalRealizaServico($input->profissionalId, $input->servicoId)) {
             return [];
         }
 
