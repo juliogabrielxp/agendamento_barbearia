@@ -81,12 +81,14 @@ class LimpezaDeAssinaturasExpiradasTest extends TestCase
             'curve_name' => 'prime256v1',
         ]));
         $base64url = fn (string $bytes) => rtrim(strtr(base64_encode($bytes), '+/', '-_'), '=');
+        // O OpenSSL corta zeros à esquerda de x e y; o navegador sempre manda os 32 bytes de cada
+        $coordenada = fn (string $bytes) => str_pad($bytes, 32, "\0", STR_PAD_LEFT);
 
         PushSubscriptionModel::create([
             'user_id' => $userId,
             'endpoint_hash' => hash('sha256', $endpoint),
             'endpoint' => $endpoint,
-            'p256dh' => $base64url("\x04".$chave['ec']['x'].$chave['ec']['y']),
+            'p256dh' => $base64url("\x04".$coordenada($chave['ec']['x']).$coordenada($chave['ec']['y'])),
             'auth' => $base64url(random_bytes(16)),
         ]);
     }
