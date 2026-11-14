@@ -9,7 +9,9 @@ use App\Domain\Exceptions\EnvioDeEmailFalhouException;
 use App\Infrastructure\Notifications\CodigoDeConfirmacaoMail;
 use App\Infrastructure\Notifications\ContaJaExisteMail;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Testing\TestResponse;
@@ -269,6 +271,30 @@ class CadastroComConfirmacaoDeEmailTest extends TestCase
         $response->assertStatus(422)->assertJsonValidationErrors('email');
         $this->assertSame(1, UserModel::where('email', 'maria@email.com')->count());
         $this->assertNull(UserModel::where('email', 'maria@email.com')->value('password'));
+    }
+
+    public function test_conta_criada_pelo_google_no_meio_da_confirmacao_responde_422_e_nao_500(): void
+    {
+        $this->pedirCadastro('maria@email.com');
+        $codigo = $this->codigoEnviadoPara('maria@email.com');
+
+        // O login com Google grava a conta logo depois de a confirmação conferir que o e-mail estava livre
+        $googleJaGravou = false;
+        DB::listen(function (QueryExecuted $query) use (&$googleJaGravou): void {
+            $sql = str_replace(['`', '"'], '', $query->sql);
+            if ($googleJaGravou || ! str_contains($sql, 'exists(select * from users where email')) {
+                return;
+            }
+            $googleJaGravou = true;
+            UserModel::create(['google_id' => 'google-123', 'nome' => 'Maria', 'email' => 'maria@email.com']);
+        });
+
+        $response = $this->postJson('/cadastro-cliente/confirmar', ['codigo' => $codigo]);
+
+        $response->assertStatus(422)->assertJsonValidationErrors('email');
+        $this->assertSame(1, UserModel::where('email', 'maria@email.com')->count());
+        $this->assertNull(UserModel::where('email', 'maria@email.com')->value('password'));
+        $this->assertDatabaseMissing('clientes', ['email' => 'maria@email.com']);
     }
 
     public function test_falha_no_envio_do_email_retorna_503_e_nao_guarda_o_cadastro(): void

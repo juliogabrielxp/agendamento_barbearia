@@ -67,7 +67,12 @@ final class ConfirmarCadastroDeClienteUseCase
                 return new EmailJaCadastradoException;
             }
 
-            $usuario = $this->usuarios->criarComSenha($cadastro->nome, $cadastro->email, $cadastro->senhaHash);
+            // A conferência acima não trava nada: um login com Google pode gravar o e-mail no meio
+            try {
+                $usuario = $this->usuarios->criarComSenha($cadastro->nome, $cadastro->email, $cadastro->senhaHash);
+            } catch (EmailJaCadastradoException $e) {
+                return $e;
+            }
 
             $this->clientes->criarParaUsuario($usuario['id'], $cadastro->nome, $cadastro->email);
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Contracts;
 
+use App\Domain\Exceptions\EmailJaCadastradoException;
+
 interface UserRepositoryInterface
 {
     public function buscarPorGoogleId(string $googleId): ?array;
@@ -20,5 +22,6 @@ interface UserRepositoryInterface
 
     public function emailJaCadastrado(string $email): bool;
 
+    /** @throws EmailJaCadastradoException quando o e-mail já tem conta */
     public function criarComSenha(string $nome, string $email, string $senhaHash): array;
 }

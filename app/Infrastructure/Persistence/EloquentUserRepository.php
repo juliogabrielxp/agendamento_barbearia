@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Infrastructure\Persistence;
 
 use App\Domain\Contracts\UserRepositoryInterface;
+use App\Domain\Exceptions\EmailJaCadastradoException;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
+use Illuminate\Database\UniqueConstraintViolationException;
 
 class EloquentUserRepository implements UserRepositoryInterface
 {
@@ -66,11 +68,16 @@ class EloquentUserRepository implements UserRepositoryInterface
 
     public function criarComSenha(string $nome, string $email, string $senhaHash): array
     {
-        $user = UserModel::create([
-            'nome' => $nome,
-            'email' => $email,
-            'password' => $senhaHash,
-        ]);
+        try {
+            $user = UserModel::create([
+                'nome' => $nome,
+                'email' => $email,
+                'password' => $senhaHash,
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            // Outra conta (login com Google) gravou o mesmo e-mail depois da conferência
+            throw new EmailJaCadastradoException;
+        }
 
         return $user->toArray();
     }
