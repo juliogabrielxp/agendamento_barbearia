@@ -14,6 +14,19 @@ use Tests\TestCase;
  */
 class ComandosDestrutivosEmProducaoTest extends TestCase
 {
+    /**
+     * Os comandos rodam contra um SQLite em memória à parte: um db:wipe de verdade na conexão
+     * padrão apagaria as tabelas do MySQL de teste e derrubaria o resto da suíte.
+     */
+    private const DESCARTAVEL = 'descartavel';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['database.connections.'.self::DESCARTAVEL => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']]);
+    }
+
     protected function tearDown(): void
     {
         DB::prohibitDestructiveCommands(false);
@@ -26,8 +39,8 @@ class ComandosDestrutivosEmProducaoTest extends TestCase
         $this->app['env'] = 'production';
         (new AppServiceProvider($this->app))->boot();
 
-        $this->artisan('migrate:fresh', ['--force' => true])->assertFailed();
-        $this->artisan('db:wipe', ['--force' => true])->assertFailed();
+        $this->artisan('migrate:fresh', ['--force' => true, '--database' => self::DESCARTAVEL])->assertFailed();
+        $this->artisan('db:wipe', ['--force' => true, '--database' => self::DESCARTAVEL])->assertFailed();
     }
 
     public function test_fora_de_producao_os_comandos_continuam_liberados(): void
@@ -35,6 +48,6 @@ class ComandosDestrutivosEmProducaoTest extends TestCase
         $this->app['env'] = 'local';
         (new AppServiceProvider($this->app))->boot();
 
-        $this->artisan('db:wipe', ['--force' => true])->assertSuccessful();
+        $this->artisan('db:wipe', ['--force' => true, '--database' => self::DESCARTAVEL])->assertSuccessful();
     }
 }
