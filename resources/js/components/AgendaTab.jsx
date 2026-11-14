@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../lib/api';
+import { dataLocal } from '../lib/formatar';
 
 const STATUS_CONFIG = {
     confirmado: { label: 'Confirmado', className: 'bg-blue-50 text-blue-700' },
@@ -8,7 +9,7 @@ const STATUS_CONFIG = {
 };
 
 export default function AgendaTab() {
-    const hoje = new Date().toISOString().split('T')[0];
+    const hoje = dataLocal();
     const [data, setData] = useState(hoje);
     const [agendamentos, setAgendamentos] = useState([]);
     const [carregando, setCarregando] = useState(true);
