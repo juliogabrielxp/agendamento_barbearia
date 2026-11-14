@@ -1,4 +1,25 @@
 services:
+  # Banco de desenvolvimento deste projeto, com os mesmos usuários e GRANTs da produção
+  # (docker/mysql-dev/01-usuarios.sql): o app só tem DML, as migrations usam outro usuário.
+  # Os dados ficam no volume mysql-dev-data e sobrevivem a "docker compose down" (sem -v).
+  mysql-dev:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root-dev
+      MYSQL_DATABASE: agendamento_barbearia
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    ports:
+      - "127.0.0.1:3309:3306"
+    volumes:
+      - mysql-dev-data:/var/lib/mysql
+      - ./docker/mysql-dev:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 180s
+
   mysql-test:
     image: mysql:8.0
     environment:
@@ -17,3 +38,6 @@ services:
       timeout: 5s
       retries: 10
       start_period: 180s
+
+volumes:
+  mysql-dev-data:

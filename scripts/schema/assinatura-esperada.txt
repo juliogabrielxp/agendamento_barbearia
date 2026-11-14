@@ -1,0 +1,198 @@
+BANCO collation=utf8mb4_unicode_ci
+COLUNA agendamentos.cliente_id bigint unsigned not-null default=<nenhum>
+COLUNA agendamentos.created_at timestamp null default=<nenhum>
+COLUNA agendamentos.id bigint unsigned not-null default=<nenhum> auto_increment
+COLUNA agendamentos.inicio datetime not-null default=<nenhum>
+COLUNA agendamentos.profissional_id bigint unsigned not-null default=<nenhum>
+COLUNA agendamentos.servico_id bigint unsigned not-null default=<nenhum>
+COLUNA agendamentos.status varchar(255) not-null default=confirmado utf8mb4_unicode_ci
+COLUNA agendamentos.updated_at timestamp null default=<nenhum>
+COLUNA barbearias.created_at timestamp null default=<nenhum>
+COLUNA barbearias.dominio varchar(255) null default=<nenhum> utf8mb4_unicode_ci
+COLUNA barbearias.email varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA barbearias.endereco varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA barbearias.hora_abertura time not-null default=08:00:00
+COLUNA barbearias.hora_fechamento time not-null default=19:00:00
+COLUNA barbearias.id bigint unsigned not-null default=<nenhum> auto_increment
+COLUNA barbearias.imagem_path varchar(255) null default=<nenhum> utf8mb4_unicode_ci
+COLUNA barbearias.intervalo_fim time null default=<nenhum>
+COLUNA barbearias.intervalo_inicio time null default=<nenhum>
+COLUNA barbearias.nome varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA barbearias.telefone varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA barbearias.updated_at timestamp null default=<nenhum>
+COLUNA barbearias.user_id bigint unsigned null default=<nenhum>
+COLUNA cache.expiration bigint not-null default=<nenhum>
+COLUNA cache.key varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA cache.value mediumtext not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA cache_locks.expiration bigint not-null default=<nenhum>
+COLUNA cache_locks.key varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA cache_locks.owner varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA cadastros_pendentes.chave_hash varchar(64) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA cadastros_pendentes.codigo_hash varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA cadastros_pendentes.created_at timestamp null default=<nenhum>
+COLUNA cadastros_pendentes.email varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA cadastros_pendentes.enviado_em datetime not-null default=<nenhum>
+COLUNA cadastros_pendentes.expira_em datetime not-null default=<nenhum>
+COLUNA cadastros_pendentes.id bigint unsigned not-null default=<nenhum> auto_increment
+COLUNA cadastros_pendentes.nome varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA cadastros_pendentes.senha_hash varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA cadastros_pendentes.tentativas tinyint unsigned not-null default=0
+COLUNA cadastros_pendentes.updated_at timestamp null default=<nenhum>
+COLUNA clientes.created_at timestamp null default=<nenhum>
+COLUNA clientes.email varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA clientes.id bigint unsigned not-null default=<nenhum> auto_increment
+COLUNA clientes.nome varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA clientes.observacoes text null default=<nenhum> utf8mb4_unicode_ci
+COLUNA clientes.telefone varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA clientes.updated_at timestamp null default=<nenhum>
+COLUNA clientes.user_id bigint unsigned null default=<nenhum>
+COLUNA failed_jobs.connection varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA failed_jobs.exception longtext not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA failed_jobs.failed_at timestamp not-null default=CURRENT_TIMESTAMP DEFAULT_GENERATED
+COLUNA failed_jobs.id bigint unsigned not-null default=<nenhum> auto_increment
+COLUNA failed_jobs.payload longtext not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA failed_jobs.queue varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA failed_jobs.uuid varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA job_batches.cancelled_at int null default=<nenhum>
+COLUNA job_batches.created_at int not-null default=<nenhum>
+COLUNA job_batches.failed_job_ids longtext not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA job_batches.failed_jobs int not-null default=<nenhum>
+COLUNA job_batches.finished_at int null default=<nenhum>
+COLUNA job_batches.id varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA job_batches.name varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA job_batches.options mediumtext null default=<nenhum> utf8mb4_unicode_ci
+COLUNA job_batches.pending_jobs int not-null default=<nenhum>
+COLUNA job_batches.total_jobs int not-null default=<nenhum>
+COLUNA jobs.attempts smallint unsigned not-null default=<nenhum>
+COLUNA jobs.available_at int unsigned not-null default=<nenhum>
+COLUNA jobs.created_at int unsigned not-null default=<nenhum>
+COLUNA jobs.id bigint unsigned not-null default=<nenhum> auto_increment
+COLUNA jobs.payload longtext not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA jobs.queue varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA jobs.reserved_at int unsigned null default=<nenhum>
+COLUNA migrations.batch int not-null default=<nenhum>
+COLUNA migrations.id int unsigned not-null default=<nenhum> auto_increment
+COLUNA migrations.migration varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA password_reset_tokens.created_at timestamp null default=<nenhum>
+COLUNA password_reset_tokens.email varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA password_reset_tokens.token varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA personal_access_tokens.abilities text null default=<nenhum> utf8mb4_unicode_ci
+COLUNA personal_access_tokens.created_at timestamp null default=<nenhum>
+COLUNA personal_access_tokens.expires_at timestamp null default=<nenhum>
+COLUNA personal_access_tokens.id bigint unsigned not-null default=<nenhum> auto_increment
+COLUNA personal_access_tokens.last_used_at timestamp null default=<nenhum>
+COLUNA personal_access_tokens.name text not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA personal_access_tokens.token varchar(64) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA personal_access_tokens.tokenable_id bigint unsigned not-null default=<nenhum>
+COLUNA personal_access_tokens.tokenable_type varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA personal_access_tokens.updated_at timestamp null default=<nenhum>
+COLUNA profissionais.barbearia_id bigint unsigned not-null default=<nenhum>
+COLUNA profissionais.created_at timestamp null default=<nenhum>
+COLUNA profissionais.id bigint unsigned not-null default=<nenhum> auto_increment
+COLUNA profissionais.nome varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA profissionais.updated_at timestamp null default=<nenhum>
+COLUNA profissional_servico.profissional_id bigint unsigned not-null default=<nenhum>
+COLUNA profissional_servico.servico_id bigint unsigned not-null default=<nenhum>
+COLUNA push_subscriptions.auth varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA push_subscriptions.created_at timestamp null default=<nenhum>
+COLUNA push_subscriptions.endpoint text not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA push_subscriptions.endpoint_hash varchar(64) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA push_subscriptions.id bigint unsigned not-null default=<nenhum> auto_increment
+COLUNA push_subscriptions.p256dh varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA push_subscriptions.updated_at timestamp null default=<nenhum>
+COLUNA push_subscriptions.user_id bigint unsigned not-null default=<nenhum>
+COLUNA servicos.barbearia_id bigint unsigned not-null default=<nenhum>
+COLUNA servicos.created_at timestamp null default=<nenhum>
+COLUNA servicos.duracao_em_minutos int unsigned not-null default=<nenhum>
+COLUNA servicos.id bigint unsigned not-null default=<nenhum> auto_increment
+COLUNA servicos.imagem_path varchar(255) null default=<nenhum> utf8mb4_unicode_ci
+COLUNA servicos.nome varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA servicos.pode_atravessar_intervalo tinyint(1) not-null default=0
+COLUNA servicos.preco decimal(8,2) not-null default=<nenhum>
+COLUNA servicos.updated_at timestamp null default=<nenhum>
+COLUNA sessions.id varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA sessions.ip_address varchar(45) null default=<nenhum> utf8mb4_unicode_ci
+COLUNA sessions.last_activity int not-null default=<nenhum>
+COLUNA sessions.payload longtext not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA sessions.user_agent text null default=<nenhum> utf8mb4_unicode_ci
+COLUNA sessions.user_id bigint unsigned null default=<nenhum>
+COLUNA users.avatar varchar(255) null default=<nenhum> utf8mb4_unicode_ci
+COLUNA users.created_at timestamp null default=<nenhum>
+COLUNA users.email varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA users.google_id varchar(255) null default=<nenhum> utf8mb4_unicode_ci
+COLUNA users.id bigint unsigned not-null default=<nenhum> auto_increment
+COLUNA users.nome varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA users.password varchar(255) null default=<nenhum> utf8mb4_unicode_ci
+COLUNA users.updated_at timestamp null default=<nenhum>
+FK agendamentos.agendamentos_cliente_id_foreign (cliente_id) -> clientes delete=NO ACTION update=NO ACTION
+FK agendamentos.agendamentos_profissional_id_foreign (profissional_id) -> profissionais delete=NO ACTION update=NO ACTION
+FK agendamentos.agendamentos_servico_id_foreign (servico_id) -> servicos delete=NO ACTION update=NO ACTION
+FK barbearias.barbearias_user_id_foreign (user_id) -> users delete=SET NULL update=NO ACTION
+FK clientes.clientes_user_id_foreign (user_id) -> users delete=SET NULL update=NO ACTION
+FK profissionais.profissionais_barbearia_id_foreign (barbearia_id) -> barbearias delete=CASCADE update=NO ACTION
+FK profissional_servico.profissional_servico_profissional_id_foreign (profissional_id) -> profissionais delete=CASCADE update=NO ACTION
+FK profissional_servico.profissional_servico_servico_id_foreign (servico_id) -> servicos delete=CASCADE update=NO ACTION
+FK push_subscriptions.push_subscriptions_user_id_foreign (user_id) -> users delete=CASCADE update=NO ACTION
+FK servicos.servicos_barbearia_id_foreign (barbearia_id) -> barbearias delete=CASCADE update=NO ACTION
+INDICE agendamentos.agendamentos_cliente_id_foreign (cliente_id)
+INDICE agendamentos.agendamentos_profissional_id_inicio_index (profissional_id,inicio)
+INDICE agendamentos.agendamentos_servico_id_foreign (servico_id)
+INDICE agendamentos.PRIMARY unique (id)
+INDICE barbearias.barbearias_dominio_unique unique (dominio)
+INDICE barbearias.barbearias_email_unique unique (email)
+INDICE barbearias.barbearias_user_id_unique unique (user_id)
+INDICE barbearias.PRIMARY unique (id)
+INDICE cache.cache_expiration_index (expiration)
+INDICE cache.PRIMARY unique (key)
+INDICE cache_locks.cache_locks_expiration_index (expiration)
+INDICE cache_locks.PRIMARY unique (key)
+INDICE cadastros_pendentes.cadastros_pendentes_email_unique unique (email)
+INDICE cadastros_pendentes.PRIMARY unique (id)
+INDICE clientes.clientes_email_unique unique (email)
+INDICE clientes.clientes_user_id_unique unique (user_id)
+INDICE clientes.PRIMARY unique (id)
+INDICE failed_jobs.failed_jobs_connection_queue_failed_at_index (connection,queue,failed_at)
+INDICE failed_jobs.failed_jobs_uuid_unique unique (uuid)
+INDICE failed_jobs.PRIMARY unique (id)
+INDICE job_batches.PRIMARY unique (id)
+INDICE jobs.jobs_queue_index (queue)
+INDICE jobs.PRIMARY unique (id)
+INDICE migrations.PRIMARY unique (id)
+INDICE password_reset_tokens.PRIMARY unique (email)
+INDICE personal_access_tokens.personal_access_tokens_expires_at_index (expires_at)
+INDICE personal_access_tokens.personal_access_tokens_token_unique unique (token)
+INDICE personal_access_tokens.personal_access_tokens_tokenable_type_tokenable_id_index (tokenable_type,tokenable_id)
+INDICE personal_access_tokens.PRIMARY unique (id)
+INDICE profissionais.PRIMARY unique (id)
+INDICE profissionais.profissionais_barbearia_id_foreign (barbearia_id)
+INDICE profissional_servico.PRIMARY unique (profissional_id,servico_id)
+INDICE profissional_servico.profissional_servico_servico_id_foreign (servico_id)
+INDICE push_subscriptions.PRIMARY unique (id)
+INDICE push_subscriptions.push_subscriptions_endpoint_hash_unique unique (endpoint_hash)
+INDICE push_subscriptions.push_subscriptions_user_id_foreign (user_id)
+INDICE servicos.PRIMARY unique (id)
+INDICE servicos.servicos_barbearia_id_foreign (barbearia_id)
+INDICE sessions.PRIMARY unique (id)
+INDICE sessions.sessions_last_activity_index (last_activity)
+INDICE sessions.sessions_user_id_index (user_id)
+INDICE users.PRIMARY unique (id)
+INDICE users.users_email_unique unique (email)
+INDICE users.users_google_id_unique unique (google_id)
+TABELA agendamentos engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA barbearias engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA cache engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA cache_locks engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA cadastros_pendentes engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA clientes engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA failed_jobs engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA job_batches engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA jobs engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA migrations engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA password_reset_tokens engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA personal_access_tokens engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA profissionais engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA profissional_servico engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA push_subscriptions engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA servicos engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA sessions engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA users engine=InnoDB collation=utf8mb4_unicode_ci

@@ -40,9 +40,13 @@
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate",
-            "@php artisan migrate --force",
+            "docker compose up -d --wait mysql-dev",
+            "@php artisan migrate --force --database=mysql_migracao",
             "npm install --ignore-scripts",
             "npm run build"
+        ],
+        "migrate": [
+            "@php artisan migrate --database=mysql_migracao"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
