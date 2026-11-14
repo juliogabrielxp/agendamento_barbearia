@@ -1,0 +1,11 @@
+[Unit]
+Description=Teste de restauração diário às 04:30, depois do backup
+
+[Timer]
+OnCalendar=*-*-* 04:30:00 America/Sao_Paulo
+# Se o servidor estava desligado na hora, roda assim que ligar
+Persistent=true
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

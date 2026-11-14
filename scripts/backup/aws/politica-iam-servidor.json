@@ -1,0 +1,24 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "EnviarEBaixarBackupsSemPoderApagar",
+            "Effect": "Allow",
+            "Action": ["s3:PutObject", "s3:GetObject"],
+            "Resource": "arn:aws:s3:::NOME-DO-BUCKET/agendamento-barbearia/*"
+        },
+        {
+            "Sid": "ListarBackups",
+            "Effect": "Allow",
+            "Action": "s3:ListBucket",
+            "Resource": "arn:aws:s3:::NOME-DO-BUCKET",
+            "Condition": { "StringLike": { "s3:prefix": ["agendamento-barbearia/*"] } }
+        },
+        {
+            "Sid": "LerSenhasDoBackup",
+            "Effect": "Allow",
+            "Action": "ssm:GetParameter",
+            "Resource": "arn:aws:ssm:us-east-2:ID-DA-CONTA:parameter/agendamento-barbearia/backup/*"
+        }
+    ]
+}

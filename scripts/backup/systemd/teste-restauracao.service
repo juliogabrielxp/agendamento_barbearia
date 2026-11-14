@@ -1,0 +1,16 @@
+[Unit]
+Description=Teste de restauração do backup do agendamento-barbearia (banco separado)
+Wants=network-online.target
+After=network-online.target mysql.service backup-banco.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/agendamento-barbearia/backup.env
+ExecStart=/usr/local/lib/agendamento-backup/testar-restauracao.sh
+# Roda com um usuário descartável, sem acesso de escrita ao sistema
+DynamicUser=yes
+Environment=HOME=/tmp
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
