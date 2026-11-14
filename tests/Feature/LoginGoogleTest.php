@@ -7,7 +7,9 @@ namespace Tests\Feature;
 use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as UsuarioGoogle;
@@ -67,6 +69,28 @@ class LoginGoogleTest extends TestCase
         $this->assertGuest();
         $this->assertNull($existente->fresh()->google_id);
         $this->assertSame(0, ClienteModel::count());
+    }
+
+    public function test_dois_callbacks_ao_mesmo_tempo_para_conta_nova_nao_dao_500(): void
+    {
+        $this->googleDevolve('google-1', 'maria@gmail.com');
+
+        // O outro callback grava a mesma conta logo depois de este conferir que ela não existia
+        $outroJaGravou = false;
+        DB::listen(function (QueryExecuted $query) use (&$outroJaGravou): void {
+            if ($outroJaGravou || ! str_starts_with(str_replace(['`', '"'], '', $query->sql), 'select * from users where email')) {
+                return;
+            }
+            $outroJaGravou = true;
+            UserModel::create(['google_id' => 'google-1', 'nome' => 'Maria', 'email' => 'maria@gmail.com']);
+        });
+
+        $this->get('/auth/google/cliente/callback')->assertRedirect('/app');
+
+        $usuario = UserModel::where('google_id', 'google-1')->firstOrFail();
+        $this->assertAuthenticatedAs($usuario);
+        $this->assertSame(1, UserModel::count());
+        $this->assertSame(1, ClienteModel::where('user_id', $usuario->id)->count());
     }
 
     public function test_google_nao_cria_estabelecimento_para_qualquer_conta(): void

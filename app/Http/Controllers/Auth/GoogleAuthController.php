@@ -10,6 +10,7 @@ use App\Domain\Exceptions\EmailJaCadastradoException;
 use App\Http\Controllers\Controller;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,23 +32,14 @@ final class GoogleAuthController extends Controller
     {
         $googleUser = $this->driver()->user();
 
-        // Conta e perfil de cliente juntos: uma queda no meio não deixa a conta sem cliente.
-        // A chamada ao Google fica antes e o login depois do commit.
         try {
-            $dadosUser = DB::transaction(function () use ($googleUser) {
-                $dadosUser = $this->autenticar($googleUser);
-
-                ClienteModel::firstOrCreate(
-                    ['user_id' => $dadosUser['id']],
-                    [
-                        'nome' => $dadosUser['nome'],
-                        'email' => $dadosUser['email'],
-                        'telefone' => '',
-                    ]
-                );
-
-                return $dadosUser;
-            });
+            try {
+                $dadosUser = $this->registrar($googleUser);
+            } catch (UniqueConstraintViolationException) {
+                // Outro callback (clique duplo, duas abas) criou a mesma conta ao mesmo tempo.
+                // Ele já fez o commit: na segunda vez a conta e o cliente são encontrados.
+                $dadosUser = $this->registrar($googleUser);
+            }
         } catch (EmailJaCadastradoException) {
             return redirect('/app/entrar?erro=google-email-em-uso');
         }
@@ -57,6 +49,28 @@ final class GoogleAuthController extends Controller
 
         // A vitrine retoma o horário que o cliente montou antes de entrar
         return redirect('/app');
+    }
+
+    /**
+     * Conta e perfil de cliente juntos: uma queda no meio não deixa a conta sem cliente.
+     * A chamada ao Google fica antes e o login depois do commit.
+     */
+    private function registrar($googleUser): array
+    {
+        return DB::transaction(function () use ($googleUser) {
+            $dadosUser = $this->autenticar($googleUser);
+
+            ClienteModel::firstOrCreate(
+                ['user_id' => $dadosUser['id']],
+                [
+                    'nome' => $dadosUser['nome'],
+                    'email' => $dadosUser['email'],
+                    'telefone' => '',
+                ]
+            );
+
+            return $dadosUser;
+        });
     }
 
     private function driver()
