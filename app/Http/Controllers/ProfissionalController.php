@@ -65,9 +65,10 @@ class ProfissionalController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         $barbearia = $this->estabelecimentoDoDono($request);
-        ProfissionalModel::where('barbearia_id', $barbearia->id)->findOrFail($id)->delete();
+        $profissional = ProfissionalModel::where('barbearia_id', $barbearia->id)->findOrFail($id);
 
-        return response()->json(null, 204);
+        return $this->excluirOuRecusar($profissional, 'Esta profissional tem agendamentos e não pode ser excluída.')
+            ?? response()->json(null, 204);
     }
 
     /**

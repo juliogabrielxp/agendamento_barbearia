@@ -61,7 +61,11 @@ final class ServicoController extends Controller
         $barbearia = $this->estabelecimentoDoDono($request);
         $servico = ServicoModel::where('barbearia_id', $barbearia->id)->findOrFail($id);
 
-        $servico->delete();
+        $recusa = $this->excluirOuRecusar($servico, 'Este serviço tem agendamentos e não pode ser excluído.');
+        if ($recusa) {
+            return $recusa;
+        }
+
         $armazenador->remover($servico->imagem_path);
 
         return response()->json(null, 204);

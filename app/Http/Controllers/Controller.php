@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Middleware\IdentificaEstabelecimento;
 use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use LogicException;
 
@@ -33,5 +36,25 @@ abstract class Controller
         abort_unless((int) $estabelecimento->user_id === (int) $request->user()?->id, 404);
 
         return $estabelecimento;
+    }
+
+    /**
+     * Apaga o registro, ou devolve 422 com $motivo se ele ainda é referenciado por um
+     * agendamento. A FK é quem decide: um agendamento criado no mesmo instante também conta.
+     */
+    protected function excluirOuRecusar(Model $registro, string $motivo): ?JsonResponse
+    {
+        try {
+            $registro->delete();
+        } catch (QueryException $e) {
+            // 23000 num DELETE é a FK recusando (MySQL 1451, SQLite "FOREIGN KEY constraint failed")
+            if ($e->getCode() !== '23000') {
+                throw $e;
+            }
+
+            return response()->json(['message' => $motivo], 422);
+        }
+
+        return null;
     }
 }

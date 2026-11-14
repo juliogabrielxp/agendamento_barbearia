@@ -88,6 +88,8 @@ export default function ServicosTab() {
         api.delete(`/api/servicos/${id}`).then(() => {
             if (servicoEmEdicao?.id === id) limparFormulario();
             carregarServicos();
+        }).catch(error => {
+            alert(error.response?.data?.message ?? 'Não foi possível excluir.');
         });
     }
 

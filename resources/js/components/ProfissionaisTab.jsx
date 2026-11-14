@@ -62,6 +62,8 @@ export default function ProfissionaisTab() {
         api.delete(`/api/profissionais/${id}`).then(() => {
             if (profissionalEmEdicao?.id === id) limparFormulario();
             carregarDados();
+        }).catch(error => {
+            alert(error.response?.data?.message ?? 'Não foi possível excluir.');
         });
     }
 
