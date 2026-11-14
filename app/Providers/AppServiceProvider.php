@@ -22,6 +22,7 @@ use App\Infrastructure\Persistence\EloquentClienteRepository;
 use App\Infrastructure\Persistence\EloquentUserRepository;
 use App\Infrastructure\Persistence\LaravelTransacao;
 use App\Infrastructure\Security\LaravelPasswordHasher;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -42,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        //
+        // Em produção, migrate:fresh/refresh/reset/rollback, db:wipe e db:seed se recusam a rodar
+        DB::prohibitDestructiveCommands($this->app->isProduction());
     }
 }
