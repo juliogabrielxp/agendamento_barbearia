@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
+use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ProfissionalController extends Controller
 {
@@ -25,14 +27,7 @@ class ProfissionalController extends Controller
     {
         $barbearia = $this->estabelecimentoDoDono($request);
 
-        $dados = $request->validate([
-            'nome' => 'required|string|max:255',
-            'servicos' => 'array',
-            'servicos.*' => [
-                'integer',
-                Rule::exists('servicos', 'id')->where('barbearia_id', $barbearia->id),
-            ],
-        ]);
+        $dados = $this->validar($request, $barbearia);
 
         // Cadastro e vínculos juntos: se a segunda escrita falhar, a profissional não fica sem serviços
         $profissional = DB::transaction(function () use ($dados, $barbearia) {
@@ -56,14 +51,7 @@ class ProfissionalController extends Controller
         $barbearia = $this->estabelecimentoDoDono($request);
         $profissional = ProfissionalModel::where('barbearia_id', $barbearia->id)->findOrFail($id);
 
-        $dados = $request->validate([
-            'nome' => 'required|string|max:255',
-            'servicos' => 'array',
-            'servicos.*' => [
-                'integer',
-                Rule::exists('servicos', 'id')->where('barbearia_id', $barbearia->id),
-            ],
-        ]);
+        $dados = $this->validar($request, $barbearia);
 
         // O sync apaga os vínculos que saíram antes de gravar os que entraram: tudo ou nada
         DB::transaction(function () use ($profissional, $dados) {
@@ -80,5 +68,41 @@ class ProfissionalController extends Controller
         ProfissionalModel::where('barbearia_id', $barbearia->id)->findOrFail($id)->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * Os serviços precisam ser deste estabelecimento. Confere todos numa consulta só
+     * (Rule::exists fazia um SELECT por serviço) e aponta o erro em servicos.N, como antes.
+     */
+    private function validar(Request $request, BarbeariaModel $barbearia): array
+    {
+        $dados = $request->validate([
+            'nome' => 'required|string|max:255',
+            'servicos' => 'array',
+            'servicos.*' => 'integer',
+        ]);
+
+        $ids = array_map('intval', $dados['servicos'] ?? []);
+        if ($ids === []) {
+            return $dados;
+        }
+
+        $doEstabelecimento = ServicoModel::where('barbearia_id', $barbearia->id)
+            ->whereIn('id', array_unique($ids))
+            ->pluck('id')
+            ->all();
+
+        $erros = [];
+        foreach ($ids as $indice => $id) {
+            if (! in_array($id, $doEstabelecimento, true)) {
+                $erros["servicos.{$indice}"] = __('validation.exists', ['attribute' => "servicos.{$indice}"]);
+            }
+        }
+
+        if ($erros !== []) {
+            throw ValidationException::withMessages($erros);
+        }
+
+        return $dados;
     }
 }
