@@ -7,21 +7,28 @@ namespace App\Http\Controllers;
 use App\Application\UseCases\AtualizarStatusAgendamentoUseCase;
 use App\Infrastructure\Persistence\Eloquent\AgendamentoModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use DomainException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
 
 class AgendaController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $request->validate([
+            'data' => 'nullable|date_format:Y-m-d',
+        ]);
+
         $barbearia = $this->estabelecimentoDoDono($request);
-        $data = $request->query('data', now()->format('Y-m-d'));
+        $dia = Carbon::createFromFormat('!Y-m-d', $request->query('data') ?? now()->format('Y-m-d'));
         $profissionaisIds = ProfissionalModel::where('barbearia_id', $barbearia->id)->pluck('id');
 
+        // Intervalo em vez de whereDate: DATE(inicio) impediria o índice (profissional_id, inicio)
         $agendamentos = AgendamentoModel::whereIn('profissional_id', $profissionaisIds)
-            ->whereDate('inicio', $data)
+            ->where('inicio', '>=', $dia->format('Y-m-d H:i:s'))
+            ->where('inicio', '<', $dia->copy()->addDay()->format('Y-m-d H:i:s'))
             ->with(['profissional', 'cliente', 'servico'])
             ->orderBy('inicio')
             ->get();
