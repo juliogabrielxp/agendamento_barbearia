@@ -63,7 +63,7 @@ export default function MeusAgendamentosTab() {
                                 {agendamento.status === 'cancelado' && ' · cancelado'}
                             </p>
                         </div>
-                        {agendamento.status !== 'concluido' && (
+                        {agendamento.status === 'confirmado' && (
                         <button
                             onClick={() => handleCancelar(agendamento.id)}
                             disabled={cancelandoId === agendamento.id}

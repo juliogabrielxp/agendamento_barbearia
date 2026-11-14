@@ -70,9 +70,10 @@ class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
 
     public function cancelar(int $agendamentoId, int $clienteId): void
     {
+        // Não apaga: fica no histórico como cancelado, igual ao cancelamento pela dona
         AgendamentoModel::where('id', $agendamentoId)
             ->where('cliente_id', $clienteId)
-            ->delete();
+            ->update(['status' => 'cancelado']);
     }
 
     public function buscarPorId(int $agendamentoId): ?Agendamento

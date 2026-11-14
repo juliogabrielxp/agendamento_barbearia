@@ -23,7 +23,7 @@ final class CancelarAgendamentoUseCase
     public function executar(int $agendamentoId, int $clienteId): void
     {
         // Ler, decidir e gravar com a linha travada: se a dona concluir ao mesmo tempo,
-        // um dos dois espera, e o cliente nunca apaga um atendimento já concluído
+        // um dos dois espera, e o cliente nunca cancela um atendimento já concluído
         $this->transacao->executar(function () use ($agendamentoId, $clienteId): void {
             $agendamento = $this->repositorio->buscarPorIdTravando($agendamentoId);
 

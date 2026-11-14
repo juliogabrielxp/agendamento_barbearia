@@ -25,7 +25,7 @@ final class AtualizarStatusAgendamentoUseCase
         }
 
         // Ler, decidir e gravar com a linha travada: um cancelamento do cliente ao
-        // mesmo tempo espera, em vez de apagar o que acabou de ser concluído
+        // mesmo tempo espera, em vez de cancelar o que acabou de ser concluído
         $this->transacao->executar(function () use ($agendamentoId, $novoStatus): void {
             $agendamento = $this->repositorio->buscarPorIdTravando($agendamentoId);
 

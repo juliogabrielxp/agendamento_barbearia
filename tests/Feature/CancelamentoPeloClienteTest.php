@@ -23,7 +23,26 @@ class CancelamentoPeloClienteTest extends TestCase
             ->deleteJson("/api/meus-agendamentos/{$agendamento->id}")
             ->assertNoContent();
 
-        $this->assertDatabaseMissing('agendamentos', ['id' => $agendamento->id]);
+        // Igual ao cancelamento pela dona: a linha fica no histórico como cancelada
+        $this->assertDatabaseHas('agendamentos', ['id' => $agendamento->id, 'status' => 'cancelado']);
+    }
+
+    public function test_horario_cancelado_pelo_cliente_volta_a_ficar_livre(): void
+    {
+        $this->travelTo('2030-01-09 12:00:00');
+        $barbearia = $this->criarBarbearia('dono@barbearia.com');
+        ['usuario' => $usuario, 'cliente' => $cliente] = $this->criarCliente('maria@email.com');
+        $agendamento = $this->criarAgendamento($barbearia, $cliente, '2030-01-10 10:00:00');
+        $livres = fn () => $this->getJson('/api/horarios-disponiveis?'.http_build_query([
+            'profissional_id' => $barbearia['profissional']->id,
+            'servico_id' => $barbearia['servico']->id,
+            'data' => '2030-01-10',
+        ]))->assertOk()->json();
+        $this->assertNotContains('10:00', $livres());
+
+        $this->actingAs($usuario)->deleteJson("/api/meus-agendamentos/{$agendamento->id}")->assertNoContent();
+
+        $this->assertContains('10:00', $livres());
     }
 
     public function test_cliente_nao_cancela_agendamento_de_outro_cliente(): void

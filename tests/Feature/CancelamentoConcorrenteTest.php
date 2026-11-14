@@ -18,8 +18,8 @@ use Tests\TestCase;
 
 /**
  * A dona concluindo um agendamento enquanto o cliente o cancela: o cancelamento lê o
- * agendamento, confere o status e só então apaga. Se ninguém trava a linha, a conclusão
- * entra no meio e o cliente apaga um atendimento que já foi concluído.
+ * agendamento, confere o status e só então grava. Se ninguém trava a linha, a conclusão
+ * entra no meio e o cliente cancela um atendimento que já foi concluído.
  *
  * Só no MySQL (composer test:mysql): precisa de SELECT ... FOR UPDATE e de uma segunda
  * conexão de verdade. Os dados são gravados (commit) por essa segunda conexão, para os
@@ -63,7 +63,7 @@ class CancelamentoConcorrenteTest extends TestCase
 
         $this->actingAs($usuario)->deleteJson("/api/meus-agendamentos/{$agendamento->id}")->assertNoContent();
 
-        $this->assertFalse($concluiuNoMeio, 'A conclusão entrou no meio do cancelamento: o cliente apagou um atendimento concluído.');
+        $this->assertFalse($concluiuNoMeio, 'A conclusão entrou no meio do cancelamento: o cliente cancelou um atendimento concluído.');
     }
 
     /** @return array{usuario: UserModel, agendamento: AgendamentoModel} */
