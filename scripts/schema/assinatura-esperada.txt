@@ -1,8 +1,24 @@
 BANCO collation=utf8mb4_unicode_ci
+CHECK chk_agendamentos_duracao: (`duracao_em_minutos` >= 1)
+CHECK chk_agendamentos_preco: (`preco` >= 0)
+CHECK chk_agendamentos_status: (`status` in (_utf8mb4\\'confirmado\\',_utf8mb4\\'concluido\\',_utf8mb4\\'cancelado\\'))
+CHECK chk_barbearias_dominio: ((`dominio` is null) or regexp_like(`dominio`,_utf8mb4\\'^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$\\',_utf8mb4\\'c\\'))
+CHECK chk_barbearias_expediente: (`hora_fechamento` > `hora_abertura`)
+CHECK chk_barbearias_intervalo: (((`intervalo_inicio` is null) and (`intervalo_fim` is null)) or ((`intervalo_inicio` is not null) and (`intervalo_fim` is not null) and (`intervalo_inicio` >= `hora_abertura`) and (`intervalo_fim` > `intervalo_inicio`) and (`intervalo_fim` <= `hora_fechamento`)))
+CHECK chk_barbearias_nome: (trim(`nome`) <> _utf8mb4\\'\\')
+CHECK chk_clientes_nome: (trim(`nome`) <> _utf8mb4\\'\\')
+CHECK chk_profissionais_nome: (trim(`nome`) <> _utf8mb4\\'\\')
+CHECK chk_servicos_duracao: (`duracao_em_minutos` >= 1)
+CHECK chk_servicos_nome: (trim(`nome`) <> _utf8mb4\\'\\')
+CHECK chk_servicos_preco: (`preco` >= 0)
+CHECK chk_users_forma_de_entrar: ((`password` is not null) or (`google_id` is not null))
+CHECK chk_users_nome: (trim(`nome`) <> _utf8mb4\\'\\')
 COLUNA agendamentos.cliente_id bigint unsigned not-null default=<nenhum>
 COLUNA agendamentos.created_at timestamp null default=<nenhum>
+COLUNA agendamentos.duracao_em_minutos int unsigned not-null default=<nenhum>
 COLUNA agendamentos.id bigint unsigned not-null default=<nenhum> auto_increment
 COLUNA agendamentos.inicio datetime not-null default=<nenhum>
+COLUNA agendamentos.preco decimal(8,2) not-null default=<nenhum>
 COLUNA agendamentos.profissional_id bigint unsigned not-null default=<nenhum>
 COLUNA agendamentos.servico_id bigint unsigned not-null default=<nenhum>
 COLUNA agendamentos.status varchar(255) not-null default=confirmado utf8mb4_unicode_ci
@@ -45,7 +61,7 @@ COLUNA clientes.nome varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
 COLUNA clientes.observacoes text null default=<nenhum> utf8mb4_unicode_ci
 COLUNA clientes.telefone varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
 COLUNA clientes.updated_at timestamp null default=<nenhum>
-COLUNA clientes.user_id bigint unsigned null default=<nenhum>
+COLUNA clientes.user_id bigint unsigned not-null default=<nenhum>
 COLUNA failed_jobs.connection varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
 COLUNA failed_jobs.exception longtext not-null default=<nenhum> utf8mb4_unicode_ci
 COLUNA failed_jobs.failed_at timestamp not-null default=CURRENT_TIMESTAMP DEFAULT_GENERATED
@@ -128,7 +144,7 @@ FK agendamentos.agendamentos_cliente_id_foreign (cliente_id) -> clientes delete=
 FK agendamentos.agendamentos_profissional_id_foreign (profissional_id) -> profissionais delete=NO ACTION update=NO ACTION
 FK agendamentos.agendamentos_servico_id_foreign (servico_id) -> servicos delete=NO ACTION update=NO ACTION
 FK barbearias.barbearias_user_id_foreign (user_id) -> users delete=SET NULL update=NO ACTION
-FK clientes.clientes_user_id_foreign (user_id) -> users delete=SET NULL update=NO ACTION
+FK clientes.clientes_user_id_foreign (user_id) -> users delete=RESTRICT update=NO ACTION
 FK profissionais.profissionais_barbearia_id_foreign (barbearia_id) -> barbearias delete=CASCADE update=NO ACTION
 FK profissional_servico.profissional_servico_profissional_id_foreign (profissional_id) -> profissionais delete=CASCADE update=NO ACTION
 FK profissional_servico.profissional_servico_servico_id_foreign (servico_id) -> servicos delete=CASCADE update=NO ACTION

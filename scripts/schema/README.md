@@ -55,6 +55,10 @@ Para comparar você mesmo: `diff scripts/schema/assinatura-esperada.txt assinatu
 
 - Nenhuma saída: o schema é igual ao das migrations.
 - A linha `BANCO collation=…` pode ser diferente. Isso é inofensivo, porque toda tabela declara a própria collation.
+- Linhas que vêm de migrations ainda `Pending` no `migrate-status.txt` de produção também são
+  esperadas: a assinatura esperada é a do código atual. Desde 2026-11-14 isso inclui as colunas
+  `agendamentos.duracao_em_minutos`/`preco` (BD-3), os `CHECK chk_*` e a FK `RESTRICT` de
+  `clientes.user_id` (BD-13, M1 a M4).
 - Qualquer outra linha é algo criado ou mudado à mão. Me mande antes de mexer: eu escrevo a
   migration que traz isso para o código, sem apagar nada que só existe em produção.
 
