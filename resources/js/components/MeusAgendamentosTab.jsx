@@ -79,7 +79,8 @@ export default function MeusAgendamentosTab() {
                                 {agendamento.status === 'cancelado' && ' · cancelado'}
                             </p>
                         </div>
-                        {agendamento.status === 'confirmado' && (
+                        {/* Depois que o horário começa, quem fecha o atendimento é a dona (o servidor recusa) */}
+                        {agendamento.status === 'confirmado' && new Date(agendamento.inicio) > new Date() && (
                         <button
                             onClick={() => handleCancelar(agendamento.id)}
                             disabled={cancelandoId === agendamento.id}

@@ -8,6 +8,7 @@ use App\Application\UseCases\AtualizarStatusAgendamentoUseCase;
 use App\Application\UseCases\CancelarAgendamentoUseCase;
 use App\Domain\Agendamento;
 use App\Domain\Contracts\AgendamentoRepositoryInterface;
+use App\Domain\Contracts\RelogioInterface;
 use App\Domain\Contracts\TransacaoInterface;
 use DateTimeImmutable;
 use DomainException;
@@ -48,7 +49,7 @@ class MudancaDeStatusComTravaTest extends TestCase
                 $this->chamadas[] = 'gravar';
             });
 
-        (new CancelarAgendamentoUseCase($repositorio, $this->transacaoQueRegistra()))->executar(1, self::CLIENTE);
+        (new CancelarAgendamentoUseCase($repositorio, $this->transacaoQueRegistra(), $this->relogioAntesDoHorario()))->executar(1, self::CLIENTE);
 
         $this->assertSame(['inicio_transacao', 'ler_travando', 'gravar', 'fim_transacao'], $this->chamadas);
     }
@@ -60,7 +61,7 @@ class MudancaDeStatusComTravaTest extends TestCase
 
         $this->expectException(DomainException::class);
 
-        (new CancelarAgendamentoUseCase($repositorio, $this->transacaoQueRegistra()))->executar(1, self::CLIENTE);
+        (new CancelarAgendamentoUseCase($repositorio, $this->transacaoQueRegistra(), $this->relogioAntesDoHorario()))->executar(1, self::CLIENTE);
     }
 
     private function repositorioQueRegistra(string $statusAtual): AgendamentoRepositoryInterface&MockObject
@@ -84,6 +85,14 @@ class MudancaDeStatusComTravaTest extends TestCase
             });
 
         return $repositorio;
+    }
+
+    private function relogioAntesDoHorario(): RelogioInterface
+    {
+        $relogio = $this->createStub(RelogioInterface::class);
+        $relogio->method('agora')->willReturn(new DateTimeImmutable('2030-01-09 12:00'));
+
+        return $relogio;
     }
 
     private function transacaoQueRegistra(): TransacaoInterface

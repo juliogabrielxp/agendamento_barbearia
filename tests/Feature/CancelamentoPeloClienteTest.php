@@ -97,4 +97,45 @@ class CancelamentoPeloClienteTest extends TestCase
         // O histórico do atendimento é da barbearia: o cliente não pode sumir com ele
         $this->assertDatabaseHas('agendamentos', ['id' => $agendamento->id, 'status' => 'concluido']);
     }
+
+    public function test_cliente_nao_cancela_horario_que_ja_passou(): void
+    {
+        $barbearia = $this->criarBarbearia('dono@barbearia.com');
+        ['usuario' => $usuario, 'cliente' => $cliente] = $this->criarCliente('maria@email.com');
+        $agendamento = $this->criarAgendamento($barbearia, $cliente, '2030-01-10 10:00:00');
+        $this->travelTo('2030-01-10 15:00:00');
+
+        // A dona ainda não marcou como concluído, mas o horário já foi: cancelar agora
+        // apagaria do histórico um atendimento que pode ter acontecido
+        $this->actingAs($usuario)
+            ->deleteJson("/api/meus-agendamentos/{$agendamento->id}")
+            ->assertUnprocessable()
+            ->assertJson(['message' => 'Não é possível cancelar um horário que já começou.']);
+
+        $this->assertDatabaseHas('agendamentos', ['id' => $agendamento->id, 'status' => 'confirmado']);
+    }
+
+    public function test_cliente_nao_cancela_horario_em_andamento(): void
+    {
+        $barbearia = $this->criarBarbearia('dono@barbearia.com');
+        ['usuario' => $usuario, 'cliente' => $cliente] = $this->criarCliente('maria@email.com');
+        $agendamento = $this->criarAgendamento($barbearia, $cliente, '2030-01-10 10:00:00');
+        $this->travelTo('2030-01-10 10:00:00');
+
+        $this->actingAs($usuario)
+            ->deleteJson("/api/meus-agendamentos/{$agendamento->id}")
+            ->assertUnprocessable();
+    }
+
+    public function test_cliente_cancela_ate_um_minuto_antes(): void
+    {
+        $barbearia = $this->criarBarbearia('dono@barbearia.com');
+        ['usuario' => $usuario, 'cliente' => $cliente] = $this->criarCliente('maria@email.com');
+        $agendamento = $this->criarAgendamento($barbearia, $cliente, '2030-01-10 10:00:00');
+        $this->travelTo('2030-01-10 09:59:00');
+
+        $this->actingAs($usuario)
+            ->deleteJson("/api/meus-agendamentos/{$agendamento->id}")
+            ->assertNoContent();
+    }
 }

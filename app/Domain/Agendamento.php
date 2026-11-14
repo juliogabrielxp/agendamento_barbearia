@@ -92,4 +92,17 @@ class Agendamento
 
         $this->status = 'cancelado';
     }
+
+    /**
+     * O cliente só cancela antes do horário começar. Depois disso quem decide o que
+     * aconteceu é a dona (concluído ou cancelado), para o histórico não perder atendimento.
+     */
+    public function cancelarPeloCliente(DateTimeImmutable $agora): void
+    {
+        if ($this->status === 'confirmado' && $this->inicio <= $agora) {
+            throw new DomainException('Não é possível cancelar um horário que já começou.');
+        }
+
+        $this->cancelar();
+    }
 }
