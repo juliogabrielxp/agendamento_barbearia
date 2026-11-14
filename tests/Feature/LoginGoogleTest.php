@@ -11,11 +11,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as UsuarioGoogle;
+use Tests\Feature\Concerns\SimulaQuedaNoMeio;
 use Tests\TestCase;
 
 class LoginGoogleTest extends TestCase
 {
     use RefreshDatabase;
+    use SimulaQuedaNoMeio;
 
     private function googleDevolve(string $googleId, string $email, string $nome = 'Maria', bool $emailVerificado = true): void
     {
@@ -40,6 +42,31 @@ class LoginGoogleTest extends TestCase
         $usuario = UserModel::where('google_id', 'google-1')->firstOrFail();
         $this->assertAuthenticatedAs($usuario);
         $this->assertDatabaseHas('clientes', ['user_id' => $usuario->id, 'email' => 'maria@gmail.com']);
+    }
+
+    public function test_queda_depois_de_criar_o_usuario_nao_deixa_conta_sem_cliente(): void
+    {
+        $this->googleDevolve('google-1', 'maria@gmail.com');
+        $this->cairDepoisDe('insert into users');
+
+        $this->get('/auth/google/cliente/callback')->assertServerError();
+
+        $this->assertGuest();
+        $this->assertDatabaseMissing('users', ['email' => 'maria@gmail.com']);
+        $this->assertSame(0, ClienteModel::count());
+    }
+
+    public function test_queda_ao_vincular_conta_existente_nao_grava_o_vinculo(): void
+    {
+        $existente = UserModel::create(['nome' => 'Maria', 'email' => 'maria@gmail.com', 'password' => 'senha-segura-123']);
+        $this->googleDevolve('google-1', 'maria@gmail.com');
+        $this->cairDepoisDe('update users');
+
+        $this->get('/auth/google/cliente/callback')->assertServerError();
+
+        $this->assertGuest();
+        $this->assertNull($existente->fresh()->google_id);
+        $this->assertSame(0, ClienteModel::count());
     }
 
     public function test_google_nao_cria_estabelecimento_para_qualquer_conta(): void

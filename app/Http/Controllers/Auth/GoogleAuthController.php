@@ -13,6 +13,7 @@ use App\Infrastructure\Persistence\Eloquent\UserModel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Laravel\Socialite\Facades\Socialite;
 
 final class GoogleAuthController extends Controller
@@ -30,20 +31,26 @@ final class GoogleAuthController extends Controller
     {
         $googleUser = $this->driver()->user();
 
+        // Conta e perfil de cliente juntos: uma queda no meio não deixa a conta sem cliente.
+        // A chamada ao Google fica antes e o login depois do commit.
         try {
-            $dadosUser = $this->autenticar($googleUser);
+            $dadosUser = DB::transaction(function () use ($googleUser) {
+                $dadosUser = $this->autenticar($googleUser);
+
+                ClienteModel::firstOrCreate(
+                    ['user_id' => $dadosUser['id']],
+                    [
+                        'nome' => $dadosUser['nome'],
+                        'email' => $dadosUser['email'],
+                        'telefone' => '',
+                    ]
+                );
+
+                return $dadosUser;
+            });
         } catch (EmailJaCadastradoException) {
             return redirect('/app/entrar?erro=google-email-em-uso');
         }
-
-        $cliente = ClienteModel::firstOrCreate(
-            ['user_id' => $dadosUser['id']],
-            [
-                'nome' => $dadosUser['nome'],
-                'email' => $dadosUser['email'],
-                'telefone' => '',
-            ]
-        );
 
         Auth::login(UserModel::find($dadosUser['id']));
         $request->session()->regenerate();
