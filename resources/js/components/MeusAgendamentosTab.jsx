@@ -6,11 +6,27 @@ export default function MeusAgendamentosTab() {
     const [agendamentos, setAgendamentos] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [cancelandoId, setCancelandoId] = useState(null);
+    const [proximoCursor, setProximoCursor] = useState(null);
+    const [carregandoMais, setCarregandoMais] = useState(false);
 
+    // A API devolve 20 por vez; next_cursor aponta para os 20 seguintes (mais antigos)
     function carregarAgendamentos() {
         api.get('/api/meus-agendamentos')
-            .then(response => setAgendamentos(response.data))
+            .then(response => {
+                setAgendamentos(response.data.data);
+                setProximoCursor(response.data.next_cursor);
+            })
             .finally(() => setCarregando(false));
+    }
+
+    function carregarMais() {
+        setCarregandoMais(true);
+        api.get('/api/meus-agendamentos', { params: { cursor: proximoCursor } })
+            .then(response => {
+                setAgendamentos(anteriores => [...anteriores, ...response.data.data]);
+                setProximoCursor(response.data.next_cursor);
+            })
+            .finally(() => setCarregandoMais(false));
     }
 
     useEffect(() => {
@@ -77,6 +93,15 @@ export default function MeusAgendamentosTab() {
                 ))}
                 {agendamentos.length === 0 && (
                     <p className="text-neutral-400 text-sm text-center py-8">Você ainda não tem horários marcados aqui.</p>
+                )}
+                {proximoCursor && (
+                    <button
+                        onClick={carregarMais}
+                        disabled={carregandoMais}
+                        className="w-full text-sm text-neutral-500 hover:text-neutral-900 py-3 transition disabled:opacity-50"
+                    >
+                        {carregandoMais ? 'Carregando...' : 'Ver mais antigos'}
+                    </button>
                 )}
             </div>
         </div>

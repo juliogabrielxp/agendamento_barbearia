@@ -113,7 +113,7 @@ class EstabelecimentoPorDominioTest extends TestCase
 
         $response = $this->actingAs($usuario)->noHost('trancas.test')->getJson('/api/meus-agendamentos');
 
-        $response->assertOk()->assertJsonCount(1)->assertJsonPath('0.id', $doStudio->id);
+        $response->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $doStudio->id);
     }
 
     public function test_nao_agenda_servico_de_um_estabelecimento_pelo_endereco_de_outro(): void

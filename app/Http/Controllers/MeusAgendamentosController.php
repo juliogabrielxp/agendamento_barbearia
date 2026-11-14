@@ -24,12 +24,15 @@ class MeusAgendamentosController extends Controller
 
         $estabelecimento = $this->estabelecimento($request);
 
-        // O cliente vê só os horários do estabelecimento em que está navegando
+        // O cliente vê só os horários do estabelecimento em que está navegando, de 20 em 20.
+        // Cursor (inicio, id) e não OFFSET: a página seguinte começa de onde a anterior parou,
+        // e o id desempata dois agendamentos no mesmo horário.
         $agendamentos = AgendamentoModel::where('cliente_id', $cliente->id)
             ->whereHas('profissional', fn ($query) => $query->where('barbearia_id', $estabelecimento->id))
             ->with(['profissional', 'servico'])
             ->orderBy('inicio', 'desc')
-            ->get();
+            ->orderBy('id', 'desc')
+            ->cursorPaginate(20);
 
         return response()->json($agendamentos);
     }
