@@ -9,6 +9,7 @@ use App\Domain\Contracts\CadastroPendenteRepositoryInterface;
 use App\Domain\Contracts\EnviadorDeCodigoDeConfirmacaoInterface;
 use App\Domain\Contracts\PasswordHasherInterface;
 use App\Domain\Contracts\RelogioInterface;
+use App\Domain\Contracts\UserRepositoryInterface;
 use App\Domain\Exceptions\ConfirmacaoDeEmailException;
 use App\Domain\Exceptions\EnvioDeEmailFalhouException;
 use App\Domain\Exceptions\ReenvioDeCodigoMuitoCedoException;
@@ -19,7 +20,8 @@ final class ReenviarCodigoDeConfirmacaoUseCase
         private readonly CadastroPendenteRepositoryInterface $pendentes,
         private readonly EnviadorDeCodigoDeConfirmacaoInterface $enviador,
         private readonly PasswordHasherInterface $hasher,
-        private readonly RelogioInterface $relogio
+        private readonly RelogioInterface $relogio,
+        private readonly UserRepositoryInterface $usuarios
     ) {}
 
     /**
@@ -44,7 +46,12 @@ final class ReenviarCodigoDeConfirmacaoUseCase
 
         $codigo = CadastroPendente::gerarCodigo();
 
-        $this->enviador->enviar($cadastro->email, $cadastro->nome, $codigo, $input->nomeDoEstabelecimento);
+        // Mesmo critério do SolicitarCadastroDeClienteUseCase: quem já tem conta recebe o aviso de novo
+        if ($this->usuarios->emailJaCadastrado($cadastro->email)) {
+            $this->enviador->avisarContaExistente($cadastro->email, $input->nomeDoEstabelecimento);
+        } else {
+            $this->enviador->enviar($cadastro->email, $cadastro->nome, $codigo, $input->nomeDoEstabelecimento);
+        }
 
         $this->pendentes->salvar($cadastro->comNovoCodigo($this->hasher->hash($codigo), $agora));
     }

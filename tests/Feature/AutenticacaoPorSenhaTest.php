@@ -14,10 +14,11 @@ class AutenticacaoPorSenhaTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_cadastro_com_email_repetido_retorna_422(): void
+    public function test_cadastro_com_email_repetido_nao_revela_a_conta_nem_mexe_nela(): void
     {
         $this->criarEstabelecimentoNoLocalhost();
-        UserModel::create(['nome' => 'Maria', 'email' => 'maria@email.com', 'password' => 'outra-senha-123']);
+        $maria = UserModel::create(['nome' => 'Maria', 'email' => 'maria@email.com', 'password' => 'outra-senha-123']);
+        $senhaAntes = $maria->password;
 
         $response = $this->postJson('/cadastro-cliente', [
             'nome' => 'Maria Silva',
@@ -27,8 +28,10 @@ class AutenticacaoPorSenhaTest extends TestCase
             'password_confirmation' => 'senha-segura-123',
         ]);
 
-        $this->assertSame(422, $response->getStatusCode(), $response->getContent());
-        $this->assertArrayHasKey('email', $response->json('errors'));
+        // Mesma resposta de um e-mail novo (BD-5); a dona da conta recebe um aviso por e-mail
+        $this->assertSame(202, $response->getStatusCode(), $response->getContent());
+        $this->assertSame($senhaAntes, $maria->fresh()->password);
+        $this->assertSame(1, UserModel::where('email', 'maria@email.com')->count());
     }
 
     public function test_barbearia_entra_com_email_e_senha(): void

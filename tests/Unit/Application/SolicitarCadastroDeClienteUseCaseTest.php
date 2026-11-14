@@ -12,7 +12,6 @@ use App\Domain\Contracts\EnviadorDeCodigoDeConfirmacaoInterface;
 use App\Domain\Contracts\PasswordHasherInterface;
 use App\Domain\Contracts\RelogioInterface;
 use App\Domain\Contracts\UserRepositoryInterface;
-use App\Domain\Exceptions\EmailJaCadastradoException;
 use App\Domain\Exceptions\EnvioDeEmailFalhouException;
 use App\Domain\Exceptions\ReenvioDeCodigoMuitoCedoException;
 use DateTimeImmutable;
@@ -66,15 +65,25 @@ class SolicitarCadastroDeClienteUseCaseTest extends TestCase
         $this->assertSame(0, $salvo->tentativas);
     }
 
-    public function test_nao_manda_codigo_para_email_ja_cadastrado(): void
+    public function test_email_ja_cadastrado_recebe_aviso_e_segue_o_mesmo_caminho_sem_codigo(): void
     {
         $this->usuarios->method('emailJaCadastrado')->willReturn(true);
         $this->enviador->expects($this->never())->method('enviar');
-        $this->pendentes->expects($this->never())->method('salvar');
+        $this->enviador->expects($this->once())
+            ->method('avisarContaExistente')
+            ->with('maria@email.com', 'Studio');
 
-        $this->expectException(EmailJaCadastradoException::class);
+        // Grava o pendente igual a um e-mail novo, para a espera de um minuto valer do mesmo jeito
+        $salvo = null;
+        $this->pendentes->expects($this->once())
+            ->method('salvar')
+            ->willReturnCallback(function (CadastroPendente $cadastro) use (&$salvo) {
+                $salvo = $cadastro;
+            });
 
-        $this->useCase()->executar($this->input());
+        $chave = $this->useCase()->executar($this->input());
+
+        $this->assertTrue($salvo->pertenceA($chave));
     }
 
     public function test_nao_manda_outro_codigo_antes_de_um_minuto(): void

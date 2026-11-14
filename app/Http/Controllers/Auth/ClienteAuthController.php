@@ -54,8 +54,6 @@ class ClienteAuthController extends Controller
                 senha: $dados['password'],
                 nomeDoEstabelecimento: $this->estabelecimento($request)->nome,
             ));
-        } catch (EmailJaCadastradoException $e) {
-            return $this->erro($e->getMessage(), 'email', 422);
         } catch (ReenvioDeCodigoMuitoCedoException $e) {
             return $this->erro($e->getMessage(), 'email', 429);
         } catch (EnvioDeEmailFalhouException $e) {

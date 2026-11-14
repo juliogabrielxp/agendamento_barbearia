@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Domain\Contracts\EnviadorDeCodigoDeConfirmacaoInterface;
 use App\Domain\Exceptions\EnvioDeEmailFalhouException;
 use App\Infrastructure\Notifications\CodigoDeConfirmacaoMail;
+use App\Infrastructure\Notifications\ContaJaExisteMail;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -178,14 +179,75 @@ class CadastroComConfirmacaoDeEmailTest extends TestCase
         Mail::assertNothingSent();
     }
 
-    public function test_email_ja_cadastrado_retorna_422_sem_mandar_codigo(): void
+    /**
+     * Quem testa e-mails no cadastro não pode descobrir quais já têm conta: a resposta
+     * é a mesma de um e-mail novo, e só a dona do e-mail fica sabendo, pelo aviso.
+     */
+    public function test_email_ja_cadastrado_responde_igual_a_email_novo_e_so_avisa_a_dona(): void
+    {
+        ['usuario' => $maria] = $this->criarCliente('maria@email.com');
+        $senhaDaMaria = $maria->password;
+
+        $existente = $this->pedirCadastro('maria@email.com');
+        $novo = $this->pedirCadastro('ana@email.com');
+
+        $this->assertSame($novo->getStatusCode(), $existente->getStatusCode(), $existente->getContent());
+        $this->assertSame(
+            str_replace('ana@email.com', 'maria@email.com', $novo->getContent()),
+            $existente->getContent()
+        );
+
+        Mail::assertSent(ContaJaExisteMail::class, fn (ContaJaExisteMail $mail) => $mail->hasTo('maria@email.com'));
+        Mail::assertNotSent(CodigoDeConfirmacaoMail::class, fn (CodigoDeConfirmacaoMail $mail) => $mail->hasTo('maria@email.com'));
+        Mail::assertSent(CodigoDeConfirmacaoMail::class, fn (CodigoDeConfirmacaoMail $mail) => $mail->hasTo('ana@email.com'));
+        $this->assertSame($senhaDaMaria, $maria->fresh()->password);
+        $this->assertSame(1, UserModel::where('email', 'maria@email.com')->count());
+    }
+
+    public function test_aviso_nao_leva_o_nome_digitado_por_quem_pediu(): void
+    {
+        $this->criarCliente('maria@email.com', 'Maria');
+
+        $this->postJson('/cadastro-cliente', [
+            'nome' => 'Clique em http://golpe.example',
+            'email' => 'maria@email.com',
+            'email_confirmation' => 'maria@email.com',
+            'password' => 'senha-segura-123',
+            'password_confirmation' => 'senha-segura-123',
+        ])->assertStatus(202);
+
+        Mail::assertSent(ContaJaExisteMail::class, function (ContaJaExisteMail $mail) {
+            $this->assertStringNotContainsString('golpe', $mail->render());
+
+            return true;
+        });
+    }
+
+    public function test_email_ja_cadastrado_tambem_espera_um_minuto_entre_pedidos(): void
     {
         $this->criarCliente('maria@email.com');
 
-        $response = $this->pedirCadastro('maria@email.com');
+        $this->pedirCadastro('maria@email.com')->assertStatus(202);
+        $this->pedirCadastro('maria@email.com')->assertStatus(429);
 
-        $response->assertStatus(422)->assertJsonValidationErrors('email');
-        Mail::assertNothingSent();
+        $this->travelTo(now()->addSeconds(61));
+        $this->postJson('/cadastro-cliente/reenviar-codigo')->assertStatus(202);
+
+        Mail::assertSentCount(2);
+        Mail::assertNotSent(CodigoDeConfirmacaoMail::class);
+    }
+
+    public function test_nenhum_codigo_confirma_cadastro_de_email_ja_cadastrado(): void
+    {
+        $this->criarCliente('maria@email.com');
+        $this->pedirCadastro('maria@email.com')->assertStatus(202);
+
+        $this->postJson('/cadastro-cliente/confirmar', ['codigo' => '123456'])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('codigo');
+
+        $this->assertGuest();
+        $this->assertSame(1, UserModel::where('email', 'maria@email.com')->count());
     }
 
     public function test_confirmar_sem_ter_comecado_o_cadastro_retorna_422(): void

@@ -10,13 +10,17 @@ use App\Domain\Contracts\EnviadorDeCodigoDeConfirmacaoInterface;
 use App\Domain\Contracts\PasswordHasherInterface;
 use App\Domain\Contracts\RelogioInterface;
 use App\Domain\Contracts\UserRepositoryInterface;
-use App\Domain\Exceptions\EmailJaCadastradoException;
 use App\Domain\Exceptions\EnvioDeEmailFalhouException;
 use App\Domain\Exceptions\ReenvioDeCodigoMuitoCedoException;
 
 /**
  * Primeiro passo do cadastro por e-mail: guarda os dados e manda o código.
  * A conta só nasce em ConfirmarCadastroDeClienteUseCase.
+ *
+ * E-mail que já tem conta segue exatamente o mesmo caminho (cadastro pendente, chave,
+ * espera de um minuto), mas recebe um aviso no lugar do código. Assim a resposta não
+ * revela quais e-mails estão cadastrados, e o pendente nunca é confirmado: o código
+ * não chega a ninguém, e a confirmação recusa e-mail que já tem conta.
  */
 final class SolicitarCadastroDeClienteUseCase
 {
@@ -31,16 +35,11 @@ final class SolicitarCadastroDeClienteUseCase
     /**
      * @return string chave que identifica este cadastro; fica só na sessão de quem o iniciou
      *
-     * @throws EmailJaCadastradoException
      * @throws ReenvioDeCodigoMuitoCedoException
      * @throws EnvioDeEmailFalhouException
      */
     public function executar(SolicitarCadastroDeClienteInput $input): string
     {
-        if ($this->usuarios->emailJaCadastrado($input->email)) {
-            throw new EmailJaCadastradoException;
-        }
-
         $agora = $this->relogio->agora();
 
         $anterior = $this->pendentes->buscarPorEmail($input->email);
@@ -63,7 +62,11 @@ final class SolicitarCadastroDeClienteUseCase
         );
 
         // Envia antes de gravar: se o e-mail falhar, nada muda e dá para tentar de novo na hora
-        $this->enviador->enviar($input->email, $input->nome, $codigo, $input->nomeDoEstabelecimento);
+        if ($this->usuarios->emailJaCadastrado($input->email)) {
+            $this->enviador->avisarContaExistente($input->email, $input->nomeDoEstabelecimento);
+        } else {
+            $this->enviador->enviar($input->email, $input->nome, $codigo, $input->nomeDoEstabelecimento);
+        }
 
         // Substitui um cadastro pendente anterior do mesmo e-mail (e invalida a chave dele)
         $this->pendentes->salvar($cadastro);

@@ -26,4 +26,15 @@ final class EmailDeCodigoDeConfirmacao implements EnviadorDeCodigoDeConfirmacaoI
             throw EnvioDeEmailFalhouException::porCausaDe($e);
         }
     }
+
+    public function avisarContaExistente(string $email, string $nomeDoEstabelecimento): void
+    {
+        try {
+            Mail::to($email)->send(new ContaJaExisteMail($nomeDoEstabelecimento));
+        } catch (Throwable $e) {
+            Log::error('Falha ao enviar aviso de conta existente', ['erro' => $e->getMessage()]);
+
+            throw EnvioDeEmailFalhouException::porCausaDe($e);
+        }
+    }
 }
