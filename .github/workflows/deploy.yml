@@ -35,8 +35,43 @@ jobs:
       - name: Rodar testes
         run: php artisan test
 
+  # A mesma suíte de feature no MySQL 8, o motor de produção: lock, FK, unique e tamanho de
+  # coluna se comportam diferente no SQLite. Mesmo banco e porta do mysql-test do docker-compose.yml,
+  # que é para onde o phpunit.mysql.xml aponta.
+  test-mysql:
+    runs-on: ubuntu-24.04
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: agendamento_barbearia_test
+        ports:
+          - 3308:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_mysql
+          coverage: none
+
+      - name: Instalar dependências
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Rodar testes no MySQL
+        run: php vendor/bin/phpunit -c phpunit.mysql.xml
+
   deploy:
-    needs: test
+    needs: [test, test-mysql]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     steps:
