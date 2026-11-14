@@ -24,25 +24,33 @@ class PushAssinaturaController extends Controller
         ]);
 
         $endpointHash = hash('sha256', $dados['endpoint']);
+        $valores = [
+            'user_id' => $request->user()->id,
+            'endpoint' => $dados['endpoint'],
+            'p256dh' => $dados['keys']['p256dh'],
+            'auth' => $dados['keys']['auth'],
+        ];
+
         $existente = PushSubscriptionModel::where('endpoint_hash', $endpointHash)->first();
+
+        if ($existente === null) {
+            // Se outra requisição gravar o mesmo aparelho entre a leitura e o insert, o unique
+            // recusa e a linha dela volta aqui: passa pela mesma conferência abaixo
+            $existente = PushSubscriptionModel::createOrFirst(['endpoint_hash' => $endpointHash], $valores);
+
+            if ($existente->wasRecentlyCreated) {
+                return response()->json(null, 201);
+            }
+        }
 
         // O aparelho só passa para outra conta se ela provar que tem a assinatura: o segredo
         // "auth" sai do navegador junto com o endpoint, e quem só conhece a URL não o tem.
-        if ($existente !== null
-            && (int) $existente->user_id !== (int) $request->user()->id
+        if ((int) $existente->user_id !== (int) $request->user()->id
             && ! hash_equals((string) $existente->auth, $dados['keys']['auth'])) {
             return response()->json(['message' => 'Assinatura de notificação inválida.'], 409);
         }
 
-        PushSubscriptionModel::updateOrCreate(
-            ['endpoint_hash' => $endpointHash],
-            [
-                'user_id' => $request->user()->id,
-                'endpoint' => $dados['endpoint'],
-                'p256dh' => $dados['keys']['p256dh'],
-                'auth' => $dados['keys']['auth'],
-            ]
-        );
+        $existente->update($valores);
 
         return response()->json(null, 201);
     }
