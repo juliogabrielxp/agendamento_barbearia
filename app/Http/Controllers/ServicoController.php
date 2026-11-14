@@ -72,7 +72,7 @@ final class ServicoController extends Controller
         return [
             'nome' => 'required|string|max:255',
             'duracao_em_minutos' => 'required|integer|min:1',
-            'preco' => 'required|numeric|min:0',
+            'preco' => 'required|numeric|min:0|max:999999.99', // a coluna é decimal(8,2)
             'pode_atravessar_intervalo' => 'sometimes|boolean',
         ];
     }
