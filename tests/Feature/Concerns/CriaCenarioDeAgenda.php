@@ -78,6 +78,8 @@ trait CriaCenarioDeAgenda
             'servico_id' => $barbearia['servico']->id,
             'cliente_id' => $cliente->id,
             'inicio' => $inicio,
+            'duracao_em_minutos' => $barbearia['servico']->duracao_em_minutos,
+            'preco' => $barbearia['servico']->preco,
         ]);
     }
 

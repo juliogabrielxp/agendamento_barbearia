@@ -53,6 +53,7 @@ final class AgendamentoController extends Controller
             clienteId: $cliente->id,
             servicoId: $servico->id,
             duracaoEmMinutos: $servico->duracao_em_minutos,
+            preco: (string) $servico->preco,
             inicio: new DateTimeImmutable($dados['inicio']),
             podeAtravessarIntervalo: $servico->pode_atravessar_intervalo
         );

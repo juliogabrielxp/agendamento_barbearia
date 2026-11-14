@@ -30,7 +30,8 @@ final class AgendarHorarioUseCase
             clienteId: $input->clienteId,
             servicoId: $input->servicoId,
             inicio: $input->inicio,
-            duracaoEmMinutos: $input->duracaoEmMinutos
+            duracaoEmMinutos: $input->duracaoEmMinutos,
+            preco: $input->preco,
         );
 
         if ($novoAgendamento->inicio() <= $this->relogio->agora()) {

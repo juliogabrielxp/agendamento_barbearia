@@ -16,11 +16,15 @@ class AgendamentoModel extends Model
         'cliente_id',
         'servico_id',
         'inicio',
+        'duracao_em_minutos',
+        'preco',
         'status',
     ];
 
     protected $casts = [
         'inicio' => 'datetime',
+        'duracao_em_minutos' => 'integer',
+        'preco' => 'decimal:2',
     ];
 
     public function servico(): BelongsTo

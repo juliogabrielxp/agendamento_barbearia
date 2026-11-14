@@ -13,6 +13,8 @@ final class AgendarHorarioInput
         public readonly int $clienteId,
         public readonly int $servicoId,
         public readonly int $duracaoEmMinutos,
+        // Preço do cadastro do serviço agora: fica gravado no agendamento
+        public readonly string $preco,
         public readonly DateTimeImmutable $inicio,
         public readonly bool $podeAtravessarIntervalo = false
     ) {}

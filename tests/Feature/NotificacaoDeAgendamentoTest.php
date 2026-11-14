@@ -88,6 +88,8 @@ class NotificacaoDeAgendamentoTest extends TestCase
             'cliente_id' => $this->cliente->id,
             'servico_id' => $this->servico->id,
             'inicio' => '2030-01-10 10:00:00',
+            'duracao_em_minutos' => $this->servico->duracao_em_minutos,
+            'preco' => $this->servico->preco,
         ]);
 
         $this->mock(NotificadorDePushInterface::class, function (MockInterface $mock) {

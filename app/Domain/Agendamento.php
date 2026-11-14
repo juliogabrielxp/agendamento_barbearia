@@ -17,8 +17,9 @@ class Agendamento
         private readonly int $duracaoEmMinutos,
         private readonly ?int $id = null,
         private string $status = 'confirmado',
-    ) {
-    }
+        // Preço do serviço no momento da reserva ("250.00"); null em agendamento só calculado
+        private readonly ?string $preco = null,
+    ) {}
 
     public function id(): ?int
     {
@@ -48,6 +49,16 @@ class Agendamento
     public function inicio(): DateTimeImmutable
     {
         return $this->inicio;
+    }
+
+    public function duracaoEmMinutos(): int
+    {
+        return $this->duracaoEmMinutos;
+    }
+
+    public function preco(): ?string
+    {
+        return $this->preco;
     }
 
     public function fim(): DateTimeImmutable

@@ -81,6 +81,7 @@ class CancelamentoConcorrenteTest extends TestCase
         $cliente = ClienteModel::on($c)->create(['user_id' => $usuario->id, 'nome' => 'Maria', 'email' => 'maria@concorrencia.test', 'telefone' => '']);
         $agendamento = AgendamentoModel::on($c)->create([
             'profissional_id' => $profissional->id, 'servico_id' => $servico->id, 'cliente_id' => $cliente->id, 'inicio' => '2030-01-10 10:00:00',
+            'duracao_em_minutos' => 30, 'preco' => 40.0,
         ]);
 
         // Roda depois do rollback do RefreshDatabase, que libera as travas da conexão principal

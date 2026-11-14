@@ -44,7 +44,6 @@ class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
             ->where('profissional_id', $profissionalId)
             ->where('status', '!=', 'cancelado') // cancelado libera o horário
             ->whereBetween('inicio', [$inicioDoDia, $fimDoDia])
-            ->with('servico') // eager load pra pegar a duração
             ->get();
 
         return $registros->map(function (AgendamentoModel $registro) {
@@ -53,7 +52,8 @@ class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
                 clienteId: $registro->cliente_id,
                 servicoId: $registro->servico_id,
                 inicio: new DateTimeImmutable($registro->inicio->format('Y-m-d H:i:s')),
-                duracaoEmMinutos: $registro->servico->duracao_em_minutos
+                // A duração reservada, não a do cadastro atual do serviço (que a dona pode mudar)
+                duracaoEmMinutos: $registro->duracao_em_minutos
             );
         })->all();
     }
@@ -65,6 +65,8 @@ class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
             'cliente_id' => $agendamento->clienteId(),
             'servico_id' => $agendamento->servicoId(),
             'inicio' => $agendamento->inicio(),
+            'duracao_em_minutos' => $agendamento->duracaoEmMinutos(),
+            'preco' => $agendamento->preco(),
         ]);
     }
 
@@ -78,13 +80,13 @@ class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
 
     public function buscarPorId(int $agendamentoId): ?Agendamento
     {
-        return $this->paraDominio(AgendamentoModel::with('servico')->find($agendamentoId));
+        return $this->paraDominio(AgendamentoModel::find($agendamentoId));
     }
 
     public function buscarPorIdTravando(int $agendamentoId): ?Agendamento
     {
         // SELECT ... FOR UPDATE: só tem efeito dentro de uma transação
-        return $this->paraDominio(AgendamentoModel::with('servico')->lockForUpdate()->find($agendamentoId));
+        return $this->paraDominio(AgendamentoModel::lockForUpdate()->find($agendamentoId));
     }
 
     private function paraDominio(?AgendamentoModel $registro): ?Agendamento
@@ -98,9 +100,10 @@ class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
             clienteId: $registro->cliente_id,
             servicoId: $registro->servico_id,
             inicio: new DateTimeImmutable($registro->inicio->format('Y-m-d H:i:s')),
-            duracaoEmMinutos: $registro->servico->duracao_em_minutos,
+            duracaoEmMinutos: $registro->duracao_em_minutos,
             id: $registro->id,
             status: $registro->status,
+            preco: $registro->preco,
         );
     }
 

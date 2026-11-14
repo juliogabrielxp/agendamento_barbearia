@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Application;
 
-use App\Application\UseCases\AgendarHorarioUseCase;
 use App\Application\UseCases\AgendarHorarioInput;
+use App\Application\UseCases\AgendarHorarioUseCase;
+use App\Domain\Agendamento;
 use App\Domain\Contracts\AgendamentoRepositoryInterface;
 use App\Domain\Contracts\RelogioInterface;
-use App\Domain\Expediente;
 use App\Domain\Contracts\TransacaoInterface;
 use App\Domain\Exceptions\ConflitoDeHorarioException;
-use PHPUnit\Framework\TestCase;
+use App\Domain\Expediente;
 use DateTimeImmutable;
+use PHPUnit\Framework\TestCase;
 
 class AgendarHorarioUseCaseTest extends TestCase
 {
@@ -45,7 +46,7 @@ class AgendarHorarioUseCaseTest extends TestCase
     public function test_nao_deve_agendar_quando_ha_conflito(): void
     {
         // Arrange
-        $agendamentoExistente = new \App\Domain\Agendamento(
+        $agendamentoExistente = new Agendamento(
             profissionalId: 1,
             clienteId: 50,
             servicoId: 1,
@@ -85,6 +86,7 @@ class AgendarHorarioUseCaseTest extends TestCase
         $repositorio->method('buscarPorProfissionalEData')
             ->willReturnCallback(function () use ($agendamentosDoDia) {
                 $this->chamadas[] = 'buscar';
+
                 return $agendamentosDoDia;
             });
 
@@ -93,10 +95,9 @@ class AgendarHorarioUseCaseTest extends TestCase
 
     private function transacaoQueRegistra(): TransacaoInterface
     {
-        return new class ($this->chamadas) implements TransacaoInterface {
-            public function __construct(private array &$chamadas)
-            {
-            }
+        return new class($this->chamadas) implements TransacaoInterface
+        {
+            public function __construct(private array &$chamadas) {}
 
             public function executar(callable $operacao): mixed
             {
@@ -111,7 +112,8 @@ class AgendarHorarioUseCaseTest extends TestCase
 
     private function relogioParado(): RelogioInterface
     {
-        return new class implements RelogioInterface {
+        return new class implements RelogioInterface
+        {
             public function agora(): DateTimeImmutable
             {
                 return new DateTimeImmutable('2026-08-01 09:00');
@@ -126,6 +128,7 @@ class AgendarHorarioUseCaseTest extends TestCase
             clienteId: 2,
             servicoId: 1,
             duracaoEmMinutos: 30,
+            preco: '40.00',
             inicio: new DateTimeImmutable($inicio)
         );
     }
