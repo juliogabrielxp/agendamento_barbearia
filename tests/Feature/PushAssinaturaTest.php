@@ -103,6 +103,41 @@ class PushAssinaturaTest extends TestCase
         $this->assertSame(1, PushSubscriptionModel::count());
     }
 
+    public function test_dona_remove_a_assinatura_do_proprio_aparelho(): void
+    {
+        $minha = $this->criarBarbearia('dona@estudio.com');
+        $this->actingAs($minha['dono'])
+            ->postJson('/api/push/assinaturas', $this->assinatura('segredo-do-aparelho'))
+            ->assertCreated();
+
+        $this->deleteJson('/api/push/assinaturas', ['endpoint' => self::ENDPOINT])->assertNoContent();
+
+        $this->assertDatabaseMissing('push_subscriptions', ['endpoint_hash' => hash('sha256', self::ENDPOINT)]);
+    }
+
+    public function test_outra_conta_nao_remove_a_assinatura_da_dona(): void
+    {
+        $minha = $this->criarBarbearia('dona@estudio.com');
+        ['usuario' => $invasor] = $this->criarCliente('invasor@email.com');
+        $this->actingAs($minha['dono'])
+            ->postJson('/api/push/assinaturas', $this->assinatura('segredo-do-aparelho'))
+            ->assertCreated();
+
+        // 204 igual, para não revelar se o endpoint existe; mas nada é apagado
+        $this->actingAs($invasor)
+            ->deleteJson('/api/push/assinaturas', ['endpoint' => self::ENDPOINT])
+            ->assertNoContent();
+
+        $this->assertDatabaseHas('push_subscriptions', ['user_id' => $minha['dono']->id]);
+    }
+
+    public function test_chave_publica_exige_login(): void
+    {
+        $this->criarBarbearia('dona@estudio.com');
+
+        $this->getJson('/api/push/chave-publica')->assertUnauthorized();
+    }
+
     /** Simula outra requisição gravando o mesmo aparelho logo depois da primeira leitura */
     private function gravarNoMeio(int $userId, string $auth): void
     {
