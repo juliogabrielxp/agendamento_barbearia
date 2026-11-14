@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace App\Application\UseCases;
 
 use App\Domain\Contracts\AgendamentoRepositoryInterface;
+use App\Domain\Contracts\TransacaoInterface;
 use App\Domain\Exceptions\AgendamentoNaoEncontradoException;
 use DomainException;
 
 final class CancelarAgendamentoUseCase
 {
     public function __construct(
-        private readonly AgendamentoRepositoryInterface $repositorio
+        private readonly AgendamentoRepositoryInterface $repositorio,
+        private readonly TransacaoInterface $transacao
     ) {}
 
     /**
@@ -20,15 +22,19 @@ final class CancelarAgendamentoUseCase
      */
     public function executar(int $agendamentoId, int $clienteId): void
     {
-        $agendamento = $this->repositorio->buscarPorId($agendamentoId);
+        // Ler, decidir e gravar com a linha travada: se a dona concluir ao mesmo tempo,
+        // um dos dois espera, e o cliente nunca apaga um atendimento já concluído
+        $this->transacao->executar(function () use ($agendamentoId, $clienteId): void {
+            $agendamento = $this->repositorio->buscarPorIdTravando($agendamentoId);
 
-        // Agendamento de outro cliente responde igual a inexistente, para não revelar que o id existe
-        if ($agendamento === null || $agendamento->clienteId() !== $clienteId) {
-            throw new AgendamentoNaoEncontradoException;
-        }
+            // Agendamento de outro cliente responde igual a inexistente, para não revelar que o id existe
+            if ($agendamento === null || $agendamento->clienteId() !== $clienteId) {
+                throw new AgendamentoNaoEncontradoException;
+            }
 
-        $agendamento->cancelar(); // recusa agendamento já concluído
+            $agendamento->cancelar(); // recusa agendamento já concluído
 
-        $this->repositorio->cancelar($agendamentoId, $clienteId);
+            $this->repositorio->cancelar($agendamentoId, $clienteId);
+        });
     }
 }

@@ -25,6 +25,12 @@ interface AgendamentoRepositoryInterface
 
     public function buscarPorId(int $agendamentoId): ?Agendamento;
 
+    /**
+     * Igual a buscarPorId, mas trava a linha até o fim da transação atual: quem mudar
+     * o mesmo agendamento ao mesmo tempo espera esta operação terminar.
+     */
+    public function buscarPorIdTravando(int $agendamentoId): ?Agendamento;
+
     public function salvar(Agendamento $agendamento): void;
 
     public function atualizarStatus(int $agendamentoId, string $status): void;

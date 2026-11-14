@@ -59,7 +59,7 @@ class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
             ->get();
 
         return $registros->map(function (AgendamentoModel $registro) {
-        return new Agendamento(
+            return new Agendamento(
                 profissionalId: $registro->profissional_id,
                 clienteId: $registro->cliente_id,
                 servicoId: $registro->servico_id,
@@ -88,9 +88,18 @@ class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
 
     public function buscarPorId(int $agendamentoId): ?Agendamento
     {
-        $registro = AgendamentoModel::with('servico')->find($agendamentoId);
+        return $this->paraDominio(AgendamentoModel::with('servico')->find($agendamentoId));
+    }
 
-        if (!$registro) {
+    public function buscarPorIdTravando(int $agendamentoId): ?Agendamento
+    {
+        // SELECT ... FOR UPDATE: só tem efeito dentro de uma transação
+        return $this->paraDominio(AgendamentoModel::with('servico')->lockForUpdate()->find($agendamentoId));
+    }
+
+    private function paraDominio(?AgendamentoModel $registro): ?Agendamento
+    {
+        if (! $registro) {
             return null;
         }
 
