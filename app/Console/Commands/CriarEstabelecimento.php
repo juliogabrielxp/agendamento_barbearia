@@ -35,8 +35,8 @@ final class CriarEstabelecimento extends Command
             'dominio' => strtolower(trim((string) ($this->option('dominio') ?? $this->ask('Domínio (ex.: trancas.juliogabrieldev.com)')))),
             'email' => $this->option('email') ?? $this->ask('E-mail de login da dona'),
             'profissional' => $this->option('profissional') ?? $this->ask('Nome da profissional que atende'),
-            'telefone' => $this->option('telefone') ?? $this->ask('Telefone de contato', '') ?? '',
-            'endereco' => $this->option('endereco') ?? $this->ask('Endereço', '') ?? '',
+            'telefone' => $this->option('telefone') ?? $this->ask('Telefone de contato'),
+            'endereco' => $this->option('endereco') ?? $this->ask('Endereço'),
         ];
 
         $senha = $this->secret('Senha de acesso da dona (mínimo 8 caracteres)');
@@ -47,8 +47,9 @@ final class CriarEstabelecimento extends Command
             'dominio' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/', 'unique:barbearias,dominio'],
             'email' => 'required|email|max:255|unique:users,email|unique:barbearias,email',
             'profissional' => 'required|string|max:255',
-            'telefone' => 'nullable|string|max:255',
-            'endereco' => 'nullable|string|max:255',
+            // Mesmas regras da tela de perfil (BarbeariaPerfilController): lá os dois são obrigatórios
+            'telefone' => 'required|string|max:20',
+            'endereco' => 'required|string|max:255',
             'senha' => 'required|string|min:8|confirmed',
         ], [], [
             'dominio' => 'domínio',

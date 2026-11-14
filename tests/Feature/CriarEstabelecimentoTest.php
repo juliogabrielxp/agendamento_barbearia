@@ -56,18 +56,41 @@ class CriarEstabelecimentoTest extends TestCase
         $this->assertSame(0, UserModel::count());
     }
 
+    public function test_exige_telefone_e_endereco_como_o_perfil(): void
+    {
+        $this->criar('senha-segura-123', telefone: '', endereco: '')
+            ->expectsOutputToContain('telefone')
+            ->expectsOutputToContain('endereço')
+            ->expectsOutput('Nada foi criado.')
+            ->assertFailed();
+
+        $this->assertSame(0, BarbeariaModel::count());
+        $this->assertSame(0, UserModel::count());
+    }
+
+    public function test_telefone_maior_que_o_perfil_aceita_e_recusado(): void
+    {
+        $this->criar('senha-segura-123', telefone: str_repeat('9', 21))
+            ->expectsOutput('Nada foi criado.')
+            ->assertFailed();
+
+        $this->assertSame(0, BarbeariaModel::count());
+    }
+
     private function criar(
         string $senha,
         string $dominio = 'trancas.juliogabrieldev.com',
-        string $email = 'dona@girassol.com'
+        string $email = 'dona@girassol.com',
+        string $telefone = '(83) 99999-0000',
+        string $endereco = 'Rua das Flores, 10',
     ) {
         return $this->artisan('estabelecimento:criar', [
             '--nome' => 'Studio Girassol Beauty',
             '--dominio' => $dominio,
             '--email' => $email,
             '--profissional' => 'Dona do Studio',
-            '--telefone' => '(83) 99999-0000',
-            '--endereco' => 'Rua das Flores, 10',
+            '--telefone' => $telefone,
+            '--endereco' => $endereco,
         ])
             ->expectsQuestion('Senha de acesso da dona (mínimo 8 caracteres)', $senha)
             ->expectsQuestion('Repita a senha', $senha);
