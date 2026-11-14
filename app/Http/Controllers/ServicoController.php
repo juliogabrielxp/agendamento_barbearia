@@ -9,6 +9,7 @@ use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use App\Infrastructure\Storage\ArmazenadorDeImagens;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 final class ServicoController extends Controller
 {
@@ -27,14 +28,18 @@ final class ServicoController extends Controller
 
         $dados = $request->validate($this->regras());
 
-        $servico = ServicoModel::create([...$dados, 'barbearia_id' => $barbearia->id]);
+        $servico = DB::transaction(function () use ($dados, $barbearia) {
+            $servico = ServicoModel::create([...$dados, 'barbearia_id' => $barbearia->id]);
 
-        // Com uma profissional só, o serviço novo já é dela: sem isso ele
-        // ficaria fora da vitrine até a dona vinculá-lo na aba Profissionais.
-        $profissionais = ProfissionalModel::where('barbearia_id', $barbearia->id)->get();
-        if ($profissionais->count() === 1) {
-            $profissionais->first()->servicos()->attach($servico->id);
-        }
+            // Com uma profissional só, o serviço novo já é dela: sem isso ele
+            // ficaria fora da vitrine até a dona vinculá-lo na aba Profissionais.
+            $profissionais = ProfissionalModel::where('barbearia_id', $barbearia->id)->get();
+            if ($profissionais->count() === 1) {
+                $profissionais->first()->servicos()->attach($servico->id);
+            }
+
+            return $servico;
+        });
 
         return response()->json($servico, 201);
     }

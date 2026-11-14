@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class ProfissionalController extends Controller
@@ -33,14 +34,19 @@ class ProfissionalController extends Controller
             ],
         ]);
 
-        $profissional = ProfissionalModel::create([
-            'nome' => $dados['nome'],
-            'barbearia_id' => $barbearia->id,
-        ]);
+        // Cadastro e vínculos juntos: se a segunda escrita falhar, a profissional não fica sem serviços
+        $profissional = DB::transaction(function () use ($dados, $barbearia) {
+            $profissional = ProfissionalModel::create([
+                'nome' => $dados['nome'],
+                'barbearia_id' => $barbearia->id,
+            ]);
 
-        if (!empty($dados['servicos'])) {
-            $profissional->servicos()->attach($dados['servicos']);
-        }
+            if (! empty($dados['servicos'])) {
+                $profissional->servicos()->attach($dados['servicos']);
+            }
+
+            return $profissional;
+        });
 
         return response()->json($profissional->load('servicos'), 201);
     }
@@ -59,8 +65,11 @@ class ProfissionalController extends Controller
             ],
         ]);
 
-        $profissional->update(['nome' => $dados['nome']]);
-        $profissional->servicos()->sync($dados['servicos'] ?? []);
+        // O sync apaga os vínculos que saíram antes de gravar os que entraram: tudo ou nada
+        DB::transaction(function () use ($profissional, $dados) {
+            $profissional->update(['nome' => $dados['nome']]);
+            $profissional->servicos()->sync($dados['servicos'] ?? []);
+        });
 
         return response()->json($profissional->load('servicos'));
     }
