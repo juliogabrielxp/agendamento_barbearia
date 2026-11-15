@@ -31,7 +31,7 @@ export default function Login() {
 
     useEffect(() => {
         api.get('/api/me')
-            .then(({ data }) => window.location.replace(data.barbearia ? '/app/painel' : '/app'))
+            .then(({ data }) => window.location.replace(data.estabelecimento ? '/app/painel' : '/app'))
             .catch(() => {});
 
         api.get('/api/estabelecimento')

@@ -24,7 +24,7 @@ class ConfiguracaoDoExpedienteTest extends TestCase
         $barbearia = $this->criarBarbearia('dona@estudio.com');
 
         $this->actingAs($barbearia['dono'])
-            ->putJson('/api/configuracao-barbearia', [...self::EXPEDIENTE, 'intervalo_inicio' => null, 'intervalo_fim' => '13:00'])
+            ->putJson('/api/configuracao-estabelecimento', [...self::EXPEDIENTE, 'intervalo_inicio' => null, 'intervalo_fim' => '13:00'])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['intervalo_inicio' => 'Informe o início do intervalo.']);
 
@@ -36,7 +36,7 @@ class ConfiguracaoDoExpedienteTest extends TestCase
         $barbearia = $this->criarBarbearia('dona@estudio.com');
 
         $this->actingAs($barbearia['dono'])
-            ->putJson('/api/configuracao-barbearia', [...self::EXPEDIENTE, 'intervalo_inicio' => '12:00', 'intervalo_fim' => null])
+            ->putJson('/api/configuracao-estabelecimento', [...self::EXPEDIENTE, 'intervalo_inicio' => '12:00', 'intervalo_fim' => null])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['intervalo_fim' => 'Informe o fim do intervalo.']);
     }
@@ -46,11 +46,11 @@ class ConfiguracaoDoExpedienteTest extends TestCase
         $barbearia = $this->criarBarbearia('dona@estudio.com');
 
         $this->actingAs($barbearia['dono'])
-            ->putJson('/api/configuracao-barbearia', [...self::EXPEDIENTE, 'intervalo_inicio' => '12:00', 'intervalo_fim' => '13:00'])
+            ->putJson('/api/configuracao-estabelecimento', [...self::EXPEDIENTE, 'intervalo_inicio' => '12:00', 'intervalo_fim' => '13:00'])
             ->assertOk();
 
         $this->actingAs($barbearia['dono'])
-            ->putJson('/api/configuracao-barbearia', [...self::EXPEDIENTE, 'intervalo_inicio' => null, 'intervalo_fim' => null])
+            ->putJson('/api/configuracao-estabelecimento', [...self::EXPEDIENTE, 'intervalo_inicio' => null, 'intervalo_fim' => null])
             ->assertOk();
 
         $this->assertDatabaseHas('barbearias', ['id' => $barbearia['barbearia']->id, 'intervalo_inicio' => null, 'intervalo_fim' => null]);

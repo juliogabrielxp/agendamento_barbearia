@@ -24,7 +24,7 @@ class MeController extends Controller
                 'avatar' => $user->avatar,
             ],
             // Só é dona aqui se o host for o estabelecimento dela; em outro endereço ela navega como cliente
-            'barbearia' => (int) $estabelecimento->user_id === (int) $user->id ? $estabelecimento : null,
+            'estabelecimento' => (int) $estabelecimento->user_id === (int) $user->id ? $estabelecimento : null,
             'cliente' => ClienteModel::where('user_id', $user->id)->first(),
         ]);
     }

@@ -19,8 +19,6 @@ function App() {
                 <Route path="/app/painel/entrar" element={<LoginBarbearia />} />
 
                 {/* Endereços antigos (links salvos, notificações já enviadas) */}
-                <Route path="/app/dashboard-barbearia" element={<Navigate to="/app/painel" replace />} />
-                <Route path="/app/entrar-barbearia" element={<Navigate to="/app/painel/entrar" replace />} />
                 <Route path="/app/dashboard-cliente" element={<Navigate to="/app/minha-conta" replace />} />
                 <Route path="*" element={<Navigate to="/app" replace />} />
             </Routes>

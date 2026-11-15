@@ -363,7 +363,7 @@ function AcessoDaConta({ conta }) {
 
     const classe = 'flex items-center gap-1.5 text-sm font-medium text-neutral-700 bg-white border border-neutral-200 rounded-full px-3.5 py-1.5 hover:border-neutral-400 transition';
 
-    if (conta?.barbearia) {
+    if (conta?.estabelecimento) {
         return <Link to="/app/painel" className={classe}><LayoutDashboard size={15} /> Painel</Link>;
     }
 

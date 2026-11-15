@@ -16,7 +16,7 @@ export default function LoginBarbearia() {
 
         try {
             await api.get('/sanctum/csrf-cookie');
-            await api.post('/login-barbearia', { email, password });
+            await api.post('/login-estabelecimento', { email, password });
             window.location.href = '/app/painel';
         } catch (error) {
             const mensagem = error.response?.data?.errors?.email?.[0]

@@ -37,7 +37,7 @@ export default function DashboardBarbearia() {
             <header className="fixed top-0 inset-x-0 bg-white border-b border-neutral-200 px-4 md:px-6 py-3.5 flex items-center gap-3 z-10">
                 {dados.user.avatar && <img src={dados.user.avatar} alt="" className="w-9 h-9 rounded-full" />}
                 <div className="min-w-0">
-                    <p className="font-semibold text-neutral-900 text-sm truncate">{dados.barbearia?.nome ?? dados.user.nome}</p>
+                    <p className="font-semibold text-neutral-900 text-sm truncate">{dados.estabelecimento?.nome ?? dados.user.nome}</p>
                     <p className="text-xs text-neutral-400 truncate">{dados.user.email}</p>
                 </div>
             </header>

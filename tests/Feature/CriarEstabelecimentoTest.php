@@ -32,7 +32,7 @@ class CriarEstabelecimentoTest extends TestCase
     {
         $this->criar(senha: 'senha-segura-123', dominio: 'localhost')->assertSuccessful();
 
-        $this->postJson('/login-barbearia', [
+        $this->postJson('/login-estabelecimento', [
             'email' => 'dona@girassol.com',
             'password' => 'senha-segura-123',
         ])->assertOk();

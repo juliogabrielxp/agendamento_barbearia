@@ -15,9 +15,9 @@ Route::get('/login', function () {
     return redirect('/app/entrar');
 })->name('login');
 
-Route::post('/login-barbearia', [BarbeariaLoginController::class, 'login'])
+Route::post('/login-estabelecimento', [BarbeariaLoginController::class, 'login'])
     ->middleware(['estabelecimento', 'throttle:5,1'])
-    ->name('login.barbearia');
+    ->name('login.estabelecimento');
 
 // Cadastro por e-mail em dois passos: o código vai no e-mail e a conta só nasce na confirmação.
 // O estabelecimento do host dá o nome que aparece no e-mail.

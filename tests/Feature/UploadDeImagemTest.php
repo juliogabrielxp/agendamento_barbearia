@@ -30,7 +30,7 @@ class UploadDeImagemTest extends TestCase
         $barbearia = $this->criarBarbeariaComDono('dono@barbearia.com');
         $this->actingAs(UserModel::find($barbearia->user_id));
 
-        $response = $this->postJson('/api/perfil-barbearia/imagem', [
+        $response = $this->postJson('/api/perfil-estabelecimento/imagem', [
             'imagem' => UploadedFile::fake()->image('foto.jpg', 400, 400),
         ]);
 
@@ -46,7 +46,7 @@ class UploadDeImagemTest extends TestCase
         $barbearia = $this->criarBarbeariaComDono('dono@barbearia.com');
         $this->actingAs(UserModel::find($barbearia->user_id));
 
-        $response = $this->postJson('/api/perfil-barbearia/imagem', [
+        $response = $this->postJson('/api/perfil-estabelecimento/imagem', [
             'imagem' => UploadedFile::fake()->create('documento.pdf', 100, 'application/pdf'),
         ]);
 
@@ -59,10 +59,10 @@ class UploadDeImagemTest extends TestCase
         $barbearia = $this->criarBarbeariaComDono('dono@barbearia.com');
         $this->actingAs(UserModel::find($barbearia->user_id));
 
-        $this->postJson('/api/perfil-barbearia/imagem', ['imagem' => UploadedFile::fake()->image('a.jpg')]);
+        $this->postJson('/api/perfil-estabelecimento/imagem', ['imagem' => UploadedFile::fake()->image('a.jpg')]);
         $primeira = $barbearia->fresh()->imagem_path;
 
-        $this->postJson('/api/perfil-barbearia/imagem', ['imagem' => UploadedFile::fake()->image('b.jpg')]);
+        $this->postJson('/api/perfil-estabelecimento/imagem', ['imagem' => UploadedFile::fake()->image('b.jpg')]);
         $segunda = $barbearia->fresh()->imagem_path;
 
         Storage::disk('public')->assertMissing($primeira);

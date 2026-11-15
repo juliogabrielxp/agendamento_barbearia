@@ -37,19 +37,19 @@ Route::middleware(['auth:sanctum', 'estabelecimento'])->group(function () {
 
     Route::get('/agenda', [AgendaController::class, 'index']);
 
-    Route::get('/configuracao-barbearia', [BarbeariaConfiguracaoController::class, 'show']);
+    Route::get('/configuracao-estabelecimento', [BarbeariaConfiguracaoController::class, 'show']);
 
-    Route::put('/configuracao-barbearia', [BarbeariaConfiguracaoController::class, 'update']);
+    Route::put('/configuracao-estabelecimento', [BarbeariaConfiguracaoController::class, 'update']);
 
     Route::post('/logout', [LogoutController::class, 'logout']);
 
     Route::patch('/agenda/{id}/status', [AgendaController::class, 'atualizarStatus']);
 
-    Route::get('/perfil-barbearia', [BarbeariaPerfilController::class, 'show']);
+    Route::get('/perfil-estabelecimento', [BarbeariaPerfilController::class, 'show']);
 
-    Route::put('/perfil-barbearia', [BarbeariaPerfilController::class, 'update']);
+    Route::put('/perfil-estabelecimento', [BarbeariaPerfilController::class, 'update']);
 
-    Route::post('/perfil-barbearia/imagem', [ImagemController::class, 'barbearia']);
+    Route::post('/perfil-estabelecimento/imagem', [ImagemController::class, 'barbearia']);
 
     Route::post('/servicos/{id}/imagem', [ImagemController::class, 'servico']);
 

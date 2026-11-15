@@ -46,7 +46,7 @@ class AutenticacaoPorSenhaTest extends TestCase
             'endereco' => 'Rua Teste, 1',
         ]);
 
-        $this->postJson('/login-barbearia', [
+        $this->postJson('/login-estabelecimento', [
             'email' => 'dono@barbearia.com',
             'password' => 'senha-segura-123',
         ])->assertOk();
@@ -65,7 +65,7 @@ class AutenticacaoPorSenhaTest extends TestCase
         ]);
         $this->criarEstabelecimentoNoLocalhost();
 
-        $response = $this->postJson('/login-barbearia', [
+        $response = $this->postJson('/login-estabelecimento', [
             'email' => 'dona@outro.com',
             'password' => 'senha-segura-123',
         ]);
@@ -85,7 +85,7 @@ class AutenticacaoPorSenhaTest extends TestCase
             'telefone' => '',
         ]);
 
-        $response = $this->postJson('/login-barbearia', [
+        $response = $this->postJson('/login-estabelecimento', [
             'email' => 'maria@email.com',
             'password' => 'senha-segura-123',
         ]);

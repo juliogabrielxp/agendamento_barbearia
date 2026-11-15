@@ -42,7 +42,7 @@ class LogoutTest extends TestCase
     public function test_cookie_da_dona_nao_abre_mais_o_painel_depois_do_logout(): void
     {
         $this->criarBarbearia('dona@estudio.com');
-        $cookie = $this->entrar('/login-barbearia', 'dona@estudio.com');
+        $cookie = $this->entrar('/login-estabelecimento', 'dona@estudio.com');
 
         $this->comCookie($cookie)->getJson('/api/servicos')->assertOk();
 

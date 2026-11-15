@@ -22,7 +22,7 @@ class ValidacaoAntesDoBancoTest extends TestCase
         $minha = $this->criarBarbearia('dona@estudio.com');
         $this->criarBarbearia('vizinha@barbearia.com');
 
-        $this->actingAs($minha['dono'])->putJson('/api/perfil-barbearia', [
+        $this->actingAs($minha['dono'])->putJson('/api/perfil-estabelecimento', [
             'nome' => 'Estúdio',
             'telefone' => '11999999999',
             'email' => 'vizinha@barbearia.com',
@@ -36,7 +36,7 @@ class ValidacaoAntesDoBancoTest extends TestCase
     {
         $minha = $this->criarBarbearia('dona@estudio.com');
 
-        $this->actingAs($minha['dono'])->putJson('/api/perfil-barbearia', [
+        $this->actingAs($minha['dono'])->putJson('/api/perfil-estabelecimento', [
             'nome' => 'Estúdio Novo',
             'telefone' => '11999999999',
             'email' => 'dona@estudio.com',

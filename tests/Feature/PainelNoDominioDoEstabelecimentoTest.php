@@ -38,10 +38,10 @@ class PainelNoDominioDoEstabelecimentoTest extends TestCase
         $this->getJson('/api/servicos')->assertNotFound();
         $this->getJson('/api/profissionais')->assertNotFound();
         $this->getJson('/api/agenda')->assertNotFound();
-        $this->getJson('/api/configuracao-barbearia')->assertNotFound();
-        $this->getJson('/api/perfil-barbearia')->assertNotFound();
+        $this->getJson('/api/configuracao-estabelecimento')->assertNotFound();
+        $this->getJson('/api/perfil-estabelecimento')->assertNotFound();
 
-        $this->putJson('/api/perfil-barbearia', [
+        $this->putJson('/api/perfil-estabelecimento', [
             'nome' => 'Alterado de fora',
             'telefone' => '11999999999',
             'email' => 'dona@estudio.com',
@@ -59,11 +59,11 @@ class PainelNoDominioDoEstabelecimentoTest extends TestCase
         $this->actingAs($minha['dono'])->noHost('estudio.test')
             ->getJson('/api/me')
             ->assertOk()
-            ->assertJsonPath('barbearia.id', $minha['barbearia']->id);
+            ->assertJsonPath('estabelecimento.id', $minha['barbearia']->id);
 
         $this->noHost('vizinha.test')
             ->getJson('/api/me')
             ->assertOk()
-            ->assertJsonPath('barbearia', null);
+            ->assertJsonPath('estabelecimento', null);
     }
 }

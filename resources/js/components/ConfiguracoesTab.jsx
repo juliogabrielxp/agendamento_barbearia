@@ -18,8 +18,8 @@ export default function ConfiguracoesTab() {
 
     useEffect(() => {
         Promise.all([
-            api.get('/api/perfil-barbearia'),
-            api.get('/api/configuracao-barbearia'),
+            api.get('/api/perfil-estabelecimento'),
+            api.get('/api/configuracao-estabelecimento'),
         ]).then(([perfilResponse, configResponse]) => {
             setImagemUrl(perfilResponse.data.imagem_url ?? null);
             setForm({
@@ -42,7 +42,7 @@ export default function ConfiguracoesTab() {
       const formData = new FormData();
       formData.append('imagem', arquivo);
 
-      await api.post('/api/perfil-barbearia/imagem', formData);
+      await api.post('/api/perfil-estabelecimento/imagem', formData);
     }
 
     function handleChange(campo, valor) {
@@ -62,7 +62,7 @@ export default function ConfiguracoesTab() {
         setSucesso(false);
 
         try {
-            await api.put('/api/perfil-barbearia', form);
+            await api.put('/api/perfil-estabelecimento', form);
             setSucesso(true);
         } catch (error) {
             if (error.response?.status === 422) {
@@ -88,7 +88,7 @@ export default function ConfiguracoesTab() {
         };
 
         try {
-            await api.put('/api/configuracao-barbearia', payload);
+            await api.put('/api/configuracao-estabelecimento', payload);
             setSucessoHorario(true);
         } catch (error) {
             if (error.response?.status === 422) {
