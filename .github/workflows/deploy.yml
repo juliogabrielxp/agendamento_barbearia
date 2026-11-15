@@ -45,7 +45,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: agendamento_barbearia_test
+          MYSQL_DATABASE: agendamento_test
         ports:
           - 3308:3306
         options: >-

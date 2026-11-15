@@ -32,8 +32,13 @@ Ela já foi feita em 2026-11-13, com contagens idênticas nas 9 tabelas do app. 
 docker compose up -d --wait mysql-dev && composer migrate
 docker exec -i laravel_mysql mysqldump -uroot -p --single-transaction --no-create-info \
     --ignore-table=agendamento_barbearia.migrations agendamento_barbearia \
-  | docker compose exec -T mysql-dev mysql -uroot -proot-dev agendamento_barbearia
+  | docker compose exec -T mysql-dev mysql -uroot -proot-dev agendamento
 ```
+
+Desde 2026-11-15 a tabela `barbearias` se chama `estabelecimentos` e o banco de dev se chama
+`agendamento`. O dump do banco antigo traz os nomes antigos e não entra mais no schema novo: num
+volume criado antes dessa data, recrie o banco com `docker compose down -v` seguido de
+`composer setup` e `php artisan db:seed`. Isso apaga os dados de dev, que são fictícios.
 
 O `-p` pede a senha de root do container antigo. Depois, troque no seu `.env` as linhas `DB_*` pelas
 do `.env.example` (porta 3309 e os dois usuários) e rode `php artisan config:clear`.

@@ -6,7 +6,7 @@ services:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: root-dev
-      MYSQL_DATABASE: agendamento_barbearia
+      MYSQL_DATABASE: agendamento
     command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
     ports:
       - "127.0.0.1:3309:3306"
@@ -24,7 +24,7 @@ services:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: agendamento_barbearia_test
+      MYSQL_DATABASE: agendamento_test
     ports:
       - "127.0.0.1:3308:3306"
     # Banco de teste é descartável: dados em memória deixam o migrate:fresh ~100x mais rápido

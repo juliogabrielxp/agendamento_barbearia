@@ -4,9 +4,9 @@
 
 -- O app: só lê e grava dados. Não cria, altera nem apaga tabela.
 CREATE USER 'agendamento_app'@'%' IDENTIFIED BY 'app-dev';
-GRANT SELECT, INSERT, UPDATE, DELETE ON agendamento_barbearia.* TO 'agendamento_app'@'%';
+GRANT SELECT, INSERT, UPDATE, DELETE ON agendamento.* TO 'agendamento_app'@'%';
 
 -- As migrations: DDL + DML (a tabela migrations e os ajustes de dados das migrations).
 CREATE USER 'agendamento_migracao'@'%' IDENTIFIED BY 'migracao-dev';
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES
-    ON agendamento_barbearia.* TO 'agendamento_migracao'@'%';
+    ON agendamento.* TO 'agendamento_migracao'@'%';
