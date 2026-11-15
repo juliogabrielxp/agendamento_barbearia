@@ -22,26 +22,15 @@ composer setup        # sobe o mysql-dev, migra com o usuário de migração, in
 composer migrate      # depois de criar uma migration nova
 ```
 
-### Trazer os dados do banco de dev antigo
+### Banco de dev antigo
 
-O banco de dev antigo está dentro do container do projeto `job_tracker` (`laravel_mysql`, porta
-3307). Esta cópia só **lê** de lá. O banco antigo continua intacto, e você decide depois se apaga.
-Ela já foi feita em 2026-11-13, com contagens idênticas nas 9 tabelas do app. Falta só trocar o `.env`.
-
-```bash
-docker compose up -d --wait mysql-dev && composer migrate
-docker exec -i laravel_mysql mysqldump -uroot -p --single-transaction --no-create-info \
-    --ignore-table=agendamento_barbearia.migrations agendamento_barbearia \
-  | docker compose exec -T mysql-dev mysql -uroot -proot-dev agendamento
-```
-
-Desde 2026-11-15 a tabela `barbearias` se chama `estabelecimentos` e o banco de dev se chama
-`agendamento`. O dump do banco antigo traz os nomes antigos e não entra mais no schema novo: num
-volume criado antes dessa data, recrie o banco com `docker compose down -v` seguido de
-`composer setup` e `php artisan db:seed`. Isso apaga os dados de dev, que são fictícios.
-
-O `-p` pede a senha de root do container antigo. Depois, troque no seu `.env` as linhas `DB_*` pelas
-do `.env.example` (porta 3309 e os dois usuários) e rode `php artisan config:clear`.
+Até 2026-11-15 o dev usava o banco `agendamento_barbearia` dentro do container do projeto
+`job_tracker` (`laravel_mysql`, porta 3307). Nessa data ele foi renomeado para `agendamento`, com a
+tabela `barbearias` virando `estabelecimentos`, sem perder dados. O `.env` local ainda aponta para
+esse container. Para passar a usar o `mysql-dev` deste projeto, troque as linhas `DB_*` pelas do
+`.env.example` (porta 3309 e os dois usuários), rode `composer setup` e `php artisan config:clear`.
+Um volume `mysql-dev-data` criado antes dessa data tem o banco com o nome antigo: recrie-o com
+`docker compose down -v`.
 
 ## Produção: comparar o schema com as migrations
 

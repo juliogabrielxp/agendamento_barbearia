@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **O que é salvo** | o banco `agendamento_barbearia` inteiro (`mysqldump --single-transaction`, gzip) |
+| **O que é salvo** | o banco `agendamento` inteiro (`mysqldump --single-transaction`, gzip) |
 | **Quando** | todo dia às 03:00 (Brasília); teste de restauração às 04:30 |
 | **Onde** | S3 `s3://NOME-DO-BUCKET/agendamento-barbearia/{diario,semanal}/`, fora do servidor |
 | **Por quanto tempo** | 7 cópias diárias + 4 semanais (domingo), apagadas pelo ciclo de vida do bucket |
@@ -61,10 +61,10 @@ a ela. Não crie access keys: a role dá credenciais temporárias.
 **Usuários do MySQL** (na EC2, `sudo mysql`). Gere senhas fortes e guarde-as só no SSM:
 ```sql
 CREATE USER 'backup'@'localhost' IDENTIFIED BY '<senha-backup>';
-GRANT SELECT, SHOW VIEW, TRIGGER ON agendamento_barbearia.* TO 'backup'@'localhost';
+GRANT SELECT, SHOW VIEW, TRIGGER ON agendamento.* TO 'backup'@'localhost';
 
 CREATE USER 'restauracao'@'localhost' IDENTIFIED BY '<senha-restauracao>';
-GRANT ALL PRIVILEGES ON agendamento_barbearia_restauracao_teste.* TO 'restauracao'@'localhost';
+GRANT ALL PRIVILEGES ON agendamento_restauracao_teste.* TO 'restauracao'@'localhost';
 ```
 O usuário `restauracao` só existe dentro do banco de teste. O script confere isso a cada
 execução e aborta se ele conseguir abrir a produção.
@@ -116,7 +116,7 @@ set -a; . <(sudo cat /etc/agendamento-barbearia/backup.env); set +a   # bucket e
 3. **Escolha o backup.** O mais novo agora é o do passo 2, então escolha pela data:
    ```bash
    aws s3 ls "$BACKUP_S3_URI/diario/"; aws s3 ls "$BACKUP_S3_URI/semanal/"
-   ARQUIVO=diario/agendamento_barbearia_AAAA-MM-DD_HHMMSS.sql.gz
+   ARQUIVO=diario/agendamento_AAAA-MM-DD_HHMMSS.sql.gz
    ```
 4. **Valide antes de usar.** Isto restaura no banco de teste, confere e mantém o banco para você olhar os dados:
    ```bash
@@ -125,7 +125,7 @@ set -a; . <(sudo cat /etc/agendamento-barbearia/backup.env); set +a   # bucket e
    ```
 5. **Restaure num banco novo:**
    ```bash
-   NOVO=agendamento_barbearia_$(date +%Y%m%d)
+   NOVO=agendamento_$(date +%Y%m%d)
    aws s3 cp "$BACKUP_S3_URI/$ARQUIVO" /var/tmp/restaurar.sql.gz
    sudo mysql -e "CREATE DATABASE $NOVO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
    gunzip -c /var/tmp/restaurar.sql.gz | sudo mysql "$NOVO"
