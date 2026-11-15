@@ -2,21 +2,21 @@
     "Rules": [
         {
             "ID": "diarios-7-dias",
-            "Filter": { "Prefix": "agendamento-barbearia/diario/" },
+            "Filter": { "Prefix": "agendamento/diario/" },
             "Status": "Enabled",
             "Expiration": { "Days": 7 },
             "NoncurrentVersionExpiration": { "NoncurrentDays": 7 }
         },
         {
             "ID": "semanais-4-semanas",
-            "Filter": { "Prefix": "agendamento-barbearia/semanal/" },
+            "Filter": { "Prefix": "agendamento/semanal/" },
             "Status": "Enabled",
             "Expiration": { "Days": 28 },
             "NoncurrentVersionExpiration": { "NoncurrentDays": 7 }
         },
         {
             "ID": "limpeza",
-            "Filter": { "Prefix": "agendamento-barbearia/" },
+            "Filter": { "Prefix": "agendamento/" },
             "Status": "Enabled",
             "Expiration": { "ExpiredObjectDeleteMarker": true },
             "AbortIncompleteMultipartUpload": { "DaysAfterInitiation": 1 }

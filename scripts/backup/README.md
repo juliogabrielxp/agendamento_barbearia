@@ -4,7 +4,7 @@
 |---|---|
 | **O que é salvo** | o banco `agendamento` inteiro (`mysqldump --single-transaction`, gzip) |
 | **Quando** | todo dia às 03:00 (Brasília); teste de restauração às 04:30 |
-| **Onde** | S3 `s3://NOME-DO-BUCKET/agendamento-barbearia/{diario,semanal}/`, fora do servidor |
+| **Onde** | S3 `s3://NOME-DO-BUCKET/agendamento/{diario,semanal}/`, fora do servidor |
 | **Por quanto tempo** | 7 cópias diárias + 4 semanais (domingo), apagadas pelo ciclo de vida do bucket |
 | **Até onde volta** | até 28 dias atrás; dentro da última semana, qualquer dia |
 | **Perda máxima (RPO)** | até 24 h: tudo o que entrou depois das 03:00 do último backup |
@@ -29,7 +29,7 @@ que pode existir fora do repositório:
 # Na EC2
 sudo crontab -l; crontab -l; ls /etc/cron.d /etc/cron.daily; systemctl list-timers
 sudo find / -xdev \( -name '*.sql' -o -name '*.sql.gz' \) -mtime -60 2>/dev/null | head
-cat /var/www/barbearia.juliogabrieldev.com/deploy.sh      # faz dump antes do migrate?
+cat /var/www/agendamento/deploy.sh      # faz dump antes do migrate?
 ```
 
 No console da AWS:
@@ -71,8 +71,8 @@ execução e aborta se ele conseguir abrir a produção.
 
 **Senhas no SSM** (pelo console: Systems Manager → Parameter Store → Create, tipo
 *SecureString*), uma com cada nome:
-- `/agendamento-barbearia/backup/db-password-backup`
-- `/agendamento-barbearia/backup/db-password-restauracao`
+- `/agendamento/backup/db-password-backup`
+- `/agendamento/backup/db-password-restauracao`
 
 **No servidor:**
 ```bash
@@ -81,11 +81,11 @@ curl -sSo /tmp/awscliv2.zip https://awscli.amazonaws.com/awscli-exe-linux-x86_64
 cd /tmp && unzip -q awscliv2.zip && sudo ./aws/install && cd -
 
 # Scripts num diretório do root: o systemd não executa nada que o usuário do deploy possa alterar
-cd /var/www/barbearia.juliogabrieldev.com/scripts/backup
-sudo install -d /usr/local/lib/agendamento-backup /etc/agendamento-barbearia
+cd /var/www/agendamento/scripts/backup
+sudo install -d /usr/local/lib/agendamento-backup /etc/agendamento
 sudo install -m 755 lib.sh backup-banco.sh testar-restauracao.sh /usr/local/lib/agendamento-backup/
-sudo install -m 600 backup.env.example /etc/agendamento-barbearia/backup.env
-sudo nano /etc/agendamento-barbearia/backup.env          # bucket, banco e região
+sudo install -m 600 backup.env.example /etc/agendamento/backup.env
+sudo nano /etc/agendamento/backup.env          # bucket, banco e região
 sudo install -m 644 systemd/* /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now backup-banco.timer teste-restauracao.timer
@@ -107,8 +107,8 @@ Regra de ouro: **nunca restaure por cima do banco atual.** Restaure num banco no
 o app para ele; o banco antigo fica intacto para investigação.
 
 ```bash
-cd /var/www/barbearia.juliogabrieldev.com
-set -a; . <(sudo cat /etc/agendamento-barbearia/backup.env); set +a   # bucket e nomes (sem senhas)
+cd /var/www/agendamento
+set -a; . <(sudo cat /etc/agendamento/backup.env); set +a   # bucket e nomes (sem senhas)
 ```
 
 1. **Pare as escritas:** `php artisan down`
@@ -120,7 +120,7 @@ set -a; . <(sudo cat /etc/agendamento-barbearia/backup.env); set +a   # bucket e
    ```
 4. **Valide antes de usar.** Isto restaura no banco de teste, confere e mantém o banco para você olhar os dados:
    ```bash
-   sudo ARQUIVO="$ARQUIVO" bash -c 'set -a; . /etc/agendamento-barbearia/backup.env; set +a
+   sudo ARQUIVO="$ARQUIVO" bash -c 'set -a; . /etc/agendamento/backup.env; set +a
        RESTORE_ARQUIVO="$ARQUIVO" RESTORE_MANTER=1 /usr/local/lib/agendamento-backup/testar-restauracao.sh'
    ```
 5. **Restaure num banco novo:**
@@ -135,7 +135,7 @@ set -a; . <(sudo cat /etc/agendamento-barbearia/backup.env); set +a   # bucket e
 6. **Aponte o app e o backup para o banco novo:**
    ```bash
    sed -i "s/^DB_DATABASE=.*/DB_DATABASE=$NOVO/" .env && php artisan config:cache
-   sudo sed -i "s/^DB_DATABASE=.*/DB_DATABASE=$NOVO/" /etc/agendamento-barbearia/backup.env
+   sudo sed -i "s/^DB_DATABASE=.*/DB_DATABASE=$NOVO/" /etc/agendamento/backup.env
    php artisan up
    sudo systemctl start backup-banco.service teste-restauracao.service   # já protege o banco novo
    ```

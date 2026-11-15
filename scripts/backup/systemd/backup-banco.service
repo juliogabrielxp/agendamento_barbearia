@@ -1,11 +1,11 @@
 [Unit]
-Description=Backup do MySQL do agendamento-barbearia para o S3
+Description=Backup do MySQL do agendamento para o S3
 Wants=network-online.target
 After=network-online.target mysql.service
 
 [Service]
 Type=oneshot
-EnvironmentFile=/etc/agendamento-barbearia/backup.env
+EnvironmentFile=/etc/agendamento/backup.env
 ExecStart=/usr/local/lib/agendamento-backup/backup-banco.sh
 # Roda com um usuário descartável, sem acesso de escrita ao sistema
 DynamicUser=yes

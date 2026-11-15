@@ -5,20 +5,20 @@
             "Sid": "EnviarEBaixarBackupsSemPoderApagar",
             "Effect": "Allow",
             "Action": ["s3:PutObject", "s3:GetObject"],
-            "Resource": "arn:aws:s3:::NOME-DO-BUCKET/agendamento-barbearia/*"
+            "Resource": "arn:aws:s3:::NOME-DO-BUCKET/agendamento/*"
         },
         {
             "Sid": "ListarBackups",
             "Effect": "Allow",
             "Action": "s3:ListBucket",
             "Resource": "arn:aws:s3:::NOME-DO-BUCKET",
-            "Condition": { "StringLike": { "s3:prefix": ["agendamento-barbearia/*"] } }
+            "Condition": { "StringLike": { "s3:prefix": ["agendamento/*"] } }
         },
         {
             "Sid": "LerSenhasDoBackup",
             "Effect": "Allow",
             "Action": "ssm:GetParameter",
-            "Resource": "arn:aws:ssm:us-east-2:ID-DA-CONTA:parameter/agendamento-barbearia/backup/*"
+            "Resource": "arn:aws:ssm:us-east-2:ID-DA-CONTA:parameter/agendamento/backup/*"
         }
     ]
 }

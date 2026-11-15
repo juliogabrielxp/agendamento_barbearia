@@ -11,9 +11,9 @@
 As migrations são do próprio Laravel (`database/migrations`, `php artisan migrate`). O app nunca
 cria nem altera tabela: só a conexão `mysql_migracao` tem DDL.
 
-O agente de IA trabalha só no dev. O hook `.claude/hooks/proteger-producao.sh` bloqueia `.env`,
-`--env=production`, `ssh`/`scp` e acesso ao host de produção. O que é de produção sai daqui como
-comando para o dono rodar.
+Desde 2026-11-15 o agente de IA pode acessar a EC2 por `ssh girassol`, com autorização do dono.
+O hook `.claude/hooks/proteger-producao.sh` continua bloqueando a leitura de `.env` com segredos,
+`--env=production` e o acesso direto ao banco de produção a partir da máquina local.
 
 ## Começar no dev
 
@@ -38,9 +38,9 @@ Rode na EC2 (só leitura) e me mande os dois arquivos; eles não têm senha nem 
 
 ```bash
 # na sua máquina
-scp scripts/schema/assinatura-schema.sql <usuario>@barbearia.juliogabrieldev.com:/tmp/
+scp scripts/schema/assinatura-schema.sql girassol:/tmp/
 # na EC2
-cd /var/www/barbearia.juliogabrieldev.com
+cd /var/www/agendamento
 php artisan migrate:status > /tmp/migrate-status.txt
 sudo mysql -N <DB_DATABASE> < /tmp/assinatura-schema.sql > /tmp/assinatura-producao.txt
 ```
@@ -57,6 +57,11 @@ Para comparar você mesmo: `diff scripts/schema/assinatura-esperada.txt assinatu
   migration que traz isso para o código, sem apagar nada que só existe em produção.
 
 ## Produção: trocar para usuários com permissão mínima
+
+**Feito em 2026-11-15.** O app usa `agendamento_app`, o `deploy.sh` migra com
+`agendamento_migracao`, e o usuário antigo (`barbearia_user`, com todos os privilégios) foi removido.
+As senhas foram geradas na EC2 e só existem no `.env` de lá. Os passos abaixo ficam como registro
+e para montar um servidor novo.
 
 A ordem importa. Em cada passo, o app continua no ar e dá para voltar atrás.
 

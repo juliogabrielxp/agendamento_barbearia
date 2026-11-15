@@ -96,7 +96,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "public/build/*"
-          target: "/var/www/barbearia.juliogabrieldev.com/public/build"
+          target: "/var/www/agendamento/public/build"
           strip_components: 2
           overwrite: true
 
@@ -107,4 +107,4 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           command_timeout: 10m
-          script: bash /var/www/barbearia.juliogabrieldev.com/deploy.sh
+          script: bash /var/www/agendamento/deploy.sh
