@@ -15,7 +15,7 @@ class EstabelecimentoSeeder extends Seeder
             [
                 'nome' => 'Barbearia 1995',
                 'telefone' => '(11) 91995-1995',
-                'email' => 'contato@estabelecimento1995.com',
+                'email' => 'contato@barbearia1995.com',
                 'endereco' => 'Rua Augusta, 1995 - São Paulo, SP',
                 'servicos' => [
                     ['nome' => 'Corte Clássico', 'duracao_em_minutos' => 30, 'preco' => 40.00],
