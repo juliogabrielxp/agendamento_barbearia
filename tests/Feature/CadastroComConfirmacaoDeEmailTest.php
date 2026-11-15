@@ -30,7 +30,7 @@ class CadastroComConfirmacaoDeEmailTest extends TestCase
 
         Mail::fake();
         $this->travelTo('2026-11-13 10:00:00');
-        $this->criarBarbearia('dona@studio.com');
+        $this->criarEstabelecimento('dona@studio.com');
     }
 
     public function test_cadastro_envia_codigo_e_nao_cria_a_conta_antes_da_confirmacao(): void
@@ -43,7 +43,7 @@ class CadastroComConfirmacaoDeEmailTest extends TestCase
         $this->assertGuest();
 
         Mail::assertSent(CodigoDeConfirmacaoMail::class, fn (CodigoDeConfirmacaoMail $mail) => $mail->hasTo('maria@email.com')
-            && $mail->nomeDoEstabelecimento === 'Barbearia dona@studio.com'
+            && $mail->nomeDoEstabelecimento === 'Estabelecimento dona@studio.com'
             && preg_match('/^\d{6}$/', $mail->codigo) === 1);
     }
 

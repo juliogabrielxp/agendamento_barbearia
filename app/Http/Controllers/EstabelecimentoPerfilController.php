@@ -4,36 +4,36 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Domain\Barbearia;
+use App\Domain\Estabelecimento;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use InvalidArgumentException;
 
-class BarbeariaPerfilController extends Controller
+class EstabelecimentoPerfilController extends Controller
 {
     public function show(Request $request): JsonResponse
     {
-        $barbearia = $this->estabelecimentoDoDono($request);
+        $estabelecimento = $this->estabelecimentoDoDono($request);
 
-        return response()->json($barbearia);
+        return response()->json($estabelecimento);
     }
 
     public function update(Request $request): JsonResponse
     {
-        $barbeariaModel = $this->estabelecimentoDoDono($request);
+        $estabelecimentoModel = $this->estabelecimentoDoDono($request);
 
         $dados = $request->validate([
             'nome' => 'required|string|max:255',
             'telefone' => 'required|string|max:20',
-            // barbearias.email é unique: e-mail de outro estabelecimento vira 422, não 500
-            'email' => ['required', 'email', 'max:255', Rule::unique('barbearias', 'email')->ignore($barbeariaModel->id)],
+            // estabelecimentos.email é unique: e-mail de outro estabelecimento vira 422, não 500
+            'email' => ['required', 'email', 'max:255', Rule::unique('estabelecimentos', 'email')->ignore($estabelecimentoModel->id)],
             'endereco' => 'required|string|max:255',
         ]);
 
         try {
-            new Barbearia(
-                id: $barbeariaModel->id,
+            new Estabelecimento(
+                id: $estabelecimentoModel->id,
                 nome: $dados['nome'],
                 telefone: $dados['telefone'],
                 email: $dados['email'],
@@ -43,8 +43,8 @@ class BarbeariaPerfilController extends Controller
             return response()->json(['message' => $e->getMessage()], 422);
         }
 
-        $barbeariaModel->update($dados);
+        $estabelecimentoModel->update($dados);
 
-        return response()->json($barbeariaModel);
+        return response()->json($estabelecimentoModel);
     }
 }

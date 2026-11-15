@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Middleware\IdentificaEstabelecimento;
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -13,11 +13,11 @@ use LogicException;
 abstract class Controller
 {
     /** Estabelecimento do host da requisição; exige o middleware "estabelecimento" na rota */
-    protected function estabelecimento(Request $request): BarbeariaModel
+    protected function estabelecimento(Request $request): EstabelecimentoModel
     {
         $estabelecimento = $request->attributes->get(IdentificaEstabelecimento::ATRIBUTO);
 
-        if (! $estabelecimento instanceof BarbeariaModel) {
+        if (! $estabelecimento instanceof EstabelecimentoModel) {
             throw new LogicException('Rota sem o middleware "estabelecimento".');
         }
 
@@ -29,7 +29,7 @@ abstract class Controller
      * Dona logada no endereço de outro estabelecimento recebe 404: o painel só
      * abre no próprio domínio, venha a sessão do login por senha ou do Google.
      */
-    protected function estabelecimentoDoDono(Request $request): BarbeariaModel
+    protected function estabelecimentoDoDono(Request $request): EstabelecimentoModel
     {
         $estabelecimento = $this->estabelecimento($request);
 

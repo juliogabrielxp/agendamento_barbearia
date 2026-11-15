@@ -20,7 +20,7 @@ class PushAssinaturaTest extends TestCase
 
     public function test_dona_registra_a_assinatura_do_aparelho(): void
     {
-        $minha = $this->criarBarbearia('dona@estudio.com');
+        $minha = $this->criarEstabelecimento('dona@estudio.com');
 
         $this->actingAs($minha['dono'])
             ->postJson('/api/push/assinaturas', $this->assinatura('segredo-do-aparelho'))
@@ -34,7 +34,7 @@ class PushAssinaturaTest extends TestCase
 
     public function test_outra_conta_nao_toma_a_assinatura_so_com_o_endpoint(): void
     {
-        $minha = $this->criarBarbearia('dona@estudio.com');
+        $minha = $this->criarEstabelecimento('dona@estudio.com');
         ['usuario' => $invasor] = $this->criarCliente('invasor@email.com');
 
         $this->actingAs($minha['dono'])
@@ -54,7 +54,7 @@ class PushAssinaturaTest extends TestCase
 
     public function test_o_mesmo_aparelho_passa_para_outra_conta_com_a_mesma_assinatura(): void
     {
-        $minha = $this->criarBarbearia('dona@estudio.com');
+        $minha = $this->criarEstabelecimento('dona@estudio.com');
         ['usuario' => $outraConta] = $this->criarCliente('outra@email.com');
 
         $this->actingAs($minha['dono'])
@@ -73,7 +73,7 @@ class PushAssinaturaTest extends TestCase
 
     public function test_outra_conta_nao_toma_a_assinatura_gravada_no_meio_da_requisicao(): void
     {
-        $minha = $this->criarBarbearia('dona@estudio.com');
+        $minha = $this->criarEstabelecimento('dona@estudio.com');
         ['usuario' => $invasor] = $this->criarCliente('invasor@email.com');
 
         // A dona registra o aparelho logo depois de a requisição do invasor ver que ele não existia
@@ -92,7 +92,7 @@ class PushAssinaturaTest extends TestCase
 
     public function test_clique_duplo_da_mesma_conta_grava_uma_assinatura_so(): void
     {
-        $minha = $this->criarBarbearia('dona@estudio.com');
+        $minha = $this->criarEstabelecimento('dona@estudio.com');
 
         $this->gravarNoMeio($minha['dono']->id, 'segredo-do-aparelho');
 
@@ -105,7 +105,7 @@ class PushAssinaturaTest extends TestCase
 
     public function test_dona_remove_a_assinatura_do_proprio_aparelho(): void
     {
-        $minha = $this->criarBarbearia('dona@estudio.com');
+        $minha = $this->criarEstabelecimento('dona@estudio.com');
         $this->actingAs($minha['dono'])
             ->postJson('/api/push/assinaturas', $this->assinatura('segredo-do-aparelho'))
             ->assertCreated();
@@ -117,7 +117,7 @@ class PushAssinaturaTest extends TestCase
 
     public function test_outra_conta_nao_remove_a_assinatura_da_dona(): void
     {
-        $minha = $this->criarBarbearia('dona@estudio.com');
+        $minha = $this->criarEstabelecimento('dona@estudio.com');
         ['usuario' => $invasor] = $this->criarCliente('invasor@email.com');
         $this->actingAs($minha['dono'])
             ->postJson('/api/push/assinaturas', $this->assinatura('segredo-do-aparelho'))
@@ -133,7 +133,7 @@ class PushAssinaturaTest extends TestCase
 
     public function test_chave_publica_exige_login(): void
     {
-        $this->criarBarbearia('dona@estudio.com');
+        $this->criarEstabelecimento('dona@estudio.com');
 
         $this->getJson('/api/push/chave-publica')->assertUnauthorized();
     }

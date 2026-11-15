@@ -7,7 +7,7 @@ namespace App\Domain;
 use InvalidArgumentException;
 use DateTimeImmutable;
 
-class Barbearia
+class Estabelecimento
 {
     public function __construct(
         private readonly ?int $id,

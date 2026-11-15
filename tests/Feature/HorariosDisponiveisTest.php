@@ -27,7 +27,7 @@ class HorariosDisponiveisTest extends TestCase
         parent::setUp();
 
         $this->travelTo('2030-01-09 12:00:00');
-        $this->estabelecimento = $this->criarBarbearia('dona@studio.com');
+        $this->estabelecimento = $this->criarEstabelecimento('dona@studio.com');
     }
 
     public function test_visitante_sem_login_consulta_horarios(): void
@@ -90,7 +90,7 @@ class HorariosDisponiveisTest extends TestCase
 
     public function test_servico_que_pode_atravessar_o_intervalo_so_nao_comeca_nele(): void
     {
-        $this->estabelecimento['barbearia']->update(['intervalo_inicio' => '12:00', 'intervalo_fim' => '13:00']);
+        $this->estabelecimento['estabelecimento']->update(['intervalo_inicio' => '12:00', 'intervalo_fim' => '13:00']);
         $trancas = $this->criarServico('Box braids', duracao: 240, podeAtravessarIntervalo: true);
 
         $horarios = $this->consultar('2030-01-10', $trancas)->assertOk()->json();
@@ -103,7 +103,7 @@ class HorariosDisponiveisTest extends TestCase
 
     public function test_servico_comum_continua_bloqueado_pelo_intervalo(): void
     {
-        $this->estabelecimento['barbearia']->update(['intervalo_inicio' => '12:00', 'intervalo_fim' => '13:00']);
+        $this->estabelecimento['estabelecimento']->update(['intervalo_inicio' => '12:00', 'intervalo_fim' => '13:00']);
         $escova = $this->criarServico('Escova', duracao: 60);
 
         $horarios = $this->consultar('2030-01-10', $escova)->assertOk()->json();
@@ -138,13 +138,13 @@ class HorariosDisponiveisTest extends TestCase
         $this->consultar('2030-01-10')->assertOk()->assertJsonCount(22);
 
         $vezes = array_count_values($tabelas);
-        $this->assertSame(1, $vezes['barbearias'] ?? 0, 'barbearias: '.implode(', ', $tabelas));
+        $this->assertSame(1, $vezes['estabelecimentos'] ?? 0, 'estabelecimentos: '.implode(', ', $tabelas));
         $this->assertSame(1, $vezes['profissionais'] ?? 0, 'profissionais: '.implode(', ', $tabelas));
     }
 
     public function test_nao_consulta_servico_de_outro_estabelecimento(): void
     {
-        $outro = $this->criarBarbearia('dono@outro.com');
+        $outro = $this->criarEstabelecimento('dono@outro.com');
 
         $this->consultar('2030-01-10', $outro['servico'])->assertNotFound();
     }
@@ -166,7 +166,7 @@ class HorariosDisponiveisTest extends TestCase
     private function criarServico(string $nome, int $duracao, bool $podeAtravessarIntervalo = false): ServicoModel
     {
         $servico = ServicoModel::create([
-            'barbearia_id' => $this->estabelecimento['barbearia']->id,
+            'estabelecimento_id' => $this->estabelecimento['estabelecimento']->id,
             'nome' => $nome,
             'duracao_em_minutos' => $duracao,
             'preco' => 300.0,

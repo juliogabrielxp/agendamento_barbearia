@@ -12,14 +12,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('barbearias', function (Blueprint $table) {
+        Schema::table('estabelecimentos', function (Blueprint $table) {
             $table->string('dominio')->nullable()->unique()->after('nome');
         });
     }
 
     public function down(): void
     {
-        Schema::table('barbearias', function (Blueprint $table) {
+        Schema::table('estabelecimentos', function (Blueprint $table) {
             $table->dropUnique(['dominio']);
             $table->dropColumn('dominio');
         });

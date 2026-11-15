@@ -6,7 +6,7 @@ import ProfissionaisTab from '../components/ProfissionaisTab';
 import AgendaTab from '../components/AgendaTab';
 import ConfiguracoesTab from '../components/ConfiguracoesTab';
 
-export default function DashboardBarbearia() {
+export default function DashboardEstabelecimento() {
     const [dados, setDados] = useState(null);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(false);

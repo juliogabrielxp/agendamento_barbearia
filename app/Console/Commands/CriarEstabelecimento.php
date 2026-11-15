@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
 use Illuminate\Console\Command;
@@ -44,10 +44,10 @@ final class CriarEstabelecimento extends Command
 
         $validador = Validator::make([...$dados, 'senha' => $senha, 'senha_confirmation' => $confirmacao], [
             'nome' => 'required|string|max:255',
-            'dominio' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/', 'unique:barbearias,dominio'],
-            'email' => 'required|email|max:255|unique:users,email|unique:barbearias,email',
+            'dominio' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/', 'unique:estabelecimentos,dominio'],
+            'email' => 'required|email|max:255|unique:users,email|unique:estabelecimentos,email',
             'profissional' => 'required|string|max:255',
-            // Mesmas regras da tela de perfil (BarbeariaPerfilController): lá os dois são obrigatórios
+            // Mesmas regras da tela de perfil (EstabelecimentoPerfilController): lá os dois são obrigatórios
             'telefone' => 'required|string|max:20',
             'endereco' => 'required|string|max:255',
             'senha' => 'required|string|min:8|confirmed',
@@ -73,7 +73,7 @@ final class CriarEstabelecimento extends Command
                 'password' => $senha,
             ]);
 
-            $estabelecimento = BarbeariaModel::create([
+            $estabelecimento = EstabelecimentoModel::create([
                 'user_id' => $dona->id,
                 'nome' => $dados['nome'],
                 'dominio' => $dados['dominio'],
@@ -83,7 +83,7 @@ final class CriarEstabelecimento extends Command
             ]);
 
             ProfissionalModel::create([
-                'barbearia_id' => $estabelecimento->id,
+                'estabelecimento_id' => $estabelecimento->id,
                 'nome' => $dados['profissional'],
             ]);
         });

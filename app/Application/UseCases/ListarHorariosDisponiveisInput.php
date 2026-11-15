@@ -15,7 +15,7 @@ final class ListarHorariosDisponiveisInput
         public readonly int $duracaoEmMinutos,
         public readonly bool $podeAtravessarIntervalo,
         public readonly DateTimeImmutable $data,
-        // Quem chama já tem o estabelecimento carregado: evita reler profissional e barbearia
+        // Quem chama já tem o estabelecimento carregado: evita reler profissional e estabelecimento
         public readonly Expediente $expediente
     ) {}
 }

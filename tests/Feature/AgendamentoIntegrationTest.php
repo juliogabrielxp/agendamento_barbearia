@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
@@ -34,23 +34,23 @@ class AgendamentoIntegrationTest extends TestCase
     public function test_deve_criar_agendamento_via_http_e_persistir_no_banco(): void
     {
 
-        $barbearia = BarbeariaModel::create([
+        $estabelecimento = EstabelecimentoModel::create([
             'dominio' => 'localhost', // host padrão das requisições de teste
-            'nome' => 'Barbearia Teste',
+            'nome' => 'Estabelecimento Teste',
             'telefone' => '83999999999',
-            'email' => 'teste@barbearia.com',
+            'email' => 'teste@estabelecimento.com',
             'endereco' => 'Rua Teste, 1',
         ]);
 
         $servico = ServicoModel::create([
-            'barbearia_id' => $barbearia->id,
+            'estabelecimento_id' => $estabelecimento->id,
             'nome' => 'Corte',
             'duracao_em_minutos' => 30,
             'preco' => 50.0,
         ]);
 
         $profissional = ProfissionalModel::create([
-            'barbearia_id' => $barbearia->id,
+            'estabelecimento_id' => $estabelecimento->id,
             'nome' => 'João',
         ]);
         $profissional->servicos()->attach($servico->id);
@@ -81,23 +81,23 @@ class AgendamentoIntegrationTest extends TestCase
     public function test_deve_retornar_409_ao_tentar_agendar_horario_conflitante(): void
     {
 
-        $barbearia = BarbeariaModel::create([
+        $estabelecimento = EstabelecimentoModel::create([
             'dominio' => 'localhost', // host padrão das requisições de teste
-            'nome' => 'Barbearia Teste',
+            'nome' => 'Estabelecimento Teste',
             'telefone' => '83999999999',
-            'email' => 'teste2@barbearia.com',
+            'email' => 'teste2@estabelecimento.com',
             'endereco' => 'Rua Teste, 1',
         ]);
 
         $servico = ServicoModel::create([
-            'barbearia_id' => $barbearia->id,
+            'estabelecimento_id' => $estabelecimento->id,
             'nome' => 'Corte',
             'duracao_em_minutos' => 30,
             'preco' => 50.0,
         ]);
 
         $profissional = ProfissionalModel::create([
-            'barbearia_id' => $barbearia->id,
+            'estabelecimento_id' => $estabelecimento->id,
             'nome' => 'Pedro',
         ]);
         $profissional->servicos()->attach($servico->id);
@@ -130,23 +130,23 @@ class AgendamentoIntegrationTest extends TestCase
 
     public function test_duracao_enviada_pelo_cliente_e_ignorada_e_conflito_retorna_409(): void
     {
-        $barbearia = BarbeariaModel::create([
+        $estabelecimento = EstabelecimentoModel::create([
             'dominio' => 'localhost', // host padrão das requisições de teste
-            'nome' => 'Barbearia Teste',
+            'nome' => 'Estabelecimento Teste',
             'telefone' => '83999999999',
-            'email' => 'teste3@barbearia.com',
+            'email' => 'teste3@estabelecimento.com',
             'endereco' => 'Rua Teste, 1',
         ]);
 
         $servico = ServicoModel::create([
-            'barbearia_id' => $barbearia->id,
+            'estabelecimento_id' => $estabelecimento->id,
             'nome' => 'Corte + Barba',
             'duracao_em_minutos' => 60,
             'preco' => 80.0,
         ]);
 
         $profissional = ProfissionalModel::create([
-            'barbearia_id' => $barbearia->id,
+            'estabelecimento_id' => $estabelecimento->id,
             'nome' => 'Carlos',
         ]);
         $profissional->servicos()->attach($servico->id);

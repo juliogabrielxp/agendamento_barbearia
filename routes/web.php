@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\Auth\BarbeariaLoginController;
 use App\Http\Controllers\Auth\ClienteAuthController;
+use App\Http\Controllers\Auth\EstabelecimentoLoginController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\SpaController;
 use Illuminate\Support\Facades\Route;
@@ -15,7 +15,7 @@ Route::get('/login', function () {
     return redirect('/app/entrar');
 })->name('login');
 
-Route::post('/login-estabelecimento', [BarbeariaLoginController::class, 'login'])
+Route::post('/login-estabelecimento', [EstabelecimentoLoginController::class, 'login'])
     ->middleware(['estabelecimento', 'throttle:5,1'])
     ->name('login.estabelecimento');
 

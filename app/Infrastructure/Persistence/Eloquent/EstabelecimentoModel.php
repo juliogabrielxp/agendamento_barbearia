@@ -9,7 +9,7 @@ use App\Infrastructure\Persistence\Eloquent\Concerns\TemImagem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class BarbeariaModel extends Model
+class EstabelecimentoModel extends Model
 {
     use TemImagem;
 
@@ -17,7 +17,7 @@ class BarbeariaModel extends Model
 
     protected $hidden = ['imagem_path'];
 
-    protected $table = 'barbearias';
+    protected $table = 'estabelecimentos';
 
     protected $fillable = [
         'user_id', 'nome', 'dominio', 'telefone', 'email', 'endereco',
@@ -26,12 +26,12 @@ class BarbeariaModel extends Model
 
     public function servicos(): HasMany
     {
-        return $this->hasMany(ServicoModel::class, 'barbearia_id');
+        return $this->hasMany(ServicoModel::class, 'estabelecimento_id');
     }
 
     public function profissionais(): HasMany
     {
-        return $this->hasMany(ProfissionalModel::class, 'barbearia_id');
+        return $this->hasMany(ProfissionalModel::class, 'estabelecimento_id');
     }
 
     /** Horário de funcionamento como objeto de domínio ("08:00:00" do banco vira "08:00") */

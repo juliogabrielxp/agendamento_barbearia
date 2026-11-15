@@ -9,13 +9,13 @@ use App\Application\UseCases\AutenticarComSenhaUseCase;
 use App\Domain\Exceptions\CredenciaisInvalidasException;
 use App\Domain\TipoDeConta;
 use App\Http\Controllers\Controller;
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-final class BarbeariaLoginController extends Controller
+final class EstabelecimentoLoginController extends Controller
 {
     public function __construct(
         private readonly AutenticarComSenhaUseCase $autenticarComSenha
@@ -32,14 +32,14 @@ final class BarbeariaLoginController extends Controller
             $usuario = $this->autenticarComSenha->executar(new AutenticarComSenhaInput(
                 email: $dados['email'],
                 senha: $dados['password'],
-                tipoDeConta: TipoDeConta::Barbearia,
+                tipoDeConta: TipoDeConta::Estabelecimento,
             ));
         } catch (CredenciaisInvalidasException $e) {
             return $this->credenciaisInvalidas($e);
         }
 
         // A dona de um estabelecimento só entra pelo endereço do próprio estabelecimento
-        $doEsteEstabelecimento = BarbeariaModel::where('user_id', $usuario['id'])
+        $doEsteEstabelecimento = EstabelecimentoModel::where('user_id', $usuario['id'])
             ->whereKey($this->estabelecimento($request)->id)
             ->exists();
         if (! $doEsteEstabelecimento) {

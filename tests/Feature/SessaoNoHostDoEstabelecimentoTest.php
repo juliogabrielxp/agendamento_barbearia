@@ -37,7 +37,7 @@ class SessaoNoHostDoEstabelecimentoTest extends TestCase
 
     public function test_sessao_vale_no_host_da_requisicao_mesmo_fora_da_lista_do_env(): void
     {
-        $this->criarBarbearia('dona@estudio.com', 'trancas.test');
+        $this->criarEstabelecimento('dona@estudio.com', 'trancas.test');
         ['usuario' => $usuario] = $this->criarCliente('maria@email.com');
 
         $login = $this->withHeader('Referer', 'http://trancas.test/app/entrar')

@@ -20,7 +20,7 @@ class PainelNoDominioDoEstabelecimentoTest extends TestCase
 
     public function test_dona_usa_o_painel_no_proprio_dominio(): void
     {
-        $minha = $this->criarBarbearia('dona@estudio.com', 'estudio.test');
+        $minha = $this->criarEstabelecimento('dona@estudio.com', 'estudio.test');
 
         $this->actingAs($minha['dono'])->noHost('estudio.test')
             ->getJson('/api/servicos')
@@ -30,8 +30,8 @@ class PainelNoDominioDoEstabelecimentoTest extends TestCase
 
     public function test_dona_nao_usa_o_painel_no_dominio_de_outro_estabelecimento(): void
     {
-        $this->criarBarbearia('vizinha@barbearia.com', 'vizinha.test');
-        $minha = $this->criarBarbearia('dona@estudio.com', 'estudio.test');
+        $this->criarEstabelecimento('vizinha@estabelecimento.com', 'vizinha.test');
+        $minha = $this->criarEstabelecimento('dona@estudio.com', 'estudio.test');
 
         $this->actingAs($minha['dono'])->noHost('vizinha.test');
 
@@ -48,18 +48,18 @@ class PainelNoDominioDoEstabelecimentoTest extends TestCase
             'endereco' => 'Rua Teste, 1',
         ])->assertNotFound();
 
-        $this->assertDatabaseHas('barbearias', ['id' => $minha['barbearia']->id, 'nome' => $minha['barbearia']->nome]);
+        $this->assertDatabaseHas('estabelecimentos', ['id' => $minha['estabelecimento']->id, 'nome' => $minha['estabelecimento']->nome]);
     }
 
     public function test_me_so_apresenta_a_dona_no_dominio_dela(): void
     {
-        $this->criarBarbearia('vizinha@barbearia.com', 'vizinha.test');
-        $minha = $this->criarBarbearia('dona@estudio.com', 'estudio.test');
+        $this->criarEstabelecimento('vizinha@estabelecimento.com', 'vizinha.test');
+        $minha = $this->criarEstabelecimento('dona@estudio.com', 'estudio.test');
 
         $this->actingAs($minha['dono'])->noHost('estudio.test')
             ->getJson('/api/me')
             ->assertOk()
-            ->assertJsonPath('estabelecimento.id', $minha['barbearia']->id);
+            ->assertJsonPath('estabelecimento.id', $minha['estabelecimento']->id);
 
         $this->noHost('vizinha.test')
             ->getJson('/api/me')

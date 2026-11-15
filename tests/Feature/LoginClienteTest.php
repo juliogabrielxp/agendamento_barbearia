@@ -10,8 +10,8 @@ use Tests\TestCase;
 
 class LoginClienteTest extends TestCase
 {
-    use RefreshDatabase;
     use CriaCenarioDeAgenda;
+    use RefreshDatabase;
 
     public function test_cliente_entra_com_email_e_senha(): void
     {
@@ -39,13 +39,13 @@ class LoginClienteTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_dono_de_barbearia_nao_entra_pela_tela_do_cliente(): void
+    public function test_dono_de_estabelecimento_nao_entra_pela_tela_do_cliente(): void
     {
         // Senha correta, mas a conta não tem perfil de cliente
-        $this->criarBarbearia('dono@barbearia.com');
+        $this->criarEstabelecimento('dono@estabelecimento.com');
 
         $response = $this->postJson('/login-cliente', [
-            'email' => 'dono@barbearia.com',
+            'email' => 'dono@estabelecimento.com',
             'password' => 'senha-segura-123',
         ]);
 

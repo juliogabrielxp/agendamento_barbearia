@@ -17,29 +17,28 @@ class ImagemController extends Controller
 
     public function __construct(
         private readonly ArmazenadorDeImagens $armazenador
-    ) {
-    }
+    ) {}
 
-    public function barbearia(Request $request): JsonResponse
+    public function perfil(Request $request): JsonResponse
     {
-        $barbearia = $this->estabelecimentoDoDono($request);
+        $estabelecimento = $this->estabelecimentoDoDono($request);
         $request->validate(self::REGRAS);
 
-        $caminhoAntigo = $barbearia->imagem_path;
+        $caminhoAntigo = $estabelecimento->imagem_path;
 
-        $barbearia->update([
-            'imagem_path' => $this->armazenador->salvar($request->file('imagem'), 'imagens/barbearias'),
+        $estabelecimento->update([
+            'imagem_path' => $this->armazenador->salvar($request->file('imagem'), 'imagens/estabelecimentos'),
         ]);
 
         $this->armazenador->remover($caminhoAntigo);
 
-        return response()->json($barbearia);
+        return response()->json($estabelecimento);
     }
 
     public function servico(Request $request, int $id): JsonResponse
     {
-        $barbearia = $this->estabelecimentoDoDono($request);
-        $servico = ServicoModel::where('barbearia_id', $barbearia->id)->findOrFail($id);
+        $estabelecimento = $this->estabelecimentoDoDono($request);
+        $servico = ServicoModel::where('estabelecimento_id', $estabelecimento->id)->findOrFail($id);
         $request->validate(self::REGRAS);
 
         $caminhoAntigo = $servico->imagem_path;

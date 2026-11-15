@@ -19,15 +19,15 @@ class MeusAgendamentosPaginadosTest extends TestCase
 
     public function test_vem_de_20_em_20_sem_repetir_nem_pular(): void
     {
-        $barbearia = $this->criarBarbearia('dona@estudio.com');
+        $estabelecimento = $this->criarEstabelecimento('dona@estudio.com');
         ['usuario' => $usuario, 'cliente' => $cliente] = $this->criarCliente('maria@email.com');
 
         $ids = [];
         foreach (range(1, 24) as $dia) {
-            $ids[] = $this->criarAgendamento($barbearia, $cliente, sprintf('2030-01-%02d 10:00:00', $dia))->id;
+            $ids[] = $this->criarAgendamento($estabelecimento, $cliente, sprintf('2030-01-%02d 10:00:00', $dia))->id;
         }
         // Mesmo horário de outro: o id desempata e nenhum dos dois some na virada de página
-        $ids[] = $this->criarAgendamento($barbearia, $cliente, '2030-01-05 10:00:00')->id;
+        $ids[] = $this->criarAgendamento($estabelecimento, $cliente, '2030-01-05 10:00:00')->id;
 
         $primeira = $this->actingAs($usuario)->getJson('/api/meus-agendamentos')->assertOk();
         $this->assertCount(20, $primeira->json('data'));
@@ -47,11 +47,11 @@ class MeusAgendamentosPaginadosTest extends TestCase
 
     public function test_cada_pagina_continua_so_com_os_agendamentos_do_proprio_cliente(): void
     {
-        $barbearia = $this->criarBarbearia('dona@estudio.com');
+        $estabelecimento = $this->criarEstabelecimento('dona@estudio.com');
         ['usuario' => $maria, 'cliente' => $clienteMaria] = $this->criarCliente('maria@email.com');
         ['cliente' => $clienteAna] = $this->criarCliente('ana@email.com');
-        $daMaria = $this->criarAgendamento($barbearia, $clienteMaria, '2030-01-10 10:00:00');
-        $this->criarAgendamento($barbearia, $clienteAna, '2030-01-11 10:00:00');
+        $daMaria = $this->criarAgendamento($estabelecimento, $clienteMaria, '2030-01-10 10:00:00');
+        $this->criarAgendamento($estabelecimento, $clienteAna, '2030-01-11 10:00:00');
 
         $this->actingAs($maria)->getJson('/api/meus-agendamentos')
             ->assertOk()

@@ -3,8 +3,8 @@
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\AgendamentoController;
 use App\Http\Controllers\Auth\MeController;
-use App\Http\Controllers\BarbeariaConfiguracaoController;
-use App\Http\Controllers\BarbeariaPerfilController;
+use App\Http\Controllers\EstabelecimentoConfiguracaoController;
+use App\Http\Controllers\EstabelecimentoPerfilController;
 use App\Http\Controllers\EstabelecimentoPublicoController;
 use App\Http\Controllers\HorarioDisponivelController;
 use App\Http\Controllers\ImagemController;
@@ -37,19 +37,19 @@ Route::middleware(['auth:sanctum', 'estabelecimento'])->group(function () {
 
     Route::get('/agenda', [AgendaController::class, 'index']);
 
-    Route::get('/configuracao-estabelecimento', [BarbeariaConfiguracaoController::class, 'show']);
+    Route::get('/configuracao-estabelecimento', [EstabelecimentoConfiguracaoController::class, 'show']);
 
-    Route::put('/configuracao-estabelecimento', [BarbeariaConfiguracaoController::class, 'update']);
+    Route::put('/configuracao-estabelecimento', [EstabelecimentoConfiguracaoController::class, 'update']);
 
     Route::post('/logout', [LogoutController::class, 'logout']);
 
     Route::patch('/agenda/{id}/status', [AgendaController::class, 'atualizarStatus']);
 
-    Route::get('/perfil-estabelecimento', [BarbeariaPerfilController::class, 'show']);
+    Route::get('/perfil-estabelecimento', [EstabelecimentoPerfilController::class, 'show']);
 
-    Route::put('/perfil-estabelecimento', [BarbeariaPerfilController::class, 'update']);
+    Route::put('/perfil-estabelecimento', [EstabelecimentoPerfilController::class, 'update']);
 
-    Route::post('/perfil-estabelecimento/imagem', [ImagemController::class, 'barbearia']);
+    Route::post('/perfil-estabelecimento/imagem', [ImagemController::class, 'perfil']);
 
     Route::post('/servicos/{id}/imagem', [ImagemController::class, 'servico']);
 

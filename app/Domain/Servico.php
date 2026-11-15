@@ -6,13 +6,12 @@ namespace App\Domain;
 
 use InvalidArgumentException;
 
-
 class Servico
 {
     public function __construct(
         private readonly string $nome,
         private readonly float $preco,
-        private readonly int $barbeariaId,
+        private readonly int $estabelecimentoId,
         private readonly int $duracaoEmMinutos
 
     ) {
@@ -38,7 +37,7 @@ class Servico
         }
     }
 
-     public function precoInvalido()
+    public function precoInvalido()
     {
 
         if ($this->preco < 0) {
@@ -46,8 +45,4 @@ class Servico
             throw new InvalidArgumentException('Preço inválido');
         }
     }
-
-
-
-
 }

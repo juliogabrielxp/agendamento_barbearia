@@ -79,7 +79,7 @@ class AgendarHorarioUseCaseTest extends TestCase
                 $this->chamadas[] = 'travar';
             });
 
-        // Regras da barbearia satisfeitas: o foco destes testes é o conflito
+        // Regras do estabelecimento satisfeitas: o foco destes testes é o conflito
         $repositorio->method('buscarExpedienteDoProfissional')->willReturn(new Expediente('08:00', '19:00'));
         $repositorio->method('profissionalRealizaServico')->willReturn(true);
 

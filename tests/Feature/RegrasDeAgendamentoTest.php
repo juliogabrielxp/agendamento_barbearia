@@ -14,7 +14,7 @@ use Tests\Feature\Concerns\CriaCenarioDeAgenda;
 use Tests\TestCase;
 
 /**
- * Regras que antes só existiam no front. Expediente padrão da barbearia: 08:00–19:00,
+ * Regras que antes só existiam no front. Expediente padrão do estabelecimento: 08:00–19:00,
  * serviço de 30 min. "Agora" é fixado em 09/01/2030 12:00.
  */
 class RegrasDeAgendamentoTest extends TestCase
@@ -22,7 +22,7 @@ class RegrasDeAgendamentoTest extends TestCase
     use CriaCenarioDeAgenda;
     use RefreshDatabase;
 
-    private array $barbearia;
+    private array $estabelecimento;
 
     private UserModel $usuarioCliente;
 
@@ -33,7 +33,7 @@ class RegrasDeAgendamentoTest extends TestCase
         $this->travelTo('2030-01-09 12:00:00');
         $this->mock(NotificadorDePushInterface::class)->shouldIgnoreMissing();
 
-        $this->barbearia = $this->criarBarbearia('dono@barbearia.com');
+        $this->estabelecimento = $this->criarEstabelecimento('dono@estabelecimento.com');
         ['usuario' => $this->usuarioCliente] = $this->criarCliente('maria@email.com');
     }
 
@@ -68,7 +68,7 @@ class RegrasDeAgendamentoTest extends TestCase
 
     public function test_rejeita_horario_que_cruza_o_intervalo_de_almoco(): void
     {
-        $this->barbearia['barbearia']->update(['intervalo_inicio' => '12:00', 'intervalo_fim' => '13:00']);
+        $this->estabelecimento['estabelecimento']->update(['intervalo_inicio' => '12:00', 'intervalo_fim' => '13:00']);
 
         // 11:45–12:15 invade o começo do intervalo; 12:30 cai dentro dele
         foreach (['2030-01-10 11:45:00', '2030-01-10 12:30:00'] as $inicio) {
@@ -83,7 +83,7 @@ class RegrasDeAgendamentoTest extends TestCase
     public function test_rejeita_servico_que_o_profissional_nao_realiza(): void
     {
         $barba = ServicoModel::create([
-            'barbearia_id' => $this->barbearia['barbearia']->id,
+            'estabelecimento_id' => $this->estabelecimento['estabelecimento']->id,
             'nome' => 'Barba',
             'duracao_em_minutos' => 30,
             'preco' => 30.0,
@@ -97,7 +97,7 @@ class RegrasDeAgendamentoTest extends TestCase
 
     public function test_rejeita_servico_de_outro_estabelecimento(): void
     {
-        $outra = $this->criarBarbearia('outra@barbearia.com');
+        $outra = $this->criarEstabelecimento('outra@estabelecimento.com');
 
         $this->assertInvalido(
             $this->agendar('2030-01-10 10:00:00', servicoId: $outra['servico']->id),
@@ -107,9 +107,9 @@ class RegrasDeAgendamentoTest extends TestCase
 
     public function test_rejeita_profissional_de_outro_estabelecimento(): void
     {
-        $outra = $this->criarBarbearia('outra@barbearia.com');
+        $outra = $this->criarEstabelecimento('outra@estabelecimento.com');
         // Mesmo que o profissional de fora realize o serviço daqui, o host manda
-        $outra['profissional']->servicos()->attach($this->barbearia['servico']->id);
+        $outra['profissional']->servicos()->attach($this->estabelecimento['servico']->id);
 
         $this->assertInvalido(
             $this->agendar('2030-01-10 10:00:00', profissionalId: $outra['profissional']->id),
@@ -120,8 +120,8 @@ class RegrasDeAgendamentoTest extends TestCase
 
     public function test_servico_que_pode_atravessar_o_intervalo_e_aceito_por_cima_do_almoco(): void
     {
-        $this->barbearia['barbearia']->update(['intervalo_inicio' => '12:00', 'intervalo_fim' => '13:00']);
-        $this->barbearia['servico']->update(['duracao_em_minutos' => 240, 'pode_atravessar_intervalo' => true]);
+        $this->estabelecimento['estabelecimento']->update(['intervalo_inicio' => '12:00', 'intervalo_fim' => '13:00']);
+        $this->estabelecimento['servico']->update(['duracao_em_minutos' => 240, 'pode_atravessar_intervalo' => true]);
 
         // Começar dentro do intervalo continua proibido
         $this->assertInvalido($this->agendar('2030-01-10 12:30:00'), AgendamentoInvalidoException::noIntervalo());
@@ -141,7 +141,7 @@ class RegrasDeAgendamentoTest extends TestCase
     public function test_agendamento_cancelado_libera_o_horario(): void
     {
         ['cliente' => $outroCliente] = $this->criarCliente('joao@email.com');
-        $cancelado = $this->criarAgendamento($this->barbearia, $outroCliente, '2030-01-10 10:00:00');
+        $cancelado = $this->criarAgendamento($this->estabelecimento, $outroCliente, '2030-01-10 10:00:00');
         $cancelado->update(['status' => 'cancelado']);
 
         $this->agendar('2030-01-10 10:00:00')->assertCreated();
@@ -151,7 +151,7 @@ class RegrasDeAgendamentoTest extends TestCase
     public function test_agendamento_confirmado_continua_ocupando_o_horario(): void
     {
         ['cliente' => $outroCliente] = $this->criarCliente('joao@email.com');
-        $this->criarAgendamento($this->barbearia, $outroCliente, '2030-01-10 10:00:00');
+        $this->criarAgendamento($this->estabelecimento, $outroCliente, '2030-01-10 10:00:00');
 
         $this->agendar('2030-01-10 10:00:00')->assertStatus(409);
     }
@@ -159,8 +159,8 @@ class RegrasDeAgendamentoTest extends TestCase
     private function agendar(string $inicio, ?int $servicoId = null, ?int $profissionalId = null): TestResponse
     {
         return $this->actingAs($this->usuarioCliente)->postJson('/api/agendamentos', [
-            'profissional_id' => $profissionalId ?? $this->barbearia['profissional']->id,
-            'servico_id' => $servicoId ?? $this->barbearia['servico']->id,
+            'profissional_id' => $profissionalId ?? $this->estabelecimento['profissional']->id,
+            'servico_id' => $servicoId ?? $this->estabelecimento['servico']->id,
             'inicio' => $inicio,
         ]);
     }

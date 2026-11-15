@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +19,7 @@ final class IdentificaEstabelecimento
 
     public function handle(Request $request, Closure $next): Response
     {
-        $estabelecimento = BarbeariaModel::where('dominio', strtolower($request->getHost()))->first();
+        $estabelecimento = EstabelecimentoModel::where('dominio', strtolower($request->getHost()))->first();
 
         abort_if($estabelecimento === null, 404, 'Estabelecimento não encontrado.');
 

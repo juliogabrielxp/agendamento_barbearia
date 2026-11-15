@@ -15,9 +15,9 @@ class CancelamentoPeloClienteTest extends TestCase
 
     public function test_cliente_cancela_o_proprio_agendamento(): void
     {
-        $barbearia = $this->criarBarbearia('dono@barbearia.com');
+        $estabelecimento = $this->criarEstabelecimento('dono@estabelecimento.com');
         ['usuario' => $usuario, 'cliente' => $cliente] = $this->criarCliente('maria@email.com');
-        $agendamento = $this->criarAgendamento($barbearia, $cliente, '2030-01-10 10:00:00');
+        $agendamento = $this->criarAgendamento($estabelecimento, $cliente, '2030-01-10 10:00:00');
 
         $this->actingAs($usuario)
             ->deleteJson("/api/meus-agendamentos/{$agendamento->id}")
@@ -30,12 +30,12 @@ class CancelamentoPeloClienteTest extends TestCase
     public function test_horario_cancelado_pelo_cliente_volta_a_ficar_livre(): void
     {
         $this->travelTo('2030-01-09 12:00:00');
-        $barbearia = $this->criarBarbearia('dono@barbearia.com');
+        $estabelecimento = $this->criarEstabelecimento('dono@estabelecimento.com');
         ['usuario' => $usuario, 'cliente' => $cliente] = $this->criarCliente('maria@email.com');
-        $agendamento = $this->criarAgendamento($barbearia, $cliente, '2030-01-10 10:00:00');
+        $agendamento = $this->criarAgendamento($estabelecimento, $cliente, '2030-01-10 10:00:00');
         $livres = fn () => $this->getJson('/api/horarios-disponiveis?'.http_build_query([
-            'profissional_id' => $barbearia['profissional']->id,
-            'servico_id' => $barbearia['servico']->id,
+            'profissional_id' => $estabelecimento['profissional']->id,
+            'servico_id' => $estabelecimento['servico']->id,
             'data' => '2030-01-10',
         ]))->assertOk()->json();
         $this->assertNotContains('10:00', $livres());
@@ -47,10 +47,10 @@ class CancelamentoPeloClienteTest extends TestCase
 
     public function test_cliente_nao_cancela_agendamento_de_outro_cliente(): void
     {
-        $barbearia = $this->criarBarbearia('dono@barbearia.com');
+        $estabelecimento = $this->criarEstabelecimento('dono@estabelecimento.com');
         ['cliente' => $maria] = $this->criarCliente('maria@email.com', 'Maria');
         ['usuario' => $invasor] = $this->criarCliente('invasor@email.com', 'Invasor');
-        $agendamentoDaMaria = $this->criarAgendamento($barbearia, $maria, '2030-01-10 10:00:00');
+        $agendamentoDaMaria = $this->criarAgendamento($estabelecimento, $maria, '2030-01-10 10:00:00');
 
         // 404 e não 204: responder sucesso sem ter apagado nada engana o front
         $this->actingAs($invasor)
@@ -60,13 +60,13 @@ class CancelamentoPeloClienteTest extends TestCase
         $this->assertDatabaseHas('agendamentos', ['id' => $agendamentoDaMaria->id, 'cliente_id' => $maria->id]);
     }
 
-    public function test_dono_de_barbearia_nao_cancela_pela_rota_do_cliente(): void
+    public function test_dono_de_estabelecimento_nao_cancela_pela_rota_do_cliente(): void
     {
-        $barbearia = $this->criarBarbearia('dono@barbearia.com');
+        $estabelecimento = $this->criarEstabelecimento('dono@estabelecimento.com');
         ['cliente' => $cliente] = $this->criarCliente('maria@email.com');
-        $agendamento = $this->criarAgendamento($barbearia, $cliente, '2030-01-10 10:00:00');
+        $agendamento = $this->criarAgendamento($estabelecimento, $cliente, '2030-01-10 10:00:00');
 
-        $this->actingAs($barbearia['dono'])
+        $this->actingAs($estabelecimento['dono'])
             ->deleteJson("/api/meus-agendamentos/{$agendamento->id}")
             ->assertNotFound();
 
@@ -84,9 +84,9 @@ class CancelamentoPeloClienteTest extends TestCase
 
     public function test_cliente_nao_apaga_agendamento_ja_concluido(): void
     {
-        $barbearia = $this->criarBarbearia('dono@barbearia.com');
+        $estabelecimento = $this->criarEstabelecimento('dono@estabelecimento.com');
         ['usuario' => $usuario, 'cliente' => $cliente] = $this->criarCliente('maria@email.com');
-        $agendamento = $this->criarAgendamento($barbearia, $cliente, '2030-01-10 10:00:00');
+        $agendamento = $this->criarAgendamento($estabelecimento, $cliente, '2030-01-10 10:00:00');
         $agendamento->update(['status' => 'concluido']);
 
         $this->actingAs($usuario)
@@ -94,15 +94,15 @@ class CancelamentoPeloClienteTest extends TestCase
             ->assertUnprocessable()
             ->assertJson(['message' => 'Não é possível cancelar um agendamento já concluído.']);
 
-        // O histórico do atendimento é da barbearia: o cliente não pode sumir com ele
+        // O histórico do atendimento é do estabelecimento: o cliente não pode sumir com ele
         $this->assertDatabaseHas('agendamentos', ['id' => $agendamento->id, 'status' => 'concluido']);
     }
 
     public function test_cliente_nao_cancela_horario_que_ja_passou(): void
     {
-        $barbearia = $this->criarBarbearia('dono@barbearia.com');
+        $estabelecimento = $this->criarEstabelecimento('dono@estabelecimento.com');
         ['usuario' => $usuario, 'cliente' => $cliente] = $this->criarCliente('maria@email.com');
-        $agendamento = $this->criarAgendamento($barbearia, $cliente, '2030-01-10 10:00:00');
+        $agendamento = $this->criarAgendamento($estabelecimento, $cliente, '2030-01-10 10:00:00');
         $this->travelTo('2030-01-10 15:00:00');
 
         // A dona ainda não marcou como concluído, mas o horário já foi: cancelar agora
@@ -117,9 +117,9 @@ class CancelamentoPeloClienteTest extends TestCase
 
     public function test_cliente_nao_cancela_horario_em_andamento(): void
     {
-        $barbearia = $this->criarBarbearia('dono@barbearia.com');
+        $estabelecimento = $this->criarEstabelecimento('dono@estabelecimento.com');
         ['usuario' => $usuario, 'cliente' => $cliente] = $this->criarCliente('maria@email.com');
-        $agendamento = $this->criarAgendamento($barbearia, $cliente, '2030-01-10 10:00:00');
+        $agendamento = $this->criarAgendamento($estabelecimento, $cliente, '2030-01-10 10:00:00');
         $this->travelTo('2030-01-10 10:00:00');
 
         $this->actingAs($usuario)
@@ -129,9 +129,9 @@ class CancelamentoPeloClienteTest extends TestCase
 
     public function test_cliente_cancela_ate_um_minuto_antes(): void
     {
-        $barbearia = $this->criarBarbearia('dono@barbearia.com');
+        $estabelecimento = $this->criarEstabelecimento('dono@estabelecimento.com');
         ['usuario' => $usuario, 'cliente' => $cliente] = $this->criarCliente('maria@email.com');
-        $agendamento = $this->criarAgendamento($barbearia, $cliente, '2030-01-10 10:00:00');
+        $agendamento = $this->criarAgendamento($estabelecimento, $cliente, '2030-01-10 10:00:00');
         $this->travelTo('2030-01-10 09:59:00');
 
         $this->actingAs($usuario)

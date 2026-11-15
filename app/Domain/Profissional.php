@@ -9,7 +9,7 @@ use InvalidArgumentException;
 class Profissional
 {
     public function __construct(
-        private readonly int $barbeariaId,
+        private readonly int $estabelecimentoId,
         private readonly string $nome,
         private readonly array $servicosIds
     ) {

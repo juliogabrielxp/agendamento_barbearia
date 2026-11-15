@@ -19,7 +19,7 @@ final class EstabelecimentoPublicoController extends Controller
     {
         $estabelecimento = $this->estabelecimento($request);
 
-        $profissionais = ProfissionalModel::where('barbearia_id', $estabelecimento->id)
+        $profissionais = ProfissionalModel::where('estabelecimento_id', $estabelecimento->id)
             ->with('servicos')
             ->orderBy('id')
             ->get();
@@ -27,7 +27,7 @@ final class EstabelecimentoPublicoController extends Controller
         // Serviço que ninguém realiza não pode ser agendado, então nem aparece
         $idsAtendidos = $profissionais->flatMap(fn (ProfissionalModel $p) => $p->servicos->pluck('id'))->unique();
 
-        $servicos = ServicoModel::where('barbearia_id', $estabelecimento->id)
+        $servicos = ServicoModel::where('estabelecimento_id', $estabelecimento->id)
             ->whereIn('id', $idsAtendidos)
             ->orderBy('nome')
             ->get();

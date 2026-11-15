@@ -2,20 +2,20 @@
 
 namespace Database\Seeders;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use Illuminate\Database\Seeder;
 
-class BarbeariaSeeder extends Seeder
+class EstabelecimentoSeeder extends Seeder
 {
     public function run(): void
     {
-        $barbearias = [
+        $estabelecimentos = [
             [
                 'nome' => 'Barbearia 1995',
                 'telefone' => '(11) 91995-1995',
-                'email' => 'contato@barbearia1995.com',
+                'email' => 'contato@estabelecimento1995.com',
                 'endereco' => 'Rua Augusta, 1995 - São Paulo, SP',
                 'servicos' => [
                     ['nome' => 'Corte Clássico', 'duracao_em_minutos' => 30, 'preco' => 40.00],
@@ -50,8 +50,8 @@ class BarbeariaSeeder extends Seeder
             ],
         ];
 
-        foreach ($barbearias as $dados) {
-            $barbearia = BarbeariaModel::create([
+        foreach ($estabelecimentos as $dados) {
+            $estabelecimento = EstabelecimentoModel::create([
                 'nome' => $dados['nome'],
                 'telefone' => $dados['telefone'],
                 'email' => $dados['email'],
@@ -61,7 +61,7 @@ class BarbeariaSeeder extends Seeder
             $servicosCriados = [];
             foreach ($dados['servicos'] as $servico) {
                 $servicosCriados[] = ServicoModel::create([
-                    'barbearia_id' => $barbearia->id,
+                    'estabelecimento_id' => $estabelecimento->id,
                     'nome' => $servico['nome'],
                     'duracao_em_minutos' => $servico['duracao_em_minutos'],
                     'preco' => $servico['preco'],
@@ -70,11 +70,11 @@ class BarbeariaSeeder extends Seeder
 
             foreach ($dados['profissionais'] as $nomeProfissional) {
                 $profissional = ProfissionalModel::create([
-                    'barbearia_id' => $barbearia->id,
+                    'estabelecimento_id' => $estabelecimento->id,
                     'nome' => $nomeProfissional,
                 ]);
 
-                // Vincula o profissional a todos os serviços dessa barbearia.
+                // Vincula o profissional a todos os serviços desse estabelecimento.
                 // Se quiser distribuir serviços específicos por profissional, ajuste aqui.
                 $profissional->servicos()->attach(
                     collect($servicosCriados)->pluck('id')

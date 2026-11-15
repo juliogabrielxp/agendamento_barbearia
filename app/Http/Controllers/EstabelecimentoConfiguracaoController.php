@@ -7,18 +7,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class BarbeariaConfiguracaoController extends Controller
+class EstabelecimentoConfiguracaoController extends Controller
 {
     public function show(Request $request): JsonResponse
     {
-        $barbearia = $this->estabelecimentoDoDono($request);
+        $estabelecimento = $this->estabelecimentoDoDono($request);
 
-        return response()->json($barbearia);
+        return response()->json($estabelecimento);
     }
 
     public function update(Request $request): JsonResponse
     {
-        $barbearia = $this->estabelecimentoDoDono($request);
+        $estabelecimento = $this->estabelecimentoDoDono($request);
 
         // Intervalo: os dois horários ou nenhum
         $dados = $request->validate([
@@ -31,8 +31,8 @@ class BarbeariaConfiguracaoController extends Controller
             'intervalo_fim.required_with' => 'Informe o fim do intervalo.',
         ]);
 
-        $barbearia->update($dados);
+        $estabelecimento->update($dados);
 
-        return response()->json($barbearia);
+        return response()->json($estabelecimento);
     }
 }

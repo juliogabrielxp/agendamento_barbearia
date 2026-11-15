@@ -22,17 +22,17 @@ class ServicosDaProfissionalTest extends TestCase
 
     public function test_confere_oito_servicos_com_uma_consulta_so(): void
     {
-        $barbearia = $this->criarBarbearia('dona@estudio.com');
-        $ids = $this->criarServicos($barbearia, 8);
+        $estabelecimento = $this->criarEstabelecimento('dona@estudio.com');
+        $ids = $this->criarServicos($estabelecimento, 8);
         $consultas = $this->contarConsultasQueValidamServicos();
 
-        $this->actingAs($barbearia['dono'])
+        $this->actingAs($estabelecimento['dono'])
             ->postJson('/api/profissionais', ['nome' => 'Ana', 'servicos' => $ids])
             ->assertCreated();
         $this->assertSame(1, $consultas(), 'ao criar');
 
-        $profissional = $barbearia['profissional'];
-        $this->actingAs($barbearia['dono'])
+        $profissional = $estabelecimento['profissional'];
+        $this->actingAs($estabelecimento['dono'])
             ->putJson("/api/profissionais/{$profissional->id}", ['nome' => 'João', 'servicos' => $ids])
             ->assertOk();
         $this->assertSame(2, $consultas(), 'ao editar');
@@ -42,8 +42,8 @@ class ServicosDaProfissionalTest extends TestCase
 
     public function test_aponta_qual_servico_nao_e_do_estabelecimento(): void
     {
-        $minha = $this->criarBarbearia('dona@estudio.com');
-        $outra = $this->criarBarbearia('vizinha@barbearia.com');
+        $minha = $this->criarEstabelecimento('dona@estudio.com');
+        $outra = $this->criarEstabelecimento('vizinha@estabelecimento.com');
         [$meu] = $this->criarServicos($minha, 1);
 
         $this->actingAs($minha['dono'])
@@ -60,19 +60,19 @@ class ServicosDaProfissionalTest extends TestCase
 
     public function test_id_que_nao_e_numero_continua_dando_422(): void
     {
-        $barbearia = $this->criarBarbearia('dona@estudio.com');
+        $estabelecimento = $this->criarEstabelecimento('dona@estudio.com');
 
-        $this->actingAs($barbearia['dono'])
+        $this->actingAs($estabelecimento['dono'])
             ->postJson('/api/profissionais', ['nome' => 'Ana', 'servicos' => ['abc']])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['servicos.0']);
     }
 
     /** @return list<int> */
-    private function criarServicos(array $barbearia, int $quantos): array
+    private function criarServicos(array $estabelecimento, int $quantos): array
     {
         return array_map(fn (int $i) => ServicoModel::create([
-            'barbearia_id' => $barbearia['barbearia']->id,
+            'estabelecimento_id' => $estabelecimento['estabelecimento']->id,
             'nome' => "Serviço {$i}",
             'duracao_em_minutos' => 30,
             'preco' => 40.0,

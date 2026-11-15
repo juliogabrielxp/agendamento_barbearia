@@ -3,7 +3,7 @@ import { LayoutDashboard } from 'lucide-react';
 import api from '../lib/api';
 import { Link } from 'react-router-dom';
 
-export default function LoginBarbearia() {
+export default function LoginEstabelecimento() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [erro, setErro] = useState(null);

@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Domain;
 
-use App\Domain\Barbearia;
+use App\Domain\Estabelecimento;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
-class BarbeariaTest extends TestCase
+class EstabelecimentoTest extends TestCase
 {
-    public function test_deve_criar_barbearia_valida(): void
+    public function test_deve_criar_estabelecimento_valido(): void
     {
-        $barbearia = new Barbearia(
+        $estabelecimento = new Estabelecimento(
             id: null,
             nome: 'Barbearia do Zé',
             telefone: '83999999999',
@@ -20,14 +20,14 @@ class BarbeariaTest extends TestCase
             endereco: 'Rua A, 123'
         );
 
-        $this->assertSame('Barbearia do Zé', $barbearia->nome());
+        $this->assertSame('Barbearia do Zé', $estabelecimento->nome());
     }
 
-    public function test_nao_deve_criar_barbearia_com_email_invalido(): void
+    public function test_nao_deve_criar_estabelecimento_com_email_invalido(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
-        new Barbearia(
+        new Estabelecimento(
             id: null,
             nome: 'Barbearia do Zé',
             telefone: '83999999999',
@@ -36,11 +36,11 @@ class BarbeariaTest extends TestCase
         );
     }
 
-    public function test_nao_deve_criar_barbearia_com_endereco_vazio(): void
+    public function test_nao_deve_criar_estabelecimento_com_endereco_vazio(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
-        new Barbearia(
+        new Estabelecimento(
             id: null,
             nome: 'Barbearia do Zé',
             telefone: '83999999999',

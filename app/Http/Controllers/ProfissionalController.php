@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use Illuminate\Http\JsonResponse;
@@ -16,24 +16,24 @@ class ProfissionalController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $barbearia = $this->estabelecimentoDoDono($request);
+        $estabelecimento = $this->estabelecimentoDoDono($request);
 
         return response()->json(
-            ProfissionalModel::where('barbearia_id', $barbearia->id)->with('servicos')->get()
+            ProfissionalModel::where('estabelecimento_id', $estabelecimento->id)->with('servicos')->get()
         );
     }
 
     public function store(Request $request): JsonResponse
     {
-        $barbearia = $this->estabelecimentoDoDono($request);
+        $estabelecimento = $this->estabelecimentoDoDono($request);
 
-        $dados = $this->validar($request, $barbearia);
+        $dados = $this->validar($request, $estabelecimento);
 
         // Cadastro e vínculos juntos: se a segunda escrita falhar, a profissional não fica sem serviços
-        $profissional = DB::transaction(function () use ($dados, $barbearia) {
+        $profissional = DB::transaction(function () use ($dados, $estabelecimento) {
             $profissional = ProfissionalModel::create([
                 'nome' => $dados['nome'],
-                'barbearia_id' => $barbearia->id,
+                'estabelecimento_id' => $estabelecimento->id,
             ]);
 
             if (! empty($dados['servicos'])) {
@@ -48,10 +48,10 @@ class ProfissionalController extends Controller
 
     public function update(Request $request, int $id): JsonResponse
     {
-        $barbearia = $this->estabelecimentoDoDono($request);
-        $profissional = ProfissionalModel::where('barbearia_id', $barbearia->id)->findOrFail($id);
+        $estabelecimento = $this->estabelecimentoDoDono($request);
+        $profissional = ProfissionalModel::where('estabelecimento_id', $estabelecimento->id)->findOrFail($id);
 
-        $dados = $this->validar($request, $barbearia);
+        $dados = $this->validar($request, $estabelecimento);
 
         // O sync apaga os vínculos que saíram antes de gravar os que entraram: tudo ou nada
         DB::transaction(function () use ($profissional, $dados) {
@@ -64,8 +64,8 @@ class ProfissionalController extends Controller
 
     public function destroy(Request $request, int $id): JsonResponse
     {
-        $barbearia = $this->estabelecimentoDoDono($request);
-        $profissional = ProfissionalModel::where('barbearia_id', $barbearia->id)->findOrFail($id);
+        $estabelecimento = $this->estabelecimentoDoDono($request);
+        $profissional = ProfissionalModel::where('estabelecimento_id', $estabelecimento->id)->findOrFail($id);
 
         return $this->excluirOuRecusar($profissional, 'Esta profissional tem agendamentos e não pode ser excluída.')
             ?? response()->json(null, 204);
@@ -75,7 +75,7 @@ class ProfissionalController extends Controller
      * Os serviços precisam ser deste estabelecimento. Confere todos numa consulta só
      * (Rule::exists fazia um SELECT por serviço) e aponta o erro em servicos.N, como antes.
      */
-    private function validar(Request $request, BarbeariaModel $barbearia): array
+    private function validar(Request $request, EstabelecimentoModel $estabelecimento): array
     {
         $dados = $request->validate([
             'nome' => 'required|string|max:255',
@@ -88,7 +88,7 @@ class ProfissionalController extends Controller
             return $dados;
         }
 
-        $doEstabelecimento = ServicoModel::where('barbearia_id', $barbearia->id)
+        $doEstabelecimento = ServicoModel::where('estabelecimento_id', $estabelecimento->id)
             ->whereIn('id', array_unique($ids))
             ->pluck('id')
             ->all();

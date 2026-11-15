@@ -21,8 +21,8 @@ class EstabelecimentoPorDominioTest extends TestCase
 
     public function test_visitante_ve_a_vitrine_sem_login(): void
     {
-        $studio = $this->criarBarbearia('dona@studio.com', 'trancas.test');
-        $studio['barbearia']->update(['nome' => 'Studio Girassol Beauty', 'telefone' => '(83) 99999-0000']);
+        $studio = $this->criarEstabelecimento('dona@studio.com', 'trancas.test');
+        $studio['estabelecimento']->update(['nome' => 'Studio Girassol Beauty', 'telefone' => '(83) 99999-0000']);
 
         $response = $this->noHost('trancas.test')->getJson('/api/estabelecimento');
 
@@ -37,8 +37,8 @@ class EstabelecimentoPorDominioTest extends TestCase
 
     public function test_vitrine_publica_nao_expoe_dados_da_conta(): void
     {
-        $studio = $this->criarBarbearia('dona@studio.com', 'trancas.test');
-        $studio['barbearia']->update(['nome' => 'Studio Girassol Beauty']);
+        $studio = $this->criarEstabelecimento('dona@studio.com', 'trancas.test');
+        $studio['estabelecimento']->update(['nome' => 'Studio Girassol Beauty']);
 
         $response = $this->noHost('trancas.test')->getJson('/api/estabelecimento')->assertOk();
 
@@ -53,8 +53,8 @@ class EstabelecimentoPorDominioTest extends TestCase
 
     public function test_vitrine_mostra_so_os_servicos_do_proprio_estabelecimento(): void
     {
-        $this->criarBarbearia('dona@studio.com', 'trancas.test');
-        $salao = $this->criarBarbearia('dona@salao.com', 'salao.test');
+        $this->criarEstabelecimento('dona@studio.com', 'trancas.test');
+        $salao = $this->criarEstabelecimento('dona@salao.com', 'salao.test');
         $salao['servico']->update(['nome' => 'Escova do salão']);
 
         $response = $this->noHost('trancas.test')->getJson('/api/estabelecimento');
@@ -64,9 +64,9 @@ class EstabelecimentoPorDominioTest extends TestCase
 
     public function test_vitrine_esconde_servico_que_ninguem_realiza(): void
     {
-        $studio = $this->criarBarbearia('dona@studio.com', 'trancas.test');
+        $studio = $this->criarEstabelecimento('dona@studio.com', 'trancas.test');
         ServicoModel::create([
-            'barbearia_id' => $studio['barbearia']->id,
+            'estabelecimento_id' => $studio['estabelecimento']->id,
             'nome' => 'Rascunho sem profissional',
             'duracao_em_minutos' => 30,
             'preco' => 10.0,
@@ -79,18 +79,18 @@ class EstabelecimentoPorDominioTest extends TestCase
 
     public function test_host_sem_estabelecimento_responde_404(): void
     {
-        $this->criarBarbearia('dona@studio.com', 'trancas.test');
+        $this->criarEstabelecimento('dona@studio.com', 'trancas.test');
 
         $this->withoutVite();
 
-        $this->noHost('barbearia.test')->getJson('/api/estabelecimento')->assertNotFound();
-        $this->noHost('barbearia.test')->get('/app')->assertNotFound();
+        $this->noHost('estabelecimento.test')->getJson('/api/estabelecimento')->assertNotFound();
+        $this->noHost('estabelecimento.test')->get('/app')->assertNotFound();
     }
 
     public function test_pagina_e_manifest_levam_o_nome_do_estabelecimento(): void
     {
-        $studio = $this->criarBarbearia('dona@studio.com', 'trancas.test');
-        $studio['barbearia']->update(['nome' => 'Studio Girassol Beauty']);
+        $studio = $this->criarEstabelecimento('dona@studio.com', 'trancas.test');
+        $studio['estabelecimento']->update(['nome' => 'Studio Girassol Beauty']);
         $this->withoutVite();
 
         $this->noHost('trancas.test')->get('/app/qualquer/rota')
@@ -105,8 +105,8 @@ class EstabelecimentoPorDominioTest extends TestCase
 
     public function test_cliente_ve_so_os_agendamentos_do_estabelecimento_do_endereco(): void
     {
-        $studio = $this->criarBarbearia('dona@studio.com', 'trancas.test');
-        $salao = $this->criarBarbearia('dona@salao.com', 'salao.test');
+        $studio = $this->criarEstabelecimento('dona@studio.com', 'trancas.test');
+        $salao = $this->criarEstabelecimento('dona@salao.com', 'salao.test');
         ['usuario' => $usuario, 'cliente' => $cliente] = $this->criarCliente('maria@email.com');
         $doStudio = $this->criarAgendamento($studio, $cliente, '2030-01-10 10:00:00');
         $this->criarAgendamento($salao, $cliente, '2030-01-11 10:00:00');
@@ -120,8 +120,8 @@ class EstabelecimentoPorDominioTest extends TestCase
     {
         $this->travelTo('2030-01-09 12:00:00');
         $this->mock(NotificadorDePushInterface::class)->shouldIgnoreMissing();
-        $studio = $this->criarBarbearia('dona@studio.com', 'trancas.test');
-        $this->criarBarbearia('dona@salao.com', 'salao.test');
+        $studio = $this->criarEstabelecimento('dona@studio.com', 'trancas.test');
+        $this->criarEstabelecimento('dona@salao.com', 'salao.test');
         ['usuario' => $usuario] = $this->criarCliente('maria@email.com');
 
         $this->actingAs($usuario)->noHost('salao.test')->postJson('/api/agendamentos', [

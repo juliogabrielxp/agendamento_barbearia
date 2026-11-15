@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('barbearias', function (Blueprint $table) {
+        Schema::table('estabelecimentos', function (Blueprint $table) {
             $table->time('hora_abertura')->default('08:00:00');
             $table->time('hora_fechamento')->default('19:00:00');
             $table->time('intervalo_inicio')->nullable();
@@ -21,7 +21,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('barbearias', function (Blueprint $table) {
+        Schema::table('estabelecimentos', function (Blueprint $table) {
             $table->dropColumn(['hora_abertura', 'hora_fechamento', 'intervalo_inicio', 'intervalo_fim']);
         });
     }

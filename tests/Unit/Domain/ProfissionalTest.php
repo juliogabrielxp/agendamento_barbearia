@@ -15,7 +15,7 @@ class ProfissionalTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         new Profissional(
-            barbeariaId: 1,
+            estabelecimentoId: 1,
             nome: '',
             servicosIds: [1, 2]
         );
@@ -24,7 +24,7 @@ class ProfissionalTest extends TestCase
     public function test_deve_criar_profissional_valido(): void
     {
         $profissional = new Profissional(
-            barbeariaId: 1,
+            estabelecimentoId: 1,
             nome: 'João',
             servicosIds: [1, 2]
         );

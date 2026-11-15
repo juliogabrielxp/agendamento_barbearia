@@ -33,9 +33,9 @@ class AgendamentoGuardaDuracaoEPrecoTest extends TestCase
         $this->mock(NotificadorDePushInterface::class)->shouldIgnoreMissing();
 
         // Expediente padrão 08:00–19:00; o serviço "Corte" do cenário tem 30 min
-        $this->estabelecimento = $this->criarBarbearia('dona@estudio.com');
+        $this->estabelecimento = $this->criarEstabelecimento('dona@estudio.com');
         $this->tranca = ServicoModel::create([
-            'barbearia_id' => $this->estabelecimento['barbearia']->id,
+            'estabelecimento_id' => $this->estabelecimento['estabelecimento']->id,
             'nome' => 'Box braids',
             'duracao_em_minutos' => 240,
             'preco' => 250.0,

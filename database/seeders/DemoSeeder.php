@@ -2,17 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
-use App\Infrastructure\Persistence\Eloquent\ServicoModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
+use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use Illuminate\Database\Seeder;
 
 class DemoSeeder extends Seeder
 {
     public function run(): void
     {
-        $barbearia = BarbeariaModel::create([
+        $estabelecimento = EstabelecimentoModel::create([
             'nome' => 'Barbearia do Zé',
             'telefone' => '83999999999',
             'email' => 'ze@barbearia.com',
@@ -26,20 +26,20 @@ class DemoSeeder extends Seeder
         ]);
 
         $servico = ServicoModel::create([
-            'barbearia_id' => $barbearia->id,
+            'estabelecimento_id' => $estabelecimento->id,
             'nome' => 'Corte Masculino',
             'duracao_em_minutos' => 30,
             'preco' => 50.00,
         ]);
 
         $profissional = ProfissionalModel::create([
-            'barbearia_id' => $barbearia->id,
+            'estabelecimento_id' => $estabelecimento->id,
             'nome' => 'João',
         ]);
 
         $profissional->servicos()->attach($servico->id);
 
-        $this->command->info("Barbearia ID: {$barbearia->id}");
+        $this->command->info("Estabelecimento ID: {$estabelecimento->id}");
         $this->command->info("Cliente ID: {$cliente->id}");
         $this->command->info("Servico ID: {$servico->id}");
         $this->command->info("Profissional ID: {$profissional->id}");

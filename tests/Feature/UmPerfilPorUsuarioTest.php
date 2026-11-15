@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,24 +30,24 @@ class UmPerfilPorUsuarioTest extends TestCase
         ClienteModel::create(['user_id' => $usuario->id, 'nome' => 'Maria 2', 'email' => 'outro@email.com', 'telefone' => '']);
     }
 
-    public function test_usuario_nao_tem_duas_barbearias(): void
+    public function test_usuario_nao_tem_duas_estabelecimentos(): void
     {
         $dono = UserModel::create(['nome' => 'Dono', 'email' => 'dono@email.com', 'password' => 'senha-segura-123']);
-        BarbeariaModel::create(['user_id' => $dono->id, 'nome' => 'A', 'email' => 'a@email.com', 'telefone' => '', 'endereco' => '']);
+        EstabelecimentoModel::create(['user_id' => $dono->id, 'nome' => 'A', 'email' => 'a@email.com', 'telefone' => '', 'endereco' => '']);
 
         $this->expectException(UniqueConstraintViolationException::class);
 
-        BarbeariaModel::create(['user_id' => $dono->id, 'nome' => 'B', 'email' => 'b@email.com', 'telefone' => '', 'endereco' => '']);
+        EstabelecimentoModel::create(['user_id' => $dono->id, 'nome' => 'B', 'email' => 'b@email.com', 'telefone' => '', 'endereco' => '']);
     }
 
-    public function test_usuario_pode_ser_cliente_e_dono_de_barbearia(): void
+    public function test_usuario_pode_ser_cliente_e_dono_de_estabelecimento(): void
     {
         $usuario = UserModel::create(['nome' => 'Ana', 'email' => 'ana@email.com', 'password' => 'senha-segura-123']);
 
         ClienteModel::create(['user_id' => $usuario->id, 'nome' => 'Ana', 'email' => 'ana@email.com', 'telefone' => '']);
-        BarbeariaModel::create(['user_id' => $usuario->id, 'nome' => 'Ana Barber', 'email' => 'ana@email.com', 'telefone' => '', 'endereco' => '']);
+        EstabelecimentoModel::create(['user_id' => $usuario->id, 'nome' => 'Ana Barber', 'email' => 'ana@email.com', 'telefone' => '', 'endereco' => '']);
 
         $this->assertDatabaseCount('clientes', 1);
-        $this->assertDatabaseCount('barbearias', 1);
+        $this->assertDatabaseCount('estabelecimentos', 1);
     }
 }

@@ -15,25 +15,25 @@ final class ServicoController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $barbearia = $this->estabelecimentoDoDono($request);
+        $estabelecimento = $this->estabelecimentoDoDono($request);
 
         return response()->json(
-            ServicoModel::where('barbearia_id', $barbearia->id)->get()
+            ServicoModel::where('estabelecimento_id', $estabelecimento->id)->get()
         );
     }
 
     public function store(Request $request): JsonResponse
     {
-        $barbearia = $this->estabelecimentoDoDono($request);
+        $estabelecimento = $this->estabelecimentoDoDono($request);
 
         $dados = $request->validate($this->regras());
 
-        $servico = DB::transaction(function () use ($dados, $barbearia) {
-            $servico = ServicoModel::create([...$dados, 'barbearia_id' => $barbearia->id]);
+        $servico = DB::transaction(function () use ($dados, $estabelecimento) {
+            $servico = ServicoModel::create([...$dados, 'estabelecimento_id' => $estabelecimento->id]);
 
             // Com uma profissional só, o serviço novo já é dela: sem isso ele
             // ficaria fora da vitrine até a dona vinculá-lo na aba Profissionais.
-            $profissionais = ProfissionalModel::where('barbearia_id', $barbearia->id)->get();
+            $profissionais = ProfissionalModel::where('estabelecimento_id', $estabelecimento->id)->get();
             if ($profissionais->count() === 1) {
                 $profissionais->first()->servicos()->attach($servico->id);
             }
@@ -46,8 +46,8 @@ final class ServicoController extends Controller
 
     public function update(Request $request, int $id): JsonResponse
     {
-        $barbearia = $this->estabelecimentoDoDono($request);
-        $servico = ServicoModel::where('barbearia_id', $barbearia->id)->findOrFail($id);
+        $estabelecimento = $this->estabelecimentoDoDono($request);
+        $servico = ServicoModel::where('estabelecimento_id', $estabelecimento->id)->findOrFail($id);
 
         $dados = $request->validate($this->regras());
 
@@ -58,8 +58,8 @@ final class ServicoController extends Controller
 
     public function destroy(Request $request, int $id, ArmazenadorDeImagens $armazenador): JsonResponse
     {
-        $barbearia = $this->estabelecimentoDoDono($request);
-        $servico = ServicoModel::where('barbearia_id', $barbearia->id)->findOrFail($id);
+        $estabelecimento = $this->estabelecimentoDoDono($request);
+        $servico = ServicoModel::where('estabelecimento_id', $estabelecimento->id)->findOrFail($id);
 
         $recusa = $this->excluirOuRecusar($servico, 'Este serviço tem agendamentos e não pode ser excluído.');
         if ($recusa) {

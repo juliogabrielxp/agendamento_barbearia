@@ -22,9 +22,9 @@ class EloquentAgendamentoRepository implements AgendamentoRepositoryInterface
 
     public function buscarExpedienteDoProfissional(int $profissionalId): ?Expediente
     {
-        $barbearia = ProfissionalModel::with('barbearia')->find($profissionalId)?->barbearia;
+        $estabelecimento = ProfissionalModel::with('estabelecimento')->find($profissionalId)?->estabelecimento;
 
-        return $barbearia?->expediente();
+        return $estabelecimento?->expediente();
     }
 
     public function profissionalRealizaServico(int $profissionalId, int $servicoId): bool

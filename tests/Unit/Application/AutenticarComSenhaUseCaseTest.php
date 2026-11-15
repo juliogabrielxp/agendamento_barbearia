@@ -6,8 +6,8 @@ namespace Tests\Unit\Application;
 
 use App\Application\UseCases\AutenticarComSenhaInput;
 use App\Application\UseCases\AutenticarComSenhaUseCase;
-use App\Domain\Contracts\BarbeariaRepositoryInterface;
 use App\Domain\Contracts\ClienteRepositoryInterface;
+use App\Domain\Contracts\EstabelecimentoRepositoryInterface;
 use App\Domain\Contracts\PasswordHasherInterface;
 use App\Domain\Contracts\UserRepositoryInterface;
 use App\Domain\Exceptions\CredenciaisInvalidasException;
@@ -29,13 +29,13 @@ class AutenticarComSenhaUseCaseTest extends TestCase
         $this->assertArrayNotHasKey('password_hash', $usuario);
     }
 
-    public function test_deve_autenticar_barbearia_com_credenciais_corretas(): void
+    public function test_deve_autenticar_estabelecimento_com_credenciais_corretas(): void
     {
         // Arrange
-        $useCase = $this->criarUseCase($this->credenciais(), senhaConfere: true, ehBarbearia: true);
+        $useCase = $this->criarUseCase($this->credenciais(), senhaConfere: true, ehEstabelecimento: true);
 
         // Act
-        $usuario = $useCase->executar(new AutenticarComSenhaInput('maria@email.com', 'senha', TipoDeConta::Barbearia));
+        $usuario = $useCase->executar(new AutenticarComSenhaInput('maria@email.com', 'senha', TipoDeConta::Estabelecimento));
 
         // Assert
         $this->assertSame(7, $usuario['id']);
@@ -77,16 +77,16 @@ class AutenticarComSenhaUseCaseTest extends TestCase
         $useCase->executar(new AutenticarComSenhaInput('maria@email.com', 'qualquer', TipoDeConta::Cliente));
     }
 
-    public function test_cliente_nao_deve_entrar_como_barbearia(): void
+    public function test_cliente_nao_deve_entrar_como_estabelecimento(): void
     {
         // Arrange — senha correta, mas o usuário só tem perfil de cliente
-        $useCase = $this->criarUseCase($this->credenciais(), senhaConfere: true, ehCliente: true, ehBarbearia: false);
+        $useCase = $this->criarUseCase($this->credenciais(), senhaConfere: true, ehCliente: true, ehEstabelecimento: false);
 
         // Assert
         $this->expectException(CredenciaisInvalidasException::class);
 
         // Act
-        $useCase->executar(new AutenticarComSenhaInput('maria@email.com', 'senha', TipoDeConta::Barbearia));
+        $useCase->executar(new AutenticarComSenhaInput('maria@email.com', 'senha', TipoDeConta::Estabelecimento));
     }
 
     private function credenciais(?string $hash = 'hash-da-senha'): array
@@ -98,7 +98,7 @@ class AutenticarComSenhaUseCaseTest extends TestCase
         ?array $credenciais,
         bool $senhaConfere = true,
         bool $ehCliente = false,
-        bool $ehBarbearia = false
+        bool $ehEstabelecimento = false
     ): AutenticarComSenhaUseCase {
         $usuarios = $this->createMock(UserRepositoryInterface::class);
         $usuarios->method('buscarCredenciaisPorEmail')->willReturn($credenciais);
@@ -106,12 +106,12 @@ class AutenticarComSenhaUseCaseTest extends TestCase
         $clientes = $this->createMock(ClienteRepositoryInterface::class);
         $clientes->method('existeParaUsuario')->willReturn($ehCliente);
 
-        $barbearias = $this->createMock(BarbeariaRepositoryInterface::class);
-        $barbearias->method('existeParaUsuario')->willReturn($ehBarbearia);
+        $estabelecimentos = $this->createMock(EstabelecimentoRepositoryInterface::class);
+        $estabelecimentos->method('existeParaUsuario')->willReturn($ehEstabelecimento);
 
         $hasher = $this->createMock(PasswordHasherInterface::class);
         $hasher->method('verificar')->willReturn($senhaConfere);
 
-        return new AutenticarComSenhaUseCase($usuarios, $clientes, $barbearias, $hasher);
+        return new AutenticarComSenhaUseCase($usuarios, $clientes, $estabelecimentos, $hasher);
     }
 }

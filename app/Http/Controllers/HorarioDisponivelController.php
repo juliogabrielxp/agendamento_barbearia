@@ -30,8 +30,8 @@ final class HorarioDisponivelController extends Controller
         $estabelecimento = $this->estabelecimento($request);
 
         // Duração e regra do intervalo vêm do cadastro do serviço, nunca do request
-        $servico = ServicoModel::where('barbearia_id', $estabelecimento->id)->findOrFail($dados['servico_id']);
-        $profissional = ProfissionalModel::where('barbearia_id', $estabelecimento->id)->findOrFail($dados['profissional_id']);
+        $servico = ServicoModel::where('estabelecimento_id', $estabelecimento->id)->findOrFail($dados['servico_id']);
+        $profissional = ProfissionalModel::where('estabelecimento_id', $estabelecimento->id)->findOrFail($dados['profissional_id']);
 
         $horarios = $this->useCase->executar(new ListarHorariosDisponiveisInput(
             profissionalId: $profissional->id,

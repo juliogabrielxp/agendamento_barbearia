@@ -21,9 +21,9 @@ class AgendaController extends Controller
             'data' => 'nullable|date_format:Y-m-d',
         ]);
 
-        $barbearia = $this->estabelecimentoDoDono($request);
+        $estabelecimento = $this->estabelecimentoDoDono($request);
         $dia = Carbon::createFromFormat('!Y-m-d', $request->query('data') ?? now()->format('Y-m-d'));
-        $profissionaisIds = ProfissionalModel::where('barbearia_id', $barbearia->id)->pluck('id');
+        $profissionaisIds = ProfissionalModel::where('estabelecimento_id', $estabelecimento->id)->pluck('id');
 
         // Intervalo em vez de whereDate: DATE(inicio) impediria o índice (profissional_id, inicio)
         $agendamentos = AgendamentoModel::whereIn('profissional_id', $profissionaisIds)
@@ -42,8 +42,8 @@ class AgendaController extends Controller
             'status' => 'required|in:concluido,cancelado',
         ]);
 
-        $barbearia = $this->estabelecimentoDoDono($request);
-        $profissionaisIds = ProfissionalModel::where('barbearia_id', $barbearia->id)->pluck('id');
+        $estabelecimento = $this->estabelecimentoDoDono($request);
+        $profissionaisIds = ProfissionalModel::where('estabelecimento_id', $estabelecimento->id)->pluck('id');
 
         $agendamento = AgendamentoModel::whereIn('profissional_id', $profissionaisIds)->findOrFail($id);
 

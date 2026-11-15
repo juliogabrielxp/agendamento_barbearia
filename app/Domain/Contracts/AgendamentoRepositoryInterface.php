@@ -15,7 +15,7 @@ interface AgendamentoRepositoryInterface
      */
     public function travarAgendaDoProfissional(int $profissionalId): void;
 
-    /** Expediente da barbearia do profissional, ou null se o profissional não existe */
+    /** Expediente do estabelecimento do profissional, ou null se o profissional não existe */
     public function buscarExpedienteDoProfissional(int $profissionalId): ?Expediente;
 
     public function profissionalRealizaServico(int $profissionalId, int $servicoId): bool;

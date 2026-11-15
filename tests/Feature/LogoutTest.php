@@ -28,7 +28,7 @@ class LogoutTest extends TestCase
 
     public function test_cookie_do_cliente_nao_vale_mais_depois_do_logout(): void
     {
-        $this->criarBarbearia('dona@estudio.com');
+        $this->criarEstabelecimento('dona@estudio.com');
         $this->criarCliente('maria@email.com');
         $cookie = $this->entrar('/login-cliente', 'maria@email.com');
 
@@ -41,7 +41,7 @@ class LogoutTest extends TestCase
 
     public function test_cookie_da_dona_nao_abre_mais_o_painel_depois_do_logout(): void
     {
-        $this->criarBarbearia('dona@estudio.com');
+        $this->criarEstabelecimento('dona@estudio.com');
         $cookie = $this->entrar('/login-estabelecimento', 'dona@estudio.com');
 
         $this->comCookie($cookie)->getJson('/api/servicos')->assertOk();
@@ -53,7 +53,7 @@ class LogoutTest extends TestCase
 
     public function test_sessao_nova_depois_do_logout_nao_fica_no_nome_de_quem_saiu(): void
     {
-        $this->criarBarbearia('dona@estudio.com');
+        $this->criarEstabelecimento('dona@estudio.com');
         $this->criarCliente('maria@email.com');
         $cookie = $this->entrar('/login-cliente', 'maria@email.com');
 
@@ -68,7 +68,7 @@ class LogoutTest extends TestCase
 
     public function test_logout_sem_login_responde_401(): void
     {
-        $this->criarBarbearia('dona@estudio.com');
+        $this->criarEstabelecimento('dona@estudio.com');
 
         $this->withHeader('Referer', 'http://localhost/app')
             ->postJson('/api/logout')

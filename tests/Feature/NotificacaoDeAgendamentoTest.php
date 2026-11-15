@@ -6,8 +6,8 @@ namespace Tests\Feature;
 
 use App\Domain\Contracts\NotificadorDePushInterface;
 use App\Infrastructure\Persistence\Eloquent\AgendamentoModel;
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
@@ -32,25 +32,25 @@ class NotificacaoDeAgendamentoTest extends TestCase
     {
         parent::setUp();
 
-        $this->dono = UserModel::create(['nome' => 'Dono', 'email' => 'dono@barbearia.com', 'password' => 'senha-segura-123']);
+        $this->dono = UserModel::create(['nome' => 'Dono', 'email' => 'dono@estabelecimento.com', 'password' => 'senha-segura-123']);
 
-        $barbearia = BarbeariaModel::create([
+        $estabelecimento = EstabelecimentoModel::create([
             'dominio' => 'localhost', // host padrão das requisições de teste
             'user_id' => $this->dono->id,
-            'nome' => 'Barbearia Teste',
-            'email' => 'dono@barbearia.com',
+            'nome' => 'Estabelecimento Teste',
+            'email' => 'dono@estabelecimento.com',
             'telefone' => '',
             'endereco' => 'Rua Teste, 1',
         ]);
 
         $this->servico = ServicoModel::create([
-            'barbearia_id' => $barbearia->id,
+            'estabelecimento_id' => $estabelecimento->id,
             'nome' => 'Corte',
             'duracao_em_minutos' => 30,
             'preco' => 40.0,
         ]);
 
-        $this->profissional = ProfissionalModel::create(['barbearia_id' => $barbearia->id, 'nome' => 'João']);
+        $this->profissional = ProfissionalModel::create(['estabelecimento_id' => $estabelecimento->id, 'nome' => 'João']);
         $this->profissional->servicos()->attach($this->servico->id);
 
         $usuarioCliente = UserModel::create(['nome' => 'Maria', 'email' => 'maria@email.com', 'password' => 'senha-segura-123']);

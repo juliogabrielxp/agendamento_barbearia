@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Infrastructure\Persistence\Eloquent\AgendamentoModel;
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
@@ -71,12 +71,12 @@ class CancelamentoConcorrenteTest extends TestCase
     {
         $c = self::PARALELA;
         $dona = UserModel::on($c)->create(['nome' => 'Dona', 'email' => 'dona@concorrencia.test', 'password' => 'senha-segura-123']);
-        $barbearia = BarbeariaModel::on($c)->create([
+        $estabelecimento = EstabelecimentoModel::on($c)->create([
             'user_id' => $dona->id, 'dominio' => 'localhost', 'nome' => 'Estúdio', 'email' => 'dona@concorrencia.test',
             'telefone' => '', 'endereco' => 'Rua Teste, 1',
         ]);
-        $servico = ServicoModel::on($c)->create(['barbearia_id' => $barbearia->id, 'nome' => 'Corte', 'duracao_em_minutos' => 30, 'preco' => 40.0]);
-        $profissional = ProfissionalModel::on($c)->create(['barbearia_id' => $barbearia->id, 'nome' => 'João']);
+        $servico = ServicoModel::on($c)->create(['estabelecimento_id' => $estabelecimento->id, 'nome' => 'Corte', 'duracao_em_minutos' => 30, 'preco' => 40.0]);
+        $profissional = ProfissionalModel::on($c)->create(['estabelecimento_id' => $estabelecimento->id, 'nome' => 'João']);
         $usuario = UserModel::on($c)->create(['nome' => 'Maria', 'email' => 'maria@concorrencia.test', 'password' => 'senha-segura-123']);
         $cliente = ClienteModel::on($c)->create(['user_id' => $usuario->id, 'nome' => 'Maria', 'email' => 'maria@concorrencia.test', 'telefone' => '']);
         $agendamento = AgendamentoModel::on($c)->create([
@@ -85,13 +85,13 @@ class CancelamentoConcorrenteTest extends TestCase
         ]);
 
         // Roda depois do rollback do RefreshDatabase, que libera as travas da conexão principal
-        $this->beforeApplicationDestroyed(function () use ($c, $agendamento, $cliente, $profissional, $servico, $barbearia, $usuario, $dona): void {
+        $this->beforeApplicationDestroyed(function () use ($c, $agendamento, $cliente, $profissional, $servico, $estabelecimento, $usuario, $dona): void {
             $paralela = DB::connection($c);
             $paralela->table('agendamentos')->where('id', $agendamento->id)->delete();
             $paralela->table('clientes')->where('id', $cliente->id)->delete();
             $paralela->table('profissionais')->where('id', $profissional->id)->delete();
             $paralela->table('servicos')->where('id', $servico->id)->delete();
-            $paralela->table('barbearias')->where('id', $barbearia->id)->delete();
+            $paralela->table('estabelecimentos')->where('id', $estabelecimento->id)->delete();
             $paralela->table('users')->whereIn('id', [$usuario->id, $dona->id])->delete();
             DB::disconnect($c);
         });

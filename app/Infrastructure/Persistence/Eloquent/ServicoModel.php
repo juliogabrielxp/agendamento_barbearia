@@ -17,7 +17,7 @@ class ServicoModel extends Model
 
     protected $table = 'servicos';
 
-    protected $fillable = ['barbearia_id', 'nome', 'duracao_em_minutos', 'preco', 'pode_atravessar_intervalo', 'imagem_path'];
+    protected $fillable = ['estabelecimento_id', 'nome', 'duracao_em_minutos', 'preco', 'pode_atravessar_intervalo', 'imagem_path'];
 
     protected $attributes = [
         'pode_atravessar_intervalo' => false,

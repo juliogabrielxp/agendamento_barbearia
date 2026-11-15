@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -95,14 +95,14 @@ class LoginGoogleTest extends TestCase
 
     public function test_google_nao_cria_estabelecimento_para_qualquer_conta(): void
     {
-        // Antes existia /auth/google/barbearia, que criava um painel de dona para
+        // Antes existia /auth/google/estabelecimento, que criava um painel de dona para
         // qualquer conta Google. Estabelecimento novo agora só pelo comando artisan.
         $this->googleDevolve('google-2', 'curioso@gmail.com', 'Curioso');
 
-        $this->get('/auth/google/barbearia/callback')->assertNotFound();
+        $this->get('/auth/google/estabelecimento/callback')->assertNotFound();
 
         $this->assertGuest();
-        $this->assertSame(0, BarbeariaModel::count());
+        $this->assertSame(0, EstabelecimentoModel::count());
     }
 
     public function test_login_repetido_reaproveita_usuario_e_cliente(): void

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use App\Infrastructure\Persistence\Eloquent\ProfissionalModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,13 +19,13 @@ class CriarEstabelecimentoTest extends TestCase
     {
         $this->criar(senha: 'senha-segura-123')->assertSuccessful();
 
-        $estabelecimento = BarbeariaModel::where('dominio', 'trancas.juliogabrieldev.com')->firstOrFail();
+        $estabelecimento = EstabelecimentoModel::where('dominio', 'trancas.juliogabrieldev.com')->firstOrFail();
         $dona = UserModel::where('email', 'dona@girassol.com')->firstOrFail();
 
         $this->assertSame('Studio Girassol Beauty', $estabelecimento->nome);
         $this->assertSame($dona->id, $estabelecimento->user_id);
         $this->assertTrue(Hash::check('senha-segura-123', $dona->password));
-        $this->assertSame(1, ProfissionalModel::where('barbearia_id', $estabelecimento->id)->count());
+        $this->assertSame(1, ProfissionalModel::where('estabelecimento_id', $estabelecimento->id)->count());
     }
 
     public function test_dona_criada_pelo_comando_entra_no_painel_pelo_proprio_endereco(): void
@@ -44,7 +44,7 @@ class CriarEstabelecimentoTest extends TestCase
 
         $this->criar(senha: 'senha-segura-123', email: 'outra@girassol.com')->assertFailed();
 
-        $this->assertSame(1, BarbeariaModel::count());
+        $this->assertSame(1, EstabelecimentoModel::count());
         $this->assertSame(0, UserModel::where('email', 'outra@girassol.com')->count());
     }
 
@@ -52,7 +52,7 @@ class CriarEstabelecimentoTest extends TestCase
     {
         $this->criar(senha: 'curta')->assertFailed();
 
-        $this->assertSame(0, BarbeariaModel::count());
+        $this->assertSame(0, EstabelecimentoModel::count());
         $this->assertSame(0, UserModel::count());
     }
 
@@ -64,7 +64,7 @@ class CriarEstabelecimentoTest extends TestCase
             ->expectsOutput('Nada foi criado.')
             ->assertFailed();
 
-        $this->assertSame(0, BarbeariaModel::count());
+        $this->assertSame(0, EstabelecimentoModel::count());
         $this->assertSame(0, UserModel::count());
     }
 
@@ -74,7 +74,7 @@ class CriarEstabelecimentoTest extends TestCase
             ->expectsOutput('Nada foi criado.')
             ->assertFailed();
 
-        $this->assertSame(0, BarbeariaModel::count());
+        $this->assertSame(0, EstabelecimentoModel::count());
     }
 
     private function criar(

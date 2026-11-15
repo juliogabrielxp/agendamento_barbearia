@@ -17,7 +17,7 @@ class CadastroDeServicoTest extends TestCase
 
     public function test_servico_novo_ja_e_da_profissional_quando_ela_e_a_unica(): void
     {
-        $studio = $this->criarBarbearia('dona@studio.com');
+        $studio = $this->criarEstabelecimento('dona@studio.com');
 
         $response = $this->actingAs($studio['dono'])->postJson('/api/servicos', [
             'nome' => 'Box braids',
@@ -33,8 +33,8 @@ class CadastroDeServicoTest extends TestCase
 
     public function test_com_mais_de_uma_profissional_o_vinculo_continua_manual(): void
     {
-        $salao = $this->criarBarbearia('dona@salao.com');
-        $segunda = ProfissionalModel::create(['barbearia_id' => $salao['barbearia']->id, 'nome' => 'Ana']);
+        $salao = $this->criarEstabelecimento('dona@salao.com');
+        $segunda = ProfissionalModel::create(['estabelecimento_id' => $salao['estabelecimento']->id, 'nome' => 'Ana']);
 
         $response = $this->actingAs($salao['dono'])->postJson('/api/servicos', [
             'nome' => 'Escova',
@@ -48,7 +48,7 @@ class CadastroDeServicoTest extends TestCase
 
     public function test_dona_marca_que_o_servico_pode_atravessar_o_intervalo(): void
     {
-        $studio = $this->criarBarbearia('dona@studio.com');
+        $studio = $this->criarEstabelecimento('dona@studio.com');
 
         $this->actingAs($studio['dono'])->putJson("/api/servicos/{$studio['servico']->id}", [
             'nome' => 'Box braids',
@@ -62,7 +62,7 @@ class CadastroDeServicoTest extends TestCase
 
     public function test_servico_comeca_sem_poder_atravessar_o_intervalo(): void
     {
-        $studio = $this->criarBarbearia('dona@studio.com');
+        $studio = $this->criarEstabelecimento('dona@studio.com');
 
         $this->actingAs($studio['dono'])->postJson('/api/servicos', [
             'nome' => 'Maquiagem',

@@ -37,9 +37,9 @@ class ConstraintsDoBancoTest extends TestCase
         }
 
         // Um registro válido de cada tabela; cada caso tenta estragar um deles
-        $barbearia = $this->criarBarbearia('dona@estudio.com');
+        $estabelecimento = $this->criarEstabelecimento('dona@estudio.com');
         ['cliente' => $cliente] = $this->criarCliente('maria@email.com');
-        $this->criarAgendamento($barbearia, $cliente, '2030-01-10 10:00:00');
+        $this->criarAgendamento($estabelecimento, $cliente, '2030-01-10 10:00:00');
     }
 
     /** @return array<string, array{string, int}> */
@@ -56,15 +56,15 @@ class ConstraintsDoBancoTest extends TestCase
             'C6 serviço sem nome' => ["UPDATE servicos SET nome = '   '", self::CHECK_VIOLADA],
             'C6 profissional sem nome' => ["UPDATE profissionais SET nome = ''", self::CHECK_VIOLADA],
             // M3: expediente e domínio
-            'C4 fecha antes de abrir' => ["UPDATE barbearias SET hora_fechamento = '08:00:00'", self::CHECK_VIOLADA],
-            'C5 intervalo só com início' => ["UPDATE barbearias SET intervalo_inicio = '12:00:00', intervalo_fim = NULL", self::CHECK_VIOLADA],
-            'C5 intervalo só com fim' => ["UPDATE barbearias SET intervalo_inicio = NULL, intervalo_fim = '13:00:00'", self::CHECK_VIOLADA],
-            'C5 intervalo antes da abertura' => ["UPDATE barbearias SET intervalo_inicio = '07:00:00', intervalo_fim = '09:00:00'", self::CHECK_VIOLADA],
-            'C5 intervalo depois do fechamento' => ["UPDATE barbearias SET intervalo_inicio = '18:00:00', intervalo_fim = '20:00:00'", self::CHECK_VIOLADA],
-            'C5 intervalo invertido' => ["UPDATE barbearias SET intervalo_inicio = '13:00:00', intervalo_fim = '12:00:00'", self::CHECK_VIOLADA],
-            'C6 estabelecimento sem nome' => ["UPDATE barbearias SET nome = ''", self::CHECK_VIOLADA],
-            'C8 domínio com maiúscula' => ["UPDATE barbearias SET dominio = 'Trancas.test'", self::CHECK_VIOLADA],
-            'C8 domínio com espaço' => ["UPDATE barbearias SET dominio = 'tran cas.test'", self::CHECK_VIOLADA],
+            'C4 fecha antes de abrir' => ["UPDATE estabelecimentos SET hora_fechamento = '08:00:00'", self::CHECK_VIOLADA],
+            'C5 intervalo só com início' => ["UPDATE estabelecimentos SET intervalo_inicio = '12:00:00', intervalo_fim = NULL", self::CHECK_VIOLADA],
+            'C5 intervalo só com fim' => ["UPDATE estabelecimentos SET intervalo_inicio = NULL, intervalo_fim = '13:00:00'", self::CHECK_VIOLADA],
+            'C5 intervalo antes da abertura' => ["UPDATE estabelecimentos SET intervalo_inicio = '07:00:00', intervalo_fim = '09:00:00'", self::CHECK_VIOLADA],
+            'C5 intervalo depois do fechamento' => ["UPDATE estabelecimentos SET intervalo_inicio = '18:00:00', intervalo_fim = '20:00:00'", self::CHECK_VIOLADA],
+            'C5 intervalo invertido' => ["UPDATE estabelecimentos SET intervalo_inicio = '13:00:00', intervalo_fim = '12:00:00'", self::CHECK_VIOLADA],
+            'C6 estabelecimento sem nome' => ["UPDATE estabelecimentos SET nome = ''", self::CHECK_VIOLADA],
+            'C8 domínio com maiúscula' => ["UPDATE estabelecimentos SET dominio = 'Trancas.test'", self::CHECK_VIOLADA],
+            'C8 domínio com espaço' => ["UPDATE estabelecimentos SET dominio = 'tran cas.test'", self::CHECK_VIOLADA],
             // M4: contas
             'C6 cliente sem nome' => ["UPDATE clientes SET nome = ''", self::CHECK_VIOLADA],
             'C6 usuário sem nome' => ["UPDATE users SET nome = ''", self::CHECK_VIOLADA],
@@ -90,8 +90,8 @@ class ConstraintsDoBancoTest extends TestCase
 
     public function test_banco_aceita_o_que_e_valido(): void
     {
-        DB::statement("UPDATE barbearias SET intervalo_inicio = '12:00:00', intervalo_fim = '13:00:00', dominio = 'trancas.juliogabrieldev.com'");
-        DB::statement('UPDATE barbearias SET intervalo_inicio = NULL, intervalo_fim = NULL');
+        DB::statement("UPDATE estabelecimentos SET intervalo_inicio = '12:00:00', intervalo_fim = '13:00:00', dominio = 'trancas.juliogabrieldev.com'");
+        DB::statement('UPDATE estabelecimentos SET intervalo_inicio = NULL, intervalo_fim = NULL');
         DB::statement("UPDATE agendamentos SET status = 'cancelado'");
         DB::statement("UPDATE users SET google_id = CONCAT('google-', id), password = NULL");
         DB::statement('UPDATE servicos SET preco = 0');

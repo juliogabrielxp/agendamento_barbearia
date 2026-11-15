@@ -12,7 +12,7 @@ class ProfissionalModel extends Model
 {
     protected $table = 'profissionais';
 
-    protected $fillable = ['barbearia_id', 'nome'];
+    protected $fillable = ['estabelecimento_id', 'nome'];
 
     public function servicos(): BelongsToMany
     {
@@ -24,8 +24,8 @@ class ProfissionalModel extends Model
         );
     }
 
-    public function barbearia(): BelongsTo
+    public function estabelecimento(): BelongsTo
     {
-        return $this->belongsTo(BarbeariaModel::class, 'barbearia_id');
+        return $this->belongsTo(EstabelecimentoModel::class, 'estabelecimento_id');
     }
 }

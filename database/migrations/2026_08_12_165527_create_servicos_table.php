@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('servicos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('barbearia_id')->constrained('barbearias')->cascadeOnDelete();
+            $table->foreignId('estabelecimento_id')->constrained('estabelecimentos')->cascadeOnDelete();
             $table->string('nome');
             $table->unsignedInteger('duracao_em_minutos');
             $table->decimal('preco', 8, 2);

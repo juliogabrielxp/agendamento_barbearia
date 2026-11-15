@@ -22,8 +22,8 @@ final class NotificarDonoSobreNovoAgendamento
     {
         // Uma falha de notificação nunca pode derrubar um agendamento já confirmado
         try {
-            $profissional = ProfissionalModel::with('barbearia')->find($evento->profissionalId);
-            $donoId = $profissional?->barbearia?->user_id;
+            $profissional = ProfissionalModel::with('estabelecimento')->find($evento->profissionalId);
+            $donoId = $profissional?->estabelecimento?->user_id;
 
             if ($donoId === null) {
                 return;

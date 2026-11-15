@@ -6,13 +6,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Um usuário tem no máximo um perfil de barbearia e um de cliente.
+ * Um usuário tem no máximo um perfil de estabelecimento e um de cliente.
  * O código sempre busca o perfil com where('user_id')->first(), então um duplicado
  * faria o perfil "certo" depender da ordem do banco.
  */
 return new class extends Migration
 {
-    private const TABELAS = ['barbearias', 'clientes'];
+    private const TABELAS = ['estabelecimentos', 'clientes'];
 
     public function up(): void
     {

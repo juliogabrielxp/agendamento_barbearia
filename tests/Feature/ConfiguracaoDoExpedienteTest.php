@@ -21,21 +21,21 @@ class ConfiguracaoDoExpedienteTest extends TestCase
 
     public function test_recusa_fim_do_intervalo_sem_o_inicio(): void
     {
-        $barbearia = $this->criarBarbearia('dona@estudio.com');
+        $estabelecimento = $this->criarEstabelecimento('dona@estudio.com');
 
-        $this->actingAs($barbearia['dono'])
+        $this->actingAs($estabelecimento['dono'])
             ->putJson('/api/configuracao-estabelecimento', [...self::EXPEDIENTE, 'intervalo_inicio' => null, 'intervalo_fim' => '13:00'])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['intervalo_inicio' => 'Informe o início do intervalo.']);
 
-        $this->assertDatabaseHas('barbearias', ['id' => $barbearia['barbearia']->id, 'intervalo_fim' => null]);
+        $this->assertDatabaseHas('estabelecimentos', ['id' => $estabelecimento['estabelecimento']->id, 'intervalo_fim' => null]);
     }
 
     public function test_recusa_inicio_do_intervalo_sem_o_fim(): void
     {
-        $barbearia = $this->criarBarbearia('dona@estudio.com');
+        $estabelecimento = $this->criarEstabelecimento('dona@estudio.com');
 
-        $this->actingAs($barbearia['dono'])
+        $this->actingAs($estabelecimento['dono'])
             ->putJson('/api/configuracao-estabelecimento', [...self::EXPEDIENTE, 'intervalo_inicio' => '12:00', 'intervalo_fim' => null])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['intervalo_fim' => 'Informe o fim do intervalo.']);
@@ -43,16 +43,16 @@ class ConfiguracaoDoExpedienteTest extends TestCase
 
     public function test_aceita_intervalo_completo_ou_nenhum(): void
     {
-        $barbearia = $this->criarBarbearia('dona@estudio.com');
+        $estabelecimento = $this->criarEstabelecimento('dona@estudio.com');
 
-        $this->actingAs($barbearia['dono'])
+        $this->actingAs($estabelecimento['dono'])
             ->putJson('/api/configuracao-estabelecimento', [...self::EXPEDIENTE, 'intervalo_inicio' => '12:00', 'intervalo_fim' => '13:00'])
             ->assertOk();
 
-        $this->actingAs($barbearia['dono'])
+        $this->actingAs($estabelecimento['dono'])
             ->putJson('/api/configuracao-estabelecimento', [...self::EXPEDIENTE, 'intervalo_inicio' => null, 'intervalo_fim' => null])
             ->assertOk();
 
-        $this->assertDatabaseHas('barbearias', ['id' => $barbearia['barbearia']->id, 'intervalo_inicio' => null, 'intervalo_fim' => null]);
+        $this->assertDatabaseHas('estabelecimentos', ['id' => $estabelecimento['estabelecimento']->id, 'intervalo_inicio' => null, 'intervalo_fim' => null]);
     }
 }

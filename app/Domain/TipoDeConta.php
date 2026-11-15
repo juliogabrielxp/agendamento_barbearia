@@ -7,5 +7,5 @@ namespace App\Domain;
 enum TipoDeConta: string
 {
     case Cliente = 'cliente';
-    case Barbearia = 'barbearia';
+    case Estabelecimento = 'estabelecimento';
 }

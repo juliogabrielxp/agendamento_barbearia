@@ -22,10 +22,10 @@ class GravacaoAtomicaDeCadastrosTest extends TestCase
 
     public function test_servico_novo_nao_fica_gravado_sem_o_vinculo_com_a_profissional(): void
     {
-        $barbearia = $this->criarBarbearia('dona@estudio.com');
+        $estabelecimento = $this->criarEstabelecimento('dona@estudio.com');
         $this->cairDepoisDe('insert into servicos');
 
-        $this->actingAs($barbearia['dono'])->postJson('/api/servicos', [
+        $this->actingAs($estabelecimento['dono'])->postJson('/api/servicos', [
             'nome' => 'Box braids',
             'duracao_em_minutos' => 240,
             'preco' => 250,
@@ -36,12 +36,12 @@ class GravacaoAtomicaDeCadastrosTest extends TestCase
 
     public function test_profissional_nova_nao_fica_gravada_sem_os_servicos(): void
     {
-        $barbearia = $this->criarBarbearia('dona@estudio.com');
+        $estabelecimento = $this->criarEstabelecimento('dona@estudio.com');
         $this->cairDepoisDe('insert into profissionais');
 
-        $this->actingAs($barbearia['dono'])->postJson('/api/profissionais', [
+        $this->actingAs($estabelecimento['dono'])->postJson('/api/profissionais', [
             'nome' => 'Ana',
-            'servicos' => [$barbearia['servico']->id],
+            'servicos' => [$estabelecimento['servico']->id],
         ])->assertServerError();
 
         $this->assertDatabaseMissing('profissionais', ['nome' => 'Ana']);
@@ -49,18 +49,18 @@ class GravacaoAtomicaDeCadastrosTest extends TestCase
 
     public function test_edicao_da_profissional_nao_perde_os_servicos_antigos_no_meio_do_sync(): void
     {
-        $barbearia = $this->criarBarbearia('dona@estudio.com');
-        $profissional = $barbearia['profissional'];
-        $corte = $barbearia['servico'];
+        $estabelecimento = $this->criarEstabelecimento('dona@estudio.com');
+        $profissional = $estabelecimento['profissional'];
+        $corte = $estabelecimento['servico'];
         $barba = ServicoModel::create([
-            'barbearia_id' => $barbearia['barbearia']->id,
+            'estabelecimento_id' => $estabelecimento['estabelecimento']->id,
             'nome' => 'Barba',
             'duracao_em_minutos' => 30,
             'preco' => 30.0,
         ]);
         $this->cairDepoisDe('delete from profissional_servico');
 
-        $this->actingAs($barbearia['dono'])->putJson("/api/profissionais/{$profissional->id}", [
+        $this->actingAs($estabelecimento['dono'])->putJson("/api/profissionais/{$profissional->id}", [
             'nome' => 'João Silva',
             'servicos' => [$barba->id],
         ])->assertServerError();

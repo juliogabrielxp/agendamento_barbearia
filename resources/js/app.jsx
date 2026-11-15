@@ -3,9 +3,9 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
 import Vitrine from './pages/Vitrine';
 import Login from './pages/Login';
-import DashboardBarbearia from './pages/DashboardBarbearia';
+import DashboardEstabelecimento from './pages/DashboardEstabelecimento';
 import DashboardCliente from './pages/DashboardCliente';
-import LoginBarbearia from './pages/LoginBarbearia';
+import LoginEstabelecimento from './pages/LoginEstabelecimento';
 import '../css/app.css';
 
 function App() {
@@ -15,8 +15,8 @@ function App() {
                 <Route path="/app" element={<Vitrine />} />
                 <Route path="/app/entrar" element={<Login />} />
                 <Route path="/app/minha-conta" element={<DashboardCliente />} />
-                <Route path="/app/painel" element={<DashboardBarbearia />} />
-                <Route path="/app/painel/entrar" element={<LoginBarbearia />} />
+                <Route path="/app/painel" element={<DashboardEstabelecimento />} />
+                <Route path="/app/painel/entrar" element={<LoginEstabelecimento />} />
 
                 {/* Endereços antigos (links salvos, notificações já enviadas) */}
                 <Route path="/app/dashboard-cliente" element={<Navigate to="/app/minha-conta" replace />} />

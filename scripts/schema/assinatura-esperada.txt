@@ -2,11 +2,11 @@ BANCO collation=utf8mb4_unicode_ci
 CHECK chk_agendamentos_duracao: (`duracao_em_minutos` >= 1)
 CHECK chk_agendamentos_preco: (`preco` >= 0)
 CHECK chk_agendamentos_status: (`status` in (_utf8mb4\\'confirmado\\',_utf8mb4\\'concluido\\',_utf8mb4\\'cancelado\\'))
-CHECK chk_barbearias_dominio: ((`dominio` is null) or regexp_like(`dominio`,_utf8mb4\\'^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$\\',_utf8mb4\\'c\\'))
-CHECK chk_barbearias_expediente: (`hora_fechamento` > `hora_abertura`)
-CHECK chk_barbearias_intervalo: (((`intervalo_inicio` is null) and (`intervalo_fim` is null)) or ((`intervalo_inicio` is not null) and (`intervalo_fim` is not null) and (`intervalo_inicio` >= `hora_abertura`) and (`intervalo_fim` > `intervalo_inicio`) and (`intervalo_fim` <= `hora_fechamento`)))
-CHECK chk_barbearias_nome: (trim(`nome`) <> _utf8mb4\\'\\')
 CHECK chk_clientes_nome: (trim(`nome`) <> _utf8mb4\\'\\')
+CHECK chk_estabelecimentos_dominio: ((`dominio` is null) or regexp_like(`dominio`,_utf8mb4\\'^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$\\',_utf8mb4\\'c\\'))
+CHECK chk_estabelecimentos_expediente: (`hora_fechamento` > `hora_abertura`)
+CHECK chk_estabelecimentos_intervalo: (((`intervalo_inicio` is null) and (`intervalo_fim` is null)) or ((`intervalo_inicio` is not null) and (`intervalo_fim` is not null) and (`intervalo_inicio` >= `hora_abertura`) and (`intervalo_fim` > `intervalo_inicio`) and (`intervalo_fim` <= `hora_fechamento`)))
+CHECK chk_estabelecimentos_nome: (trim(`nome`) <> _utf8mb4\\'\\')
 CHECK chk_profissionais_nome: (trim(`nome`) <> _utf8mb4\\'\\')
 CHECK chk_servicos_duracao: (`duracao_em_minutos` >= 1)
 CHECK chk_servicos_nome: (trim(`nome`) <> _utf8mb4\\'\\')
@@ -23,20 +23,6 @@ COLUNA agendamentos.profissional_id bigint unsigned not-null default=<nenhum>
 COLUNA agendamentos.servico_id bigint unsigned not-null default=<nenhum>
 COLUNA agendamentos.status varchar(255) not-null default=confirmado utf8mb4_unicode_ci
 COLUNA agendamentos.updated_at timestamp null default=<nenhum>
-COLUNA barbearias.created_at timestamp null default=<nenhum>
-COLUNA barbearias.dominio varchar(255) null default=<nenhum> utf8mb4_unicode_ci
-COLUNA barbearias.email varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
-COLUNA barbearias.endereco varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
-COLUNA barbearias.hora_abertura time not-null default=08:00:00
-COLUNA barbearias.hora_fechamento time not-null default=19:00:00
-COLUNA barbearias.id bigint unsigned not-null default=<nenhum> auto_increment
-COLUNA barbearias.imagem_path varchar(255) null default=<nenhum> utf8mb4_unicode_ci
-COLUNA barbearias.intervalo_fim time null default=<nenhum>
-COLUNA barbearias.intervalo_inicio time null default=<nenhum>
-COLUNA barbearias.nome varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
-COLUNA barbearias.telefone varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
-COLUNA barbearias.updated_at timestamp null default=<nenhum>
-COLUNA barbearias.user_id bigint unsigned null default=<nenhum>
 COLUNA cache.expiration bigint not-null default=<nenhum>
 COLUNA cache.key varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
 COLUNA cache.value mediumtext not-null default=<nenhum> utf8mb4_unicode_ci
@@ -62,6 +48,20 @@ COLUNA clientes.observacoes text null default=<nenhum> utf8mb4_unicode_ci
 COLUNA clientes.telefone varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
 COLUNA clientes.updated_at timestamp null default=<nenhum>
 COLUNA clientes.user_id bigint unsigned not-null default=<nenhum>
+COLUNA estabelecimentos.created_at timestamp null default=<nenhum>
+COLUNA estabelecimentos.dominio varchar(255) null default=<nenhum> utf8mb4_unicode_ci
+COLUNA estabelecimentos.email varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA estabelecimentos.endereco varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA estabelecimentos.hora_abertura time not-null default=08:00:00
+COLUNA estabelecimentos.hora_fechamento time not-null default=19:00:00
+COLUNA estabelecimentos.id bigint unsigned not-null default=<nenhum> auto_increment
+COLUNA estabelecimentos.imagem_path varchar(255) null default=<nenhum> utf8mb4_unicode_ci
+COLUNA estabelecimentos.intervalo_fim time null default=<nenhum>
+COLUNA estabelecimentos.intervalo_inicio time null default=<nenhum>
+COLUNA estabelecimentos.nome varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA estabelecimentos.telefone varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
+COLUNA estabelecimentos.updated_at timestamp null default=<nenhum>
+COLUNA estabelecimentos.user_id bigint unsigned null default=<nenhum>
 COLUNA failed_jobs.connection varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
 COLUNA failed_jobs.exception longtext not-null default=<nenhum> utf8mb4_unicode_ci
 COLUNA failed_jobs.failed_at timestamp not-null default=CURRENT_TIMESTAMP DEFAULT_GENERATED
@@ -102,8 +102,8 @@ COLUNA personal_access_tokens.token varchar(64) not-null default=<nenhum> utf8mb
 COLUNA personal_access_tokens.tokenable_id bigint unsigned not-null default=<nenhum>
 COLUNA personal_access_tokens.tokenable_type varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
 COLUNA personal_access_tokens.updated_at timestamp null default=<nenhum>
-COLUNA profissionais.barbearia_id bigint unsigned not-null default=<nenhum>
 COLUNA profissionais.created_at timestamp null default=<nenhum>
+COLUNA profissionais.estabelecimento_id bigint unsigned not-null default=<nenhum>
 COLUNA profissionais.id bigint unsigned not-null default=<nenhum> auto_increment
 COLUNA profissionais.nome varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
 COLUNA profissionais.updated_at timestamp null default=<nenhum>
@@ -117,9 +117,9 @@ COLUNA push_subscriptions.id bigint unsigned not-null default=<nenhum> auto_incr
 COLUNA push_subscriptions.p256dh varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
 COLUNA push_subscriptions.updated_at timestamp null default=<nenhum>
 COLUNA push_subscriptions.user_id bigint unsigned not-null default=<nenhum>
-COLUNA servicos.barbearia_id bigint unsigned not-null default=<nenhum>
 COLUNA servicos.created_at timestamp null default=<nenhum>
 COLUNA servicos.duracao_em_minutos int unsigned not-null default=<nenhum>
+COLUNA servicos.estabelecimento_id bigint unsigned not-null default=<nenhum>
 COLUNA servicos.id bigint unsigned not-null default=<nenhum> auto_increment
 COLUNA servicos.imagem_path varchar(255) null default=<nenhum> utf8mb4_unicode_ci
 COLUNA servicos.nome varchar(255) not-null default=<nenhum> utf8mb4_unicode_ci
@@ -143,21 +143,17 @@ COLUNA users.updated_at timestamp null default=<nenhum>
 FK agendamentos.agendamentos_cliente_id_foreign (cliente_id) -> clientes delete=NO ACTION update=NO ACTION
 FK agendamentos.agendamentos_profissional_id_foreign (profissional_id) -> profissionais delete=NO ACTION update=NO ACTION
 FK agendamentos.agendamentos_servico_id_foreign (servico_id) -> servicos delete=NO ACTION update=NO ACTION
-FK barbearias.barbearias_user_id_foreign (user_id) -> users delete=SET NULL update=NO ACTION
 FK clientes.clientes_user_id_foreign (user_id) -> users delete=RESTRICT update=NO ACTION
-FK profissionais.profissionais_barbearia_id_foreign (barbearia_id) -> barbearias delete=CASCADE update=NO ACTION
+FK estabelecimentos.estabelecimentos_user_id_foreign (user_id) -> users delete=SET NULL update=NO ACTION
+FK profissionais.profissionais_estabelecimento_id_foreign (estabelecimento_id) -> estabelecimentos delete=CASCADE update=NO ACTION
 FK profissional_servico.profissional_servico_profissional_id_foreign (profissional_id) -> profissionais delete=CASCADE update=NO ACTION
 FK profissional_servico.profissional_servico_servico_id_foreign (servico_id) -> servicos delete=CASCADE update=NO ACTION
 FK push_subscriptions.push_subscriptions_user_id_foreign (user_id) -> users delete=CASCADE update=NO ACTION
-FK servicos.servicos_barbearia_id_foreign (barbearia_id) -> barbearias delete=CASCADE update=NO ACTION
+FK servicos.servicos_estabelecimento_id_foreign (estabelecimento_id) -> estabelecimentos delete=CASCADE update=NO ACTION
 INDICE agendamentos.agendamentos_cliente_id_foreign (cliente_id)
 INDICE agendamentos.agendamentos_profissional_id_inicio_index (profissional_id,inicio)
 INDICE agendamentos.agendamentos_servico_id_foreign (servico_id)
 INDICE agendamentos.PRIMARY unique (id)
-INDICE barbearias.barbearias_dominio_unique unique (dominio)
-INDICE barbearias.barbearias_email_unique unique (email)
-INDICE barbearias.barbearias_user_id_unique unique (user_id)
-INDICE barbearias.PRIMARY unique (id)
 INDICE cache.cache_expiration_index (expiration)
 INDICE cache.PRIMARY unique (key)
 INDICE cache_locks.cache_locks_expiration_index (expiration)
@@ -167,6 +163,10 @@ INDICE cadastros_pendentes.PRIMARY unique (id)
 INDICE clientes.clientes_email_unique unique (email)
 INDICE clientes.clientes_user_id_unique unique (user_id)
 INDICE clientes.PRIMARY unique (id)
+INDICE estabelecimentos.estabelecimentos_dominio_unique unique (dominio)
+INDICE estabelecimentos.estabelecimentos_email_unique unique (email)
+INDICE estabelecimentos.estabelecimentos_user_id_unique unique (user_id)
+INDICE estabelecimentos.PRIMARY unique (id)
 INDICE failed_jobs.failed_jobs_connection_queue_failed_at_index (connection,queue,failed_at)
 INDICE failed_jobs.failed_jobs_uuid_unique unique (uuid)
 INDICE failed_jobs.PRIMARY unique (id)
@@ -180,14 +180,14 @@ INDICE personal_access_tokens.personal_access_tokens_token_unique unique (token)
 INDICE personal_access_tokens.personal_access_tokens_tokenable_type_tokenable_id_index (tokenable_type,tokenable_id)
 INDICE personal_access_tokens.PRIMARY unique (id)
 INDICE profissionais.PRIMARY unique (id)
-INDICE profissionais.profissionais_barbearia_id_foreign (barbearia_id)
+INDICE profissionais.profissionais_estabelecimento_id_foreign (estabelecimento_id)
 INDICE profissional_servico.PRIMARY unique (profissional_id,servico_id)
 INDICE profissional_servico.profissional_servico_servico_id_foreign (servico_id)
 INDICE push_subscriptions.PRIMARY unique (id)
 INDICE push_subscriptions.push_subscriptions_endpoint_hash_unique unique (endpoint_hash)
 INDICE push_subscriptions.push_subscriptions_user_id_foreign (user_id)
 INDICE servicos.PRIMARY unique (id)
-INDICE servicos.servicos_barbearia_id_foreign (barbearia_id)
+INDICE servicos.servicos_estabelecimento_id_foreign (estabelecimento_id)
 INDICE sessions.PRIMARY unique (id)
 INDICE sessions.sessions_last_activity_index (last_activity)
 INDICE sessions.sessions_user_id_index (user_id)
@@ -195,11 +195,11 @@ INDICE users.PRIMARY unique (id)
 INDICE users.users_email_unique unique (email)
 INDICE users.users_google_id_unique unique (google_id)
 TABELA agendamentos engine=InnoDB collation=utf8mb4_unicode_ci
-TABELA barbearias engine=InnoDB collation=utf8mb4_unicode_ci
 TABELA cache engine=InnoDB collation=utf8mb4_unicode_ci
 TABELA cache_locks engine=InnoDB collation=utf8mb4_unicode_ci
 TABELA cadastros_pendentes engine=InnoDB collation=utf8mb4_unicode_ci
 TABELA clientes engine=InnoDB collation=utf8mb4_unicode_ci
+TABELA estabelecimentos engine=InnoDB collation=utf8mb4_unicode_ci
 TABELA failed_jobs engine=InnoDB collation=utf8mb4_unicode_ci
 TABELA job_batches engine=InnoDB collation=utf8mb4_unicode_ci
 TABELA jobs engine=InnoDB collation=utf8mb4_unicode_ci

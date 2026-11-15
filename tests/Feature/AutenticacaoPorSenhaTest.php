@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
 use App\Infrastructure\Persistence\Eloquent\ClienteModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -34,20 +34,20 @@ class AutenticacaoPorSenhaTest extends TestCase
         $this->assertSame(1, UserModel::where('email', 'maria@email.com')->count());
     }
 
-    public function test_barbearia_entra_com_email_e_senha(): void
+    public function test_estabelecimento_entra_com_email_e_senha(): void
     {
-        $user = UserModel::create(['nome' => 'Dono', 'email' => 'dono@barbearia.com', 'password' => 'senha-segura-123']);
-        BarbeariaModel::create([
+        $user = UserModel::create(['nome' => 'Dono', 'email' => 'dono@estabelecimento.com', 'password' => 'senha-segura-123']);
+        EstabelecimentoModel::create([
             'dominio' => 'localhost', // host padrão das requisições de teste
             'user_id' => $user->id,
-            'nome' => 'Barbearia Teste',
-            'email' => 'dono@barbearia.com',
+            'nome' => 'Estabelecimento Teste',
+            'email' => 'dono@estabelecimento.com',
             'telefone' => '',
             'endereco' => 'Rua Teste, 1',
         ]);
 
         $this->postJson('/login-estabelecimento', [
-            'email' => 'dono@barbearia.com',
+            'email' => 'dono@estabelecimento.com',
             'password' => 'senha-segura-123',
         ])->assertOk();
     }
@@ -55,7 +55,7 @@ class AutenticacaoPorSenhaTest extends TestCase
     public function test_dona_de_outro_estabelecimento_nao_entra_por_este_endereco(): void
     {
         $user = UserModel::create(['nome' => 'Dona', 'email' => 'dona@outro.com', 'password' => 'senha-segura-123']);
-        BarbeariaModel::create([
+        EstabelecimentoModel::create([
             'dominio' => 'outro.test',
             'user_id' => $user->id,
             'nome' => 'Outro',
@@ -74,7 +74,7 @@ class AutenticacaoPorSenhaTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_cliente_nao_consegue_entrar_pela_tela_da_barbearia(): void
+    public function test_cliente_nao_consegue_entrar_pela_tela_da_estabelecimento(): void
     {
         $this->criarEstabelecimentoNoLocalhost();
         $user = UserModel::create(['nome' => 'Maria', 'email' => 'maria@email.com', 'password' => 'senha-segura-123']);
@@ -96,7 +96,7 @@ class AutenticacaoPorSenhaTest extends TestCase
     private function criarEstabelecimentoNoLocalhost(): void
     {
         $dona = UserModel::create(['nome' => 'Dona', 'email' => 'dona@studio.com', 'password' => 'senha-segura-123']);
-        BarbeariaModel::create([
+        EstabelecimentoModel::create([
             'dominio' => 'localhost',
             'user_id' => $dona->id,
             'nome' => 'Studio',

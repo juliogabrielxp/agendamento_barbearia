@@ -28,7 +28,7 @@ exigir_comando mysql gzip sha256sum aws
 
 DESTINO=${BACKUP_S3_URI%/}
 IDADE_MAXIMA=${RESTORE_IDADE_MAXIMA_HORAS:-26}
-PRINCIPAIS=${RESTORE_TABELAS_PRINCIPAIS:-"users barbearias clientes servicos profissionais profissional_servico agendamentos push_subscriptions"}
+PRINCIPAIS=${RESTORE_TABELAS_PRINCIPAIS:-"users estabelecimentos clientes servicos profissionais profissional_servico agendamentos push_subscriptions"}
 
 # Trava 1: o nome
 [ "$RESTORE_DB_NAME" != "$DB_DATABASE" ] || falhar "RESTORE_DB_NAME é o banco de produção"

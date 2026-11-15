@@ -21,9 +21,9 @@ return new class extends Migration
         }
 
         DB::statement(<<<'SQL'
-            ALTER TABLE barbearias
-                ADD CONSTRAINT chk_barbearias_expediente CHECK (hora_fechamento > hora_abertura),
-                ADD CONSTRAINT chk_barbearias_intervalo CHECK (
+            ALTER TABLE estabelecimentos
+                ADD CONSTRAINT chk_estabelecimentos_expediente CHECK (hora_fechamento > hora_abertura),
+                ADD CONSTRAINT chk_estabelecimentos_intervalo CHECK (
                     (intervalo_inicio IS NULL AND intervalo_fim IS NULL)
                     OR (
                         intervalo_inicio IS NOT NULL AND intervalo_fim IS NOT NULL
@@ -32,8 +32,8 @@ return new class extends Migration
                         AND intervalo_fim <= hora_fechamento
                     )
                 ),
-                ADD CONSTRAINT chk_barbearias_nome CHECK (TRIM(nome) <> ''),
-                ADD CONSTRAINT chk_barbearias_dominio CHECK (
+                ADD CONSTRAINT chk_estabelecimentos_nome CHECK (TRIM(nome) <> ''),
+                ADD CONSTRAINT chk_estabelecimentos_dominio CHECK (
                     dominio IS NULL OR REGEXP_LIKE(dominio, '^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$', 'c')
                 )
             SQL);
@@ -46,11 +46,11 @@ return new class extends Migration
         }
 
         DB::statement(<<<'SQL'
-            ALTER TABLE barbearias
-                DROP CHECK chk_barbearias_expediente,
-                DROP CHECK chk_barbearias_intervalo,
-                DROP CHECK chk_barbearias_nome,
-                DROP CHECK chk_barbearias_dominio
+            ALTER TABLE estabelecimentos
+                DROP CHECK chk_estabelecimentos_expediente,
+                DROP CHECK chk_estabelecimentos_intervalo,
+                DROP CHECK chk_estabelecimentos_nome,
+                DROP CHECK chk_estabelecimentos_dominio
             SQL);
     }
 };

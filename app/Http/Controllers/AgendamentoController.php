@@ -35,12 +35,12 @@ final class AgendamentoController extends Controller
         $estabelecimento = $this->estabelecimento($request);
 
         // Serviço e profissional precisam ser do estabelecimento do host
-        $servico = ServicoModel::where('barbearia_id', $estabelecimento->id)->find($dados['servico_id']);
+        $servico = ServicoModel::where('estabelecimento_id', $estabelecimento->id)->find($dados['servico_id']);
         if ($servico === null) {
             return response()->json(['erro' => AgendamentoInvalidoException::servicoInexistente()->getMessage()], 422);
         }
 
-        $profissionalDoEstabelecimento = ProfissionalModel::where('barbearia_id', $estabelecimento->id)
+        $profissionalDoEstabelecimento = ProfissionalModel::where('estabelecimento_id', $estabelecimento->id)
             ->whereKey($dados['profissional_id'])
             ->exists();
         if (! $profissionalDoEstabelecimento) {

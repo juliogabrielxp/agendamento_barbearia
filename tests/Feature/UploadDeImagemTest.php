@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Infrastructure\Persistence\Eloquent\BarbeariaModel;
+use App\Infrastructure\Persistence\Eloquent\EstabelecimentoModel;
 use App\Infrastructure\Persistence\Eloquent\ServicoModel;
 use App\Infrastructure\Persistence\Eloquent\UserModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class UploadDeImagemTest extends TestCase
@@ -25,10 +25,10 @@ class UploadDeImagemTest extends TestCase
         Storage::fake('public');
     }
 
-    public function test_dono_envia_imagem_da_propria_barbearia(): void
+    public function test_dono_envia_imagem_da_propria_estabelecimento(): void
     {
-        $barbearia = $this->criarBarbeariaComDono('dono@barbearia.com');
-        $this->actingAs(UserModel::find($barbearia->user_id));
+        $estabelecimento = $this->criarEstabelecimentoComDono('dono@estabelecimento.com');
+        $this->actingAs(UserModel::find($estabelecimento->user_id));
 
         $response = $this->postJson('/api/perfil-estabelecimento/imagem', [
             'imagem' => UploadedFile::fake()->image('foto.jpg', 400, 400),
@@ -36,45 +36,45 @@ class UploadDeImagemTest extends TestCase
 
         $this->assertSame(200, $response->getStatusCode(), $response->getContent());
 
-        $caminho = $barbearia->fresh()->imagem_path;
+        $caminho = $estabelecimento->fresh()->imagem_path;
         $this->assertNotNull($caminho);
         Storage::disk('public')->assertExists($caminho);
     }
 
     public function test_nao_aceita_arquivo_que_nao_e_imagem(): void
     {
-        $barbearia = $this->criarBarbeariaComDono('dono@barbearia.com');
-        $this->actingAs(UserModel::find($barbearia->user_id));
+        $estabelecimento = $this->criarEstabelecimentoComDono('dono@estabelecimento.com');
+        $this->actingAs(UserModel::find($estabelecimento->user_id));
 
         $response = $this->postJson('/api/perfil-estabelecimento/imagem', [
             'imagem' => UploadedFile::fake()->create('documento.pdf', 100, 'application/pdf'),
         ]);
 
         $this->assertSame(422, $response->getStatusCode(), $response->getContent());
-        $this->assertNull($barbearia->fresh()->imagem_path);
+        $this->assertNull($estabelecimento->fresh()->imagem_path);
     }
 
     public function test_trocar_a_imagem_apaga_a_anterior(): void
     {
-        $barbearia = $this->criarBarbeariaComDono('dono@barbearia.com');
-        $this->actingAs(UserModel::find($barbearia->user_id));
+        $estabelecimento = $this->criarEstabelecimentoComDono('dono@estabelecimento.com');
+        $this->actingAs(UserModel::find($estabelecimento->user_id));
 
         $this->postJson('/api/perfil-estabelecimento/imagem', ['imagem' => UploadedFile::fake()->image('a.jpg')]);
-        $primeira = $barbearia->fresh()->imagem_path;
+        $primeira = $estabelecimento->fresh()->imagem_path;
 
         $this->postJson('/api/perfil-estabelecimento/imagem', ['imagem' => UploadedFile::fake()->image('b.jpg')]);
-        $segunda = $barbearia->fresh()->imagem_path;
+        $segunda = $estabelecimento->fresh()->imagem_path;
 
         Storage::disk('public')->assertMissing($primeira);
         Storage::disk('public')->assertExists($segunda);
     }
 
-    public function test_dono_nao_envia_imagem_para_servico_de_outra_barbearia(): void
+    public function test_dono_nao_envia_imagem_para_servico_de_outra_estabelecimento(): void
     {
-        $minha = $this->criarBarbeariaComDono('minha@barbearia.com');
-        $outra = $this->criarBarbeariaComDono('outra@barbearia.com');
+        $minha = $this->criarEstabelecimentoComDono('minha@estabelecimento.com');
+        $outra = $this->criarEstabelecimentoComDono('outra@estabelecimento.com');
         $servicoDaOutra = ServicoModel::create([
-            'barbearia_id' => $outra->id,
+            'estabelecimento_id' => $outra->id,
             'nome' => 'Corte da Outra',
             'duracao_em_minutos' => 30,
             'preco' => 40.0,
@@ -90,15 +90,15 @@ class UploadDeImagemTest extends TestCase
         $this->assertNull($servicoDaOutra->fresh()->imagem_path);
     }
 
-    private function criarBarbeariaComDono(string $email): BarbeariaModel
+    private function criarEstabelecimentoComDono(string $email): EstabelecimentoModel
     {
         $user = UserModel::create(['nome' => 'Dono', 'email' => $email, 'password' => 'senha-segura-123']);
 
-        return BarbeariaModel::create([
+        return EstabelecimentoModel::create([
             'user_id' => $user->id,
             // A primeira responde no host padrão dos testes; as outras ficam em outro endereço
-            'dominio' => BarbeariaModel::where('dominio', 'localhost')->exists() ? Str::slug($email).'.test' : 'localhost',
-            'nome' => 'Barbearia ' . $email,
+            'dominio' => EstabelecimentoModel::where('dominio', 'localhost')->exists() ? Str::slug($email).'.test' : 'localhost',
+            'nome' => 'Estabelecimento '.$email,
             'email' => $email,
             'telefone' => '',
             'endereco' => 'Rua Teste, 1',
