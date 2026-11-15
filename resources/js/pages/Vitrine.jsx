@@ -107,7 +107,8 @@ export default function Vitrine() {
 
     useEffect(() => {
         if (horarioEscolhido) {
-            resumoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            resumoRef.current?.scrollIntoView({ behavior: semMovimento ? 'auto' : 'smooth', block: 'center' });
         }
     }, [horarioEscolhido]);
 
@@ -178,46 +179,46 @@ export default function Vitrine() {
 
     if (erroCarregamento) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
-                <p className="text-neutral-500 text-sm text-center">Não foi possível carregar a página. Tente novamente em instantes.</p>
+            <div className="min-h-dvh flex items-center justify-center px-6">
+                <p className="text-texto-2 text-base text-center">Não foi possível carregar a página. Tente novamente em instantes.</p>
             </div>
         );
     }
 
     if (!estabelecimento) {
-        return <div className="min-h-screen flex items-center justify-center bg-neutral-50 text-neutral-400 text-sm">Carregando...</div>;
+        return <div className="min-h-dvh flex items-center justify-center text-texto-2 text-base">Carregando…</div>;
     }
 
     const precisaEscolherProfissional = profissionaisDoServico.length > 1;
     const etapaDoDia = precisaEscolherProfissional ? 3 : 2;
 
     return (
-        <div className="min-h-screen bg-neutral-50">
-            <div className="max-w-xl mx-auto px-4 pb-16">
-                <nav className="flex justify-end py-4 min-h-[60px]">
+        <div className="min-h-dvh">
+            <div className="max-w-xl mx-auto px-4 pb-[calc(3rem+env(safe-area-inset-bottom))]">
+                <nav className="flex justify-end py-3 min-h-[68px]">
                     <AcessoDaConta conta={conta} />
                 </nav>
 
-                <header className="flex flex-col items-center text-center mb-8">
-                    <ImagemComFallback src={estabelecimento.imagem_url} nome={estabelecimento.nome} tamanho={88} />
-                    <h1 className="text-2xl font-semibold text-neutral-900 mt-4 leading-tight">{estabelecimento.nome}</h1>
+                <header className="flex flex-col items-center text-center mb-10">
+                    <ImagemComFallback src={estabelecimento.imagem_url} nome={estabelecimento.nome} tamanho={96} />
+                    <h1 className="titulo-grande mt-4">{estabelecimento.nome}</h1>
 
-                    <div className="mt-3 space-y-1.5 text-sm text-neutral-500">
+                    <div className="mt-3 flex flex-col items-center gap-1.5 text-base text-texto-2">
                         {estabelecimento.endereco && (
                             <p className="flex items-center justify-center gap-1.5">
-                                <MapPin size={14} className="shrink-0" />
+                                <MapPin size={16} className="shrink-0" />
                                 <span>{estabelecimento.endereco}</span>
                             </p>
                         )}
                         {estabelecimento.hora_abertura && (
                             <p className="flex items-center justify-center gap-1.5">
-                                <Clock size={14} className="shrink-0" />
+                                <Clock size={16} className="shrink-0" />
                                 <span>Atendimento das {estabelecimento.hora_abertura} às {estabelecimento.hora_fechamento}</span>
                             </p>
                         )}
                         {estabelecimento.telefone && (
-                            <a href={`tel:${estabelecimento.telefone.replace(/\D/g, '')}`} className="flex items-center justify-center gap-1.5 hover:text-neutral-800">
-                                <Phone size={14} className="shrink-0" />
+                            <a href={`tel:${estabelecimento.telefone.replace(/\D/g, '')}`} className="inline-flex items-center justify-center gap-1.5 min-h-11 -my-2 px-2 font-medium text-texto underline-offset-4 hover:underline active:opacity-60">
+                                <Phone size={16} className="shrink-0" />
                                 <span>{estabelecimento.telefone}</span>
                             </a>
                         )}
@@ -226,7 +227,7 @@ export default function Vitrine() {
 
                 <section aria-labelledby="titulo-servicos">
                     <Etapa numero={1} id="titulo-servicos">Escolha o serviço</Etapa>
-                    <div className="space-y-2" role="radiogroup" aria-labelledby="titulo-servicos">
+                    <div className="space-y-3" role="radiogroup" aria-labelledby="titulo-servicos">
                         {estabelecimento.servicos.map(item => (
                             <CartaoDeServico
                                 key={item.id}
@@ -236,13 +237,13 @@ export default function Vitrine() {
                             />
                         ))}
                         {estabelecimento.servicos.length === 0 && (
-                            <p className="text-neutral-400 text-sm text-center py-8">Nenhum serviço disponível para agendamento ainda.</p>
+                            <p className="text-texto-2 text-base text-center py-10">Nenhum serviço disponível para agendamento ainda.</p>
                         )}
                     </div>
                 </section>
 
                 {precisaEscolherProfissional && (
-                    <section className="mt-8" aria-labelledby="titulo-profissional">
+                    <section className="surgir mt-10" aria-labelledby="titulo-profissional">
                         <Etapa numero={2} id="titulo-profissional">Com quem?</Etapa>
                         <div className="flex flex-wrap gap-2">
                             {profissionaisDoServico.map(profissional => (
@@ -259,9 +260,9 @@ export default function Vitrine() {
                 )}
 
                 {servico && profissionalId && (
-                    <section className="mt-8" aria-labelledby="titulo-dia">
+                    <section className="surgir mt-10" aria-labelledby="titulo-dia">
                         <Etapa numero={etapaDoDia} id="titulo-dia">Escolha o dia</Etapa>
-                        <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scroll-px-4 snap-x">
+                        <div className="flex gap-2 overflow-x-auto py-1 -my-1 pb-3 -mx-4 px-4 scroll-px-4 snap-x [scrollbar-width:none]">
                             {DIAS.map(dia => {
                                 const ativo = dia.valor === data;
                                 return (
@@ -269,15 +270,15 @@ export default function Vitrine() {
                                         key={dia.valor}
                                         onClick={() => escolherData(dia.valor)}
                                         aria-pressed={ativo}
-                                        className={`snap-start shrink-0 w-16 py-2.5 rounded-xl border text-center transition ${
+                                        className={`snap-start shrink-0 w-[4.25rem] py-2.5 rounded-2xl text-center cursor-pointer transition duration-150 active:scale-95 ${
                                             ativo
-                                                ? 'bg-neutral-900 border-neutral-900 text-white'
-                                                : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
+                                                ? 'bg-acento text-sobre-acento'
+                                                : 'bg-superficie text-texto shadow-cartao'
                                         }`}
                                     >
-                                        <span className={`block text-[11px] capitalize ${ativo ? 'text-neutral-300' : 'text-neutral-400'}`}>{dia.semana}</span>
-                                        <span className="block text-lg font-semibold leading-tight">{dia.dia}</span>
-                                        <span className={`block text-[11px] ${ativo ? 'text-neutral-300' : 'text-neutral-400'}`}>{dia.mes}</span>
+                                        <span className={`block text-xs font-medium capitalize ${ativo ? 'opacity-75' : 'text-texto-2'}`}>{dia.semana}</span>
+                                        <span className="block text-xl font-bold leading-tight tabular-nums">{dia.dia}</span>
+                                        <span className={`block text-xs font-medium ${ativo ? 'opacity-75' : 'text-texto-2'}`}>{dia.mes}</span>
                                     </button>
                                 );
                             })}
@@ -286,12 +287,12 @@ export default function Vitrine() {
                 )}
 
                 {servico && profissionalId && data && (
-                    <section className="mt-8" aria-labelledby="titulo-horario">
+                    <section className="surgir mt-10" aria-labelledby="titulo-horario">
                         <Etapa numero={etapaDoDia + 1} id="titulo-horario">Escolha o horário</Etapa>
                         {carregandoHorarios ? (
-                            <p className="text-sm text-neutral-400">Carregando horários...</p>
+                            <p className="text-base text-texto-2">Carregando horários…</p>
                         ) : horarios.length === 0 ? (
-                            <p className="text-sm text-neutral-500 bg-white border border-neutral-200 rounded-xl px-4 py-3">
+                            <p className="cartao text-base text-texto-2 px-4 py-3.5">
                                 Sem horário livre para {servico.nome.toLowerCase()} nesse dia. Tente outro dia.
                             </p>
                         ) : (
@@ -301,10 +302,10 @@ export default function Vitrine() {
                                         key={horario}
                                         onClick={() => { setHorarioEscolhido(horario); setMensagem(null); }}
                                         aria-pressed={horarioEscolhido === horario}
-                                        className={`py-2.5 rounded-lg text-sm font-medium border transition ${
+                                        className={`min-h-11 rounded-xl text-base font-semibold tabular-nums cursor-pointer transition duration-150 active:scale-95 ${
                                             horarioEscolhido === horario
-                                                ? 'bg-neutral-900 text-white border-neutral-900'
-                                                : 'bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400'
+                                                ? 'bg-acento text-sobre-acento'
+                                                : 'bg-superficie text-texto shadow-cartao'
                                         }`}
                                     >
                                         {horario}
@@ -316,40 +317,40 @@ export default function Vitrine() {
                 )}
 
                 {mensagem && !horarioEscolhido && (
-                    <p className="mt-4 text-sm text-red-600">{mensagem.texto}</p>
+                    <p role="alert" className="nota-erro mt-4">{mensagem.texto}</p>
                 )}
 
                 {horarioEscolhido && servico && (
-                    <section ref={resumoRef} className="mt-8 bg-white border border-neutral-200 rounded-xl p-5">
-                        <p className="text-xs font-medium text-neutral-500 mb-2">Seu horário</p>
-                        <p className="font-semibold text-neutral-900">{servico.nome}</p>
-                        <p className="text-sm text-neutral-700 mt-1 first-letter:uppercase">
+                    <section ref={resumoRef} className="surgir cartao mt-10 p-5">
+                        <p className="text-sm font-medium text-texto-2 mb-1.5">Seu horário</p>
+                        <p className="titulo">{servico.nome}</p>
+                        <p className="text-base text-texto mt-1.5 first-letter:uppercase">
                             {formatarDataPorExtenso(data)}, às {horarioEscolhido}
                         </p>
-                        <p className="text-xs text-neutral-400 mt-1">
+                        <p className="text-sm text-texto-2 mt-1">
                             {formatarDuracao(servico.duracao_em_minutos)} · {formatarPreco(servico.preco)}
                         </p>
 
                         <button
                             onClick={confirmar}
                             disabled={enviando || conta === undefined}
-                            className="w-full mt-5 bg-neutral-900 text-white py-3 rounded-lg text-sm font-medium hover:bg-neutral-700 transition disabled:opacity-50"
+                            className="btn btn-primario w-full min-h-[3.125rem] mt-5"
                         >
-                            {enviando ? 'Agendando...' : conta ? 'Confirmar agendamento' : 'Entrar para confirmar'}
+                            {enviando ? 'Agendando…' : conta ? 'Confirmar agendamento' : 'Entrar para confirmar'}
                         </button>
 
                         {conta === null && (
-                            <p className="text-xs text-neutral-400 text-center mt-2">
+                            <p className="text-sm text-texto-2 text-center mt-3">
                                 Você entra ou cria sua conta e volta direto para cá, com o horário guardado.
                             </p>
                         )}
 
-                        {mensagem && <p className="text-sm text-red-600 mt-3">{mensagem.texto}</p>}
+                        {mensagem && <p role="alert" className="nota-erro mt-3">{mensagem.texto}</p>}
                     </section>
                 )}
 
-                <footer className="mt-16 text-center">
-                    <Link to="/app/painel/entrar" className="text-xs text-neutral-400 hover:text-neutral-700 transition">
+                <footer className="mt-14 text-center">
+                    <Link to="/app/painel/entrar" className="btn-texto text-sm">
                         Área da profissional
                     </Link>
                 </footer>
@@ -361,23 +362,23 @@ export default function Vitrine() {
 function AcessoDaConta({ conta }) {
     if (conta === undefined) return null;
 
-    const classe = 'flex items-center gap-1.5 text-sm font-medium text-neutral-700 bg-white border border-neutral-200 rounded-full px-3.5 py-1.5 hover:border-neutral-400 transition';
+    const classe = 'btn btn-superficie rounded-full px-4 text-sm';
 
     if (conta?.estabelecimento) {
-        return <Link to="/app/painel" className={classe}><LayoutDashboard size={15} /> Painel</Link>;
+        return <Link to="/app/painel" className={classe}><LayoutDashboard size={17} /> Painel</Link>;
     }
 
     if (conta?.cliente) {
-        return <Link to="/app/minha-conta" className={classe}><CalendarCheck size={15} /> Meus horários</Link>;
+        return <Link to="/app/minha-conta" className={classe}><CalendarCheck size={17} /> Meus horários</Link>;
     }
 
-    return <Link to="/app/entrar" className={classe}><LogIn size={15} /> Entrar</Link>;
+    return <Link to="/app/entrar" className={classe}><LogIn size={17} /> Entrar</Link>;
 }
 
 function Etapa({ numero, id, children }) {
     return (
-        <h2 id={id} className="flex items-center gap-2 text-sm font-semibold text-neutral-900 mb-3">
-            <span className="w-5 h-5 rounded-full bg-neutral-900 text-white text-[11px] flex items-center justify-center">{numero}</span>
+        <h2 id={id} className="flex items-center gap-2.5 text-lg font-semibold tracking-[-0.01em] text-texto mb-3.5">
+            <span className="size-6 rounded-full bg-acento text-sobre-acento text-sm font-bold tabular-nums flex items-center justify-center">{numero}</span>
             {children}
         </h2>
     );
@@ -388,8 +389,8 @@ function Pilula({ ativa, onClick, children }) {
         <button
             onClick={onClick}
             aria-pressed={ativa}
-            className={`px-4 py-2 rounded-full text-sm font-medium border transition ${
-                ativa ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400'
+            className={`min-h-11 px-5 rounded-full text-base font-medium cursor-pointer transition duration-150 active:scale-95 ${
+                ativa ? 'bg-acento text-sobre-acento' : 'bg-superficie text-texto shadow-cartao'
             }`}
         >
             {children}
@@ -411,20 +412,27 @@ function CartaoDeServico({ servico, selecionado, onEscolher }) {
                     onEscolher();
                 }
             }}
-            className={`flex items-center gap-3 bg-white border rounded-xl p-3 cursor-pointer transition ${
-                selecionado ? 'border-neutral-900 ring-1 ring-neutral-900' : 'border-neutral-200 hover:border-neutral-400'
+            className={`cartao flex items-center gap-3.5 p-3 pr-4 cursor-pointer transition duration-150 active:scale-[0.985] ${
+                selecionado ? 'ring-2 ring-acento' : ''
             }`}
         >
-            <ImagemAmpliavel src={servico.imagem_url} nome={servico.nome} tamanho={64} redonda={false} />
+            <ImagemAmpliavel src={servico.imagem_url} nome={servico.nome} tamanho={68} redonda={false} />
 
             <div className="min-w-0 flex-1">
-                <p className="font-medium text-neutral-900 text-sm">{servico.nome}</p>
-                <p className="text-xs text-neutral-400 mt-1">
+                <p className="font-semibold text-texto text-[1.0625rem] leading-snug">{servico.nome}</p>
+                <p className="text-sm text-texto-2 mt-1">
                     {formatarDuracao(servico.duracao_em_minutos)} · {formatarPreco(servico.preco)}
                 </p>
             </div>
 
-            {selecionado && <Check size={18} className="text-neutral-900 shrink-0" />}
+            <span
+                aria-hidden="true"
+                className={`size-6 shrink-0 rounded-full flex items-center justify-center transition duration-150 ${
+                    selecionado ? 'bg-acento text-sobre-acento' : 'border-2 border-separador'
+                }`}
+            >
+                {selecionado && <Check size={15} strokeWidth={3} />}
+            </span>
         </div>
     );
 }

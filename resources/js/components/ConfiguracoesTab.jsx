@@ -101,146 +101,156 @@ export default function ConfiguracoesTab() {
     }
 
     if (carregando) {
-        return <p className="text-neutral-400 text-sm text-center py-8">Carregando...</p>;
+        return <p className="text-texto-2 text-base text-center py-10">Carregando…</p>;
     }
 
     return (
         <div className="space-y-6">
-          <div className="bg-white border border-neutral-200 rounded-xl p-4">
-              <SeletorDeImagem
-                  imagemAtualUrl={imagemUrl}
-                  nome={form.nome}
-                  tamanho={80}
-                  rotulo="Alterar logo do estabelecimento"
-                  onSelecionar={enviarFoto}
-              />
-              <AtivarNotificacoes />
+            <div className="cartao p-4">
+                <SeletorDeImagem
+                    imagemAtualUrl={imagemUrl}
+                    nome={form.nome}
+                    tamanho={80}
+                    rotulo="Alterar logo"
+                    onSelecionar={enviarFoto}
+                />
             </div>
-            <div>
-                <h1 className="text-lg font-semibold text-neutral-900 mb-4">Dados do estabelecimento</h1>
 
-                <form onSubmit={handleSubmit} className="bg-white border border-neutral-200 rounded-xl p-4 space-y-4">
+            <AtivarNotificacoes />
+
+            <div>
+                <h1 className="titulo mb-4">Dados do estabelecimento</h1>
+
+                <form onSubmit={handleSubmit} className="cartao p-4 space-y-4">
                     <div>
-                        <label className="text-xs font-medium text-neutral-500 block mb-1.5">Nome</label>
+                        <label htmlFor="config-nome" className="rotulo">Nome</label>
                         <input
                             type="text"
+                            id="config-nome"
                             value={form.nome}
                             onChange={e => handleChange('nome', e.target.value)}
-                            className="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                            className="campo"
                         />
-                        {erros.nome && <p className="text-xs text-red-600 mt-1">{erros.nome[0]}</p>}
+                        {erros.nome && <p role="alert" className="nota-erro mt-1">{erros.nome[0]}</p>}
                     </div>
 
                     <div>
-                        <label className="text-xs font-medium text-neutral-500 block mb-1.5">Telefone</label>
+                        <label htmlFor="config-telefone" className="rotulo">Telefone</label>
                         <input
                             type="text"
+                            id="config-telefone"
                             value={form.telefone}
                             onChange={e => handleChange('telefone', e.target.value)}
-                            className="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                            className="campo"
                         />
-                        {erros.telefone && <p className="text-xs text-red-600 mt-1">{erros.telefone[0]}</p>}
+                        {erros.telefone && <p role="alert" className="nota-erro mt-1">{erros.telefone[0]}</p>}
                     </div>
 
                     <div>
-                        <label className="text-xs font-medium text-neutral-500 block mb-1.5">E-mail</label>
+                        <label htmlFor="config-email" className="rotulo">E-mail</label>
                         <input
                             type="email"
+                            id="config-email"
                             value={form.email}
                             onChange={e => handleChange('email', e.target.value)}
-                            className="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                            className="campo"
                         />
-                        {erros.email && <p className="text-xs text-red-600 mt-1">{erros.email[0]}</p>}
+                        {erros.email && <p role="alert" className="nota-erro mt-1">{erros.email[0]}</p>}
                     </div>
 
                     <div>
-                        <label className="text-xs font-medium text-neutral-500 block mb-1.5">Endereço</label>
+                        <label htmlFor="config-endereco" className="rotulo">Endereço</label>
                         <input
                             type="text"
+                            id="config-endereco"
                             value={form.endereco}
                             onChange={e => handleChange('endereco', e.target.value)}
-                            className="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                            className="campo"
                         />
-                        {erros.endereco && <p className="text-xs text-red-600 mt-1">{erros.endereco[0]}</p>}
+                        {erros.endereco && <p role="alert" className="nota-erro mt-1">{erros.endereco[0]}</p>}
                     </div>
 
-                    {erros.geral && <p className="text-xs text-red-600">{erros.geral}</p>}
-                    {sucesso && <p className="text-xs text-green-600">Dados atualizados com sucesso.</p>}
+                    {erros.geral && <p role="alert" className="nota-erro">{erros.geral}</p>}
+                    {sucesso && <p role="status" className="text-sm font-medium text-sucesso">Dados atualizados com sucesso.</p>}
 
                     <button
                         type="submit"
                         disabled={salvando}
-                        className="w-full bg-neutral-900 text-white text-sm font-medium rounded-lg py-2.5 disabled:opacity-50"
+                        className="btn btn-primario w-full"
                     >
-                        {salvando ? 'Salvando...' : 'Salvar alterações'}
+                        {salvando ? 'Salvando…' : 'Salvar alterações'}
                     </button>
                 </form>
             </div>
 
             <div>
-                <h2 className="text-lg font-semibold text-neutral-900 mb-4">Horário de funcionamento</h2>
+                <h2 className="titulo mb-4">Horário de funcionamento</h2>
 
-                <form onSubmit={handleSubmitHorario} className="bg-white border border-neutral-200 rounded-xl p-4 space-y-4">
+                <form onSubmit={handleSubmitHorario} className="cartao p-4 space-y-4">
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-medium text-neutral-500 block mb-1.5">Abertura</label>
+                            <label htmlFor="config-hora_abertura" className="rotulo">Abertura</label>
                             <input
                                 type="time"
+                                id="config-hora_abertura"
                                 value={horario.hora_abertura}
                                 onChange={e => handleChangeHorario('hora_abertura', e.target.value)}
-                                className="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                                className="campo"
                             />
-                            {errosHorario.hora_abertura && <p className="text-xs text-red-600 mt-1">{errosHorario.hora_abertura[0]}</p>}
+                            {errosHorario.hora_abertura && <p role="alert" className="nota-erro mt-1">{errosHorario.hora_abertura[0]}</p>}
                         </div>
                         <div>
-                            <label className="text-xs font-medium text-neutral-500 block mb-1.5">Fechamento</label>
+                            <label htmlFor="config-hora_fechamento" className="rotulo">Fechamento</label>
                             <input
                                 type="time"
+                                id="config-hora_fechamento"
                                 value={horario.hora_fechamento}
                                 onChange={e => handleChangeHorario('hora_fechamento', e.target.value)}
-                                className="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                                className="campo"
                             />
-                            {errosHorario.hora_fechamento && <p className="text-xs text-red-600 mt-1">{errosHorario.hora_fechamento[0]}</p>}
+                            {errosHorario.hora_fechamento && <p role="alert" className="nota-erro mt-1">{errosHorario.hora_fechamento[0]}</p>}
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-medium text-neutral-500 block mb-1.5">Intervalo (início)</label>
+                            <label htmlFor="config-intervalo_inicio" className="rotulo">Intervalo (início)</label>
                             <input
                                 type="time"
+                                id="config-intervalo_inicio"
                                 value={horario.intervalo_inicio}
                                 onChange={e => handleChangeHorario('intervalo_inicio', e.target.value)}
-                                className="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                                className="campo"
                             />
-                            {errosHorario.intervalo_inicio && <p className="text-xs text-red-600 mt-1">{errosHorario.intervalo_inicio[0]}</p>}
+                            {errosHorario.intervalo_inicio && <p role="alert" className="nota-erro mt-1">{errosHorario.intervalo_inicio[0]}</p>}
                         </div>
                         <div>
-                            <label className="text-xs font-medium text-neutral-500 block mb-1.5">Intervalo (fim)</label>
+                            <label htmlFor="config-intervalo_fim" className="rotulo">Intervalo (fim)</label>
                             <input
                                 type="time"
+                                id="config-intervalo_fim"
                                 value={horario.intervalo_fim}
                                 onChange={e => handleChangeHorario('intervalo_fim', e.target.value)}
-                                className="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                                className="campo"
                             />
-                            {errosHorario.intervalo_fim && <p className="text-xs text-red-600 mt-1">{errosHorario.intervalo_fim[0]}</p>}
+                            {errosHorario.intervalo_fim && <p role="alert" className="nota-erro mt-1">{errosHorario.intervalo_fim[0]}</p>}
                         </div>
                     </div>
 
-                    {errosHorario.geral && <p className="text-xs text-red-600">{errosHorario.geral}</p>}
-                    {sucessoHorario && <p className="text-xs text-green-600">Horário atualizado com sucesso.</p>}
+                    {errosHorario.geral && <p role="alert" className="nota-erro">{errosHorario.geral}</p>}
+                    {sucessoHorario && <p role="status" className="text-sm font-medium text-sucesso">Horário atualizado com sucesso.</p>}
 
                     <button
                         type="submit"
                         disabled={salvandoHorario}
-                        className="w-full bg-neutral-900 text-white text-sm font-medium rounded-lg py-2.5 disabled:opacity-50"
+                        className="btn btn-primario w-full"
                     >
-                        {salvandoHorario ? 'Salvando...' : 'Salvar horário'}
+                        {salvandoHorario ? 'Salvando…' : 'Salvar horário'}
                     </button>
                 </form>
             </div>
 
-            <div className="bg-white border border-neutral-200 rounded-xl p-4">
+            <div className="cartao px-4 py-1 flex justify-center md:hidden">
                 <LogoutButton />
             </div>
         </div>

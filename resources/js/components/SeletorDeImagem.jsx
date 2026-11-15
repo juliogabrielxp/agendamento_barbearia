@@ -67,16 +67,16 @@ export default function SeletorDeImagem({
                         type="button"
                         onClick={() => inputRef.current?.click()}
                         disabled={enviando}
-                        className="flex items-center gap-2 text-xs font-medium text-neutral-700 bg-white border border-neutral-200 rounded-lg px-3 py-2 hover:border-neutral-400 transition disabled:opacity-50"
+                        className="btn btn-secundario px-4 text-sm"
                     >
-                        <Camera size={14} />
+                        <Camera size={16} />
                         {enviando ? 'Enviando...' : rotulo}
                     </button>
-                    <p className="text-xs text-neutral-400 mt-1.5">JPG, PNG ou WebP, até {TAMANHO_MAXIMO_MB} MB</p>
+                    <p className="text-sm text-texto-2 mt-1.5">JPG, PNG ou WebP, até {TAMANHO_MAXIMO_MB} MB</p>
                 </div>
             </div>
 
-            {erro && <p className="text-xs text-red-600 mt-2">{erro}</p>}
+            {erro && <p role="alert" className="nota-erro mt-2">{erro}</p>}
 
             <input
                 ref={inputRef}

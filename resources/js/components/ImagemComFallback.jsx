@@ -5,14 +5,18 @@ export default function ImagemComFallback({ src, nome = '', tamanho = 48, redond
 
     useEffect(() => { setFalhou(false); }, [src]);
 
-    const formato = redonda ? 'rounded-full' : 'rounded-lg';
-    const estilo = { width: tamanho, height: tamanho };
+    // O canto acompanha o tamanho: uma miniatura de 48 e um logo de 96 ficam com a mesma curva
+    const estilo = {
+        width: tamanho,
+        height: tamanho,
+        borderRadius: redonda ? '50%' : Math.round(tamanho * 0.22),
+    };
 
     if (!src || falhou) {
         return (
             <div
-                style={estilo}
-                className={`${formato} bg-neutral-100 text-neutral-500 flex items-center justify-center text-sm font-semibold shrink-0`}
+                style={{ ...estilo, fontSize: Math.round(tamanho * 0.4) }}
+                className="bg-preenchimento text-texto-2 flex items-center justify-center font-semibold shrink-0"
             >
                 {nome.trim().charAt(0).toUpperCase() || '?'}
             </div>
@@ -25,7 +29,7 @@ export default function ImagemComFallback({ src, nome = '', tamanho = 48, redond
             alt={nome}
             style={estilo}
             onError={() => setFalhou(true)}
-            className={`${formato} object-cover border border-neutral-200 shrink-0`}
+            className="object-cover border border-separador shrink-0"
         />
     );
 }

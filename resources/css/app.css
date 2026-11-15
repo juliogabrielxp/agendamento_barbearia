@@ -3,7 +3,312 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/*
+ * Cores semânticas: o JSX nunca usa um tom fixo (neutral-900, white...), só o
+ * papel da cor. É isso que permite o modo escuro e o alto contraste trocarem
+ * tudo de uma vez, logo abaixo.
+ */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Fonte do sistema: San Francisco no iPhone/Mac, Roboto no Android, Segoe no Windows */
+    --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-fundo: #f2f2f7;
+    --color-superficie: #ffffff;
+    --color-preenchimento: rgb(118 118 128 / 0.12);
+    --color-separador: rgb(60 60 67 / 0.16);
+
+    --color-texto: #1d1d1f;
+    --color-texto-2: #636366; /* 5,4:1 sobre o fundo — texto secundário legível */
+    --color-texto-3: #8e8e93; /* só placeholder e ícone decorativo, nunca informação */
+
+    /* Para dar uma cor de marca ao site, basta trocar este par (aqui e no modo escuro) */
+    --color-acento: #1d1d1f;
+    --color-sobre-acento: #ffffff;
+
+    --color-perigo: #d70015;
+    --color-sucesso: #1d7a36;
+    --color-aviso: #a05a00;
+    --color-info: #0062cc;
+
+    --shadow-cartao: 0 1px 2px rgb(0 0 0 / 0.04), 0 2px 8px rgb(0 0 0 / 0.03);
+    --shadow-flutuante: 0 8px 30px rgb(0 0 0 / 0.14), 0 1px 3px rgb(0 0 0 / 0.08);
+
+    --ease-suave: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-fundo: #000000;
+        --color-superficie: #1c1c1e;
+        --color-preenchimento: rgb(118 118 128 / 0.24);
+        --color-separador: rgb(84 84 88 / 0.6);
+
+        --color-texto: #f5f5f7;
+        --color-texto-2: #aeaeb2;
+        --color-texto-3: #8e8e93;
+
+        --color-acento: #f5f5f7;
+        --color-sobre-acento: #1d1d1f;
+
+        --color-perigo: #ff453a;
+        --color-sucesso: #30d158;
+        --color-aviso: #ff9f0a;
+        --color-info: #409cff;
+
+        --shadow-cartao: none;
+        --shadow-flutuante: 0 8px 30px rgb(0 0 0 / 0.5);
+    }
+}
+
+@media (prefers-contrast: more) {
+    :root {
+        --color-texto-2: #3a3a3c;
+        --color-texto-3: #636366;
+        --color-separador: rgb(60 60 67 / 0.45);
+    }
+}
+
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+    :root {
+        --color-texto-2: #d1d1d6;
+        --color-texto-3: #aeaeb2;
+        --color-separador: rgb(160 160 168 / 0.7);
+    }
+}
+
+@layer base {
+    :root {
+        /* Faz os controles nativos (seletor de data e hora, barra de rolagem) acompanharem o tema */
+        color-scheme: light dark;
+    }
+
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        background-color: var(--color-fundo);
+        color: var(--color-texto);
+        -webkit-font-smoothing: antialiased;
+        /* O toque já tem resposta própria (ver .btn:active); o flash cinza do navegador sobra */
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-acento);
+        outline-offset: 2px;
+    }
+
+    a,
+    button,
+    label,
+    [role='radio'] {
+        /* Tira a espera de ~300ms que o navegador usa para distinguir toque de duplo toque */
+        touch-action: manipulation;
+    }
+}
+
+@layer components {
+    /* ---------- Tipografia ---------- */
+
+    /* Título grande aperta o espaçamento entre letras; texto corrido não */
+    .titulo-grande {
+        @apply text-[1.75rem] leading-[1.15] font-bold tracking-[-0.022em] text-texto;
+    }
+
+    .titulo {
+        @apply text-[1.375rem] leading-tight font-bold tracking-[-0.018em] text-texto;
+    }
+
+    .rotulo {
+        @apply mb-1.5 block text-sm font-medium text-texto-2;
+    }
+
+    .nota-erro {
+        @apply text-sm text-perigo;
+    }
+
+    /* ---------- Superfícies ---------- */
+
+    .cartao {
+        @apply rounded-2xl bg-superficie shadow-cartao;
+    }
+
+    /* Barra translúcida: o conteúdo rola por baixo em vez de bater numa faixa opaca */
+    .material {
+        background-color: color-mix(in srgb, var(--color-superficie) 78%, transparent);
+        -webkit-backdrop-filter: saturate(180%) blur(20px);
+        backdrop-filter: saturate(180%) blur(20px);
+    }
+
+    /* ---------- Botões ---------- */
+
+    /* Todo botão tem pelo menos 44px de altura e responde no instante do toque */
+    .btn {
+        @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl px-5 text-base font-semibold select-none;
+        transition:
+            transform 120ms var(--ease-suave),
+            opacity 150ms ease,
+            background-color 150ms ease;
+    }
+
+    .btn:active:not(:disabled) {
+        transform: scale(0.97);
+    }
+
+    .btn:disabled {
+        cursor: default;
+        opacity: 0.4;
+    }
+
+    .btn-primario {
+        @apply bg-acento text-sobre-acento;
+    }
+
+    .btn-secundario {
+        @apply bg-preenchimento text-texto;
+    }
+
+    /* Botão claro sobre o fundo cinza da página (fora de cartão) */
+    .btn-superficie {
+        @apply bg-superficie text-texto shadow-cartao;
+    }
+
+    .btn-texto {
+        @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 text-base font-medium text-texto-2;
+        transition:
+            color 150ms ease,
+            opacity 150ms ease;
+    }
+
+    .btn-texto:active:not(:disabled) {
+        opacity: 0.55;
+    }
+
+    .btn-texto:disabled {
+        cursor: default;
+        opacity: 0.4;
+    }
+
+    .btn-icone {
+        @apply inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-texto-2;
+        transition:
+            transform 120ms var(--ease-suave),
+            color 150ms ease,
+            background-color 150ms ease;
+    }
+
+    .btn-icone:active:not(:disabled) {
+        transform: scale(0.9);
+        background-color: var(--color-preenchimento);
+    }
+
+    .btn-icone:disabled {
+        cursor: default;
+        opacity: 0.4;
+    }
+
+    @media (hover: hover) {
+        .btn-primario:hover:not(:disabled) {
+            opacity: 0.86;
+        }
+
+        .btn-secundario:hover:not(:disabled),
+        .btn-superficie:hover:not(:disabled) {
+            opacity: 0.8;
+        }
+
+        .btn-texto:hover:not(:disabled) {
+            color: var(--color-texto);
+        }
+
+        .btn-icone:hover:not(:disabled) {
+            background-color: var(--color-preenchimento);
+            color: var(--color-texto);
+        }
+    }
+
+    /* ---------- Formulário ---------- */
+
+    /* 16px no campo: abaixo disso o iPhone dá zoom na página ao focar */
+    .campo {
+        @apply block min-h-11 w-full rounded-xl border border-separador bg-superficie px-3.5 py-2.5 text-base text-texto;
+        transition: border-color 150ms ease;
+    }
+
+    .campo::placeholder {
+        color: var(--color-texto-3);
+    }
+
+    .campo:focus {
+        border-color: transparent;
+        outline: 2px solid var(--color-acento);
+        outline-offset: -1px;
+    }
+
+    /* ---------- Movimento ---------- */
+
+    .surgir {
+        animation: surgir 380ms var(--ease-suave) both;
+    }
+
+    .esmaecer {
+        animation: esmaecer 200ms ease both;
+    }
+
+    .materializar {
+        animation: materializar 320ms var(--ease-suave) both;
+    }
+}
+
+@keyframes surgir {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+}
+
+@keyframes esmaecer {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes materializar {
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+}
+
+/* Movimento reduzido não é ficar sem resposta: o deslize vira um esmaecer curto */
+@media (prefers-reduced-motion: reduce) {
+    .surgir,
+    .materializar {
+        animation: esmaecer 200ms ease both;
+    }
+
+    .btn:active:not(:disabled),
+    .btn-icone:active:not(:disabled) {
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    .material {
+        background-color: var(--color-superficie);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+}
+
+@media (prefers-contrast: more) {
+    .material {
+        background-color: var(--color-superficie);
+    }
+
+    .cartao {
+        border: 1px solid var(--color-separador);
+    }
 }

@@ -57,23 +57,23 @@ export default function MeusAgendamentosTab() {
     }
 
     if (carregando) {
-        return <p className="text-neutral-400 text-sm text-center py-8">Carregando...</p>;
+        return <p className="text-texto-2 text-base text-center py-10">Carregando…</p>;
     }
 
     return (
         <div>
-            <h1 className="text-lg font-semibold text-neutral-900 mb-4">Meus horários</h1>
+            <h1 className="titulo mb-4">Meus horários</h1>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
                 {agendamentos.map(agendamento => (
-                    <div key={agendamento.id} className="bg-white border border-neutral-200 rounded-xl p-4 flex items-center gap-3">
-                        <div className="bg-neutral-900 text-white text-xs font-semibold px-2.5 py-2 rounded-lg text-center shrink-0 min-w-14">
+                    <div key={agendamento.id} className="cartao py-3 pl-3 pr-2 flex items-center gap-3">
+                        <div className="bg-preenchimento text-texto text-sm font-semibold px-2.5 py-2 rounded-xl text-center shrink-0 min-w-16">
                             <div>{formatarData(agendamento.inicio)}</div>
-                            <div className="text-[11px] opacity-80">{formatarHora(agendamento.inicio)}</div>
+                            <div className="text-sm font-medium text-texto-2 tabular-nums">{formatarHora(agendamento.inicio)}</div>
                         </div>
                         <div className="min-w-0 flex-1">
-                            <p className="font-medium text-neutral-900 text-sm truncate">{agendamento.servico?.nome}</p>
-                            <p className="text-xs text-neutral-400 truncate">
+                            <p className="font-semibold text-texto text-base truncate">{agendamento.servico?.nome}</p>
+                            <p className="text-sm text-texto-2 truncate">
                                 com {agendamento.profissional?.nome}
                                 {agendamento.status === 'concluido' && ' · concluído'}
                                 {agendamento.status === 'cancelado' && ' · cancelado'}
@@ -84,24 +84,24 @@ export default function MeusAgendamentosTab() {
                         <button
                             onClick={() => handleCancelar(agendamento.id)}
                             disabled={cancelandoId === agendamento.id}
-                            className="p-2 text-neutral-400 hover:text-red-600 transition shrink-0 disabled:opacity-50"
+                            className="btn-icone hover:text-perigo"
                             aria-label="Cancelar agendamento"
                         >
-                            <X size={18} />
+                            <X size={20} />
                         </button>
                         )}
                     </div>
                 ))}
                 {agendamentos.length === 0 && (
-                    <p className="text-neutral-400 text-sm text-center py-8">Você ainda não tem horários marcados aqui.</p>
+                    <p className="text-texto-2 text-base text-center py-10">Você ainda não tem horários marcados aqui.</p>
                 )}
                 {proximoCursor && (
                     <button
                         onClick={carregarMais}
                         disabled={carregandoMais}
-                        className="w-full text-sm text-neutral-500 hover:text-neutral-900 py-3 transition disabled:opacity-50"
+                        className="btn-texto w-full"
                     >
-                        {carregandoMais ? 'Carregando...' : 'Ver mais antigos'}
+                        {carregandoMais ? 'Carregando…' : 'Ver mais antigos'}
                     </button>
                 )}
             </div>

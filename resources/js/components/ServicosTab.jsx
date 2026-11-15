@@ -95,11 +95,11 @@ export default function ServicosTab() {
 
     return (
         <div>
-            <h1 className="text-lg font-semibold text-neutral-900 mb-4">Serviços</h1>
+            <h1 className="titulo mb-4">Serviços</h1>
 
-            <form onSubmit={handleSubmit} className="bg-white border border-neutral-200 rounded-xl p-4 mb-6 space-y-3">
+            <form onSubmit={handleSubmit} className="cartao p-4 mb-6 space-y-4">
                 {editando && (
-                    <p className="text-xs font-medium text-neutral-500">Editando: {servicoEmEdicao.nome}</p>
+                    <p className="text-sm font-semibold text-texto">Editando: {servicoEmEdicao.nome}</p>
                 )}
 
                 <SeletorDeImagem
@@ -113,87 +113,87 @@ export default function ServicosTab() {
                 />
 
                 <input
-                    type="text" placeholder="Nome do serviço" value={nome}
+                    type="text" placeholder="Nome do serviço" aria-label="Nome do serviço" value={nome}
                     onChange={e => setNome(e.target.value)}
-                    className="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                    className="campo"
                     required
                 />
                 <div className="grid grid-cols-2 gap-3">
                     <input
-                        type="number" placeholder="Duração (min)" value={duracao}
+                        type="number" inputMode="numeric" placeholder="Duração (min)" aria-label="Duração em minutos" value={duracao}
                         onChange={e => setDuracao(e.target.value)}
-                        className="border border-neutral-200 rounded-lg px-3 py-2.5 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                        className="campo"
                         required
                     />
                     <input
-                        type="number" step="0.01" placeholder="Preço (R$)" value={preco}
+                        type="number" inputMode="decimal" step="0.01" placeholder="Preço (R$)" aria-label="Preço em reais" value={preco}
                         onChange={e => setPreco(e.target.value)}
-                        className="border border-neutral-200 rounded-lg px-3 py-2.5 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                        className="campo"
                         required
                     />
                 </div>
 
-                <label className="flex items-start gap-3 cursor-pointer">
+                <label className="flex items-start gap-3 py-1 cursor-pointer">
                     <input
                         type="checkbox"
                         checked={podeAtravessarIntervalo}
                         onChange={e => setPodeAtravessarIntervalo(e.target.checked)}
-                        className="mt-0.5 w-4 h-4 accent-neutral-900"
+                        className="mt-0.5 size-5 shrink-0 accent-acento"
                     />
                     <span>
-                        <span className="block text-sm text-neutral-900">Pode atravessar o intervalo</span>
-                        <span className="block text-xs text-neutral-400">
+                        <span className="block text-base font-medium text-texto">Pode atravessar o intervalo</span>
+                        <span className="block text-sm text-texto-2 mt-0.5">
                             Para serviços longos, como tranças: podem passar por cima do horário de almoço, só não começam dentro dele.
                         </span>
                     </span>
                 </label>
 
                 {duracaoMudou && (
-                    <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                    <p className="text-sm text-aviso bg-aviso/12 rounded-xl px-3.5 py-2.5">
                         Alterar a duração muda o tempo ocupado dos agendamentos futuros deste serviço.
                     </p>
                 )}
 
-                <button type="submit" className="w-full bg-neutral-900 text-white py-3 rounded-lg text-sm font-medium hover:bg-neutral-700 transition">
-                    {editando ? 'Salvar alterações' : 'Adicionar Serviço'}
+                <button type="submit" className="btn btn-primario w-full">
+                    {editando ? 'Salvar alterações' : 'Adicionar serviço'}
                 </button>
                 {editando && (
-                    <button type="button" onClick={limparFormulario} className="w-full text-sm text-neutral-500 hover:text-neutral-800 transition">
+                    <button type="button" onClick={limparFormulario} className="btn-texto w-full -mt-2">
                         Cancelar edição
                     </button>
                 )}
-                {erro && <p className="text-red-600 text-sm">{erro}</p>}
+                {erro && <p role="alert" className="nota-erro">{erro}</p>}
             </form>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
                 {servicos.map(servico => (
                     <div
                         key={servico.id}
-                        className={`bg-white border rounded-xl p-4 flex justify-between items-center gap-3 ${
-                            servicoEmEdicao?.id === servico.id ? 'border-neutral-900' : 'border-neutral-200'
+                        className={`cartao py-2.5 pl-3 pr-1.5 flex justify-between items-center gap-2 ${
+                            servicoEmEdicao?.id === servico.id ? 'ring-2 ring-acento' : ''
                         }`}
                     >
                         <div className="flex items-center gap-3 min-w-0">
-                            <ImagemComFallback src={servico.imagem_url} nome={servico.nome} tamanho={48} redonda={false} />
+                            <ImagemComFallback src={servico.imagem_url} nome={servico.nome} tamanho={52} redonda={false} />
                             <div className="min-w-0">
-                                <p className="font-medium text-neutral-900 text-sm truncate">{servico.nome}</p>
-                                <p className="text-xs text-neutral-400 mt-0.5">
+                                <p className="font-semibold text-texto text-base truncate">{servico.nome}</p>
+                                <p className="text-sm text-texto-2 mt-0.5">
                                     {formatarDuracao(servico.duracao_em_minutos)} · {formatarPreco(servico.preco)}
                                     {servico.pode_atravessar_intervalo && ' · atravessa o intervalo'}
                                 </p>
                             </div>
                         </div>
                         <div className="flex items-center shrink-0">
-                            <button onClick={() => iniciarEdicao(servico)} className="p-2 text-neutral-400 hover:text-neutral-900 transition" aria-label="Editar serviço">
-                                <Pencil size={18} />
+                            <button onClick={() => iniciarEdicao(servico)} className="btn-icone" aria-label="Editar serviço">
+                                <Pencil size={19} />
                             </button>
-                            <button onClick={() => handleExcluir(servico.id)} className="p-2 text-neutral-400 hover:text-red-600 transition" aria-label="Excluir serviço">
-                                <Trash2 size={18} />
+                            <button onClick={() => handleExcluir(servico.id)} className="btn-icone hover:text-perigo" aria-label="Excluir serviço">
+                                <Trash2 size={19} />
                             </button>
                         </div>
                     </div>
                 ))}
-                {servicos.length === 0 && <p className="text-neutral-400 text-sm text-center py-8">Nenhum serviço cadastrado ainda.</p>}
+                {servicos.length === 0 && <p className="text-texto-2 text-base text-center py-10">Nenhum serviço cadastrado ainda.</p>}
             </div>
         </div>
     );

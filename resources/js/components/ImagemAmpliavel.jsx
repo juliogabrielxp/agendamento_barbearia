@@ -42,7 +42,7 @@ export default function ImagemAmpliavel({ src, nome = '', tamanho = 48, redonda 
             <button
                 type="button"
                 onClick={abrir}
-                className="shrink-0 cursor-zoom-in"
+                className="shrink-0 cursor-zoom-in transition-transform duration-150 active:scale-95"
                 aria-label={`Ampliar imagem de ${nome}`}
             >
                 <ImagemComFallback src={src} nome={nome} tamanho={tamanho} redonda={redonda} />
@@ -50,7 +50,7 @@ export default function ImagemAmpliavel({ src, nome = '', tamanho = 48, redonda 
 
             {aberta && createPortal(
                 <div
-                    className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+                    className="esmaecer fixed inset-0 z-50 bg-black/70 backdrop-blur-xl flex items-center justify-center p-4"
                     onClick={fechar}
                     role="dialog"
                     aria-modal="true"
@@ -59,16 +59,17 @@ export default function ImagemAmpliavel({ src, nome = '', tamanho = 48, redonda 
                     <button
                         type="button"
                         onClick={fechar}
-                        className="absolute top-4 right-4 p-2 text-white/80 hover:text-white transition"
+                        autoFocus
+                        className="absolute top-4 right-4 size-11 flex items-center justify-center rounded-full bg-white/15 text-white cursor-pointer transition hover:bg-white/25 active:scale-90"
                         aria-label="Fechar"
                     >
-                        <X size={24} />
+                        <X size={22} />
                     </button>
                     <img
                         src={src}
                         alt={nome}
                         onClick={event => event.stopPropagation()}
-                        className="max-h-[85vh] max-w-full rounded-xl object-contain"
+                        className="materializar max-h-[85vh] max-w-full rounded-2xl object-contain"
                     />
                 </div>,
                 document.body

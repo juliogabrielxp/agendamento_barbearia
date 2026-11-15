@@ -7,7 +7,7 @@ export default function LogoutButton() {
     return (
         <button
             onClick={handleLogout}
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-black transition-colors"
+            className="btn-texto text-perigo hover:text-perigo"
         >
             <LogOut size={18} />
             <span>Sair</span>

@@ -21,24 +21,24 @@ export default function AtivarNotificacoes() {
         : DESCRICOES[estado];
 
     return (
-        <div className="bg-white border border-neutral-200 rounded-xl p-4">
+        <div className="cartao p-4">
             <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-neutral-100 flex items-center justify-center shrink-0">
+                <div className="size-10 rounded-xl bg-preenchimento flex items-center justify-center shrink-0">
                     {estado === 'ativo'
-                        ? <Bell size={18} className="text-neutral-900" />
-                        : <BellOff size={18} className="text-neutral-400" />}
+                        ? <Bell size={20} className="text-texto" />
+                        : <BellOff size={20} className="text-texto-3" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-neutral-900">Notificações de novos agendamentos</p>
-                    <p className="text-xs text-neutral-500 mt-0.5">{descricao}</p>
-                    {erro && <p className="text-xs text-red-600 mt-1">{erro}</p>}
+                    <p className="text-base font-semibold text-texto">Notificações de novos agendamentos</p>
+                    <p className="text-sm text-texto-2 mt-0.5">{descricao}</p>
+                    {erro && <p role="alert" className="nota-erro mt-1">{erro}</p>}
                 </div>
             </div>
 
             {estado === 'inativo' && (
                 <button
                     onClick={ativar}
-                    className="mt-3 w-full bg-neutral-900 text-white text-sm font-medium rounded-lg py-2.5 hover:bg-neutral-700 transition"
+                    className="btn btn-primario mt-4 w-full"
                 >
                     Ativar notificações
                 </button>
@@ -47,7 +47,7 @@ export default function AtivarNotificacoes() {
             {estado === 'ativo' && (
                 <button
                     onClick={desativar}
-                    className="mt-3 w-full bg-white border border-neutral-200 text-neutral-700 text-sm font-medium rounded-lg py-2.5 hover:border-neutral-400 transition"
+                    className="btn btn-secundario mt-4 w-full"
                 >
                     Desativar neste aparelho
                 </button>

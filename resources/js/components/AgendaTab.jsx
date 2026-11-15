@@ -3,9 +3,9 @@ import api from '../lib/api';
 import { dataLocal } from '../lib/formatar';
 
 const STATUS_CONFIG = {
-    confirmado: { label: 'Confirmado', className: 'bg-blue-50 text-blue-700' },
-    concluido: { label: 'Concluído', className: 'bg-green-50 text-green-700' },
-    cancelado: { label: 'Cancelado', className: 'bg-red-50 text-red-700' },
+    confirmado: { label: 'Confirmado', className: 'bg-info/12 text-info' },
+    concluido: { label: 'Concluído', className: 'bg-sucesso/12 text-sucesso' },
+    cancelado: { label: 'Cancelado', className: 'bg-perigo/12 text-perigo' },
 };
 
 export default function AgendaTab() {
@@ -42,49 +42,49 @@ export default function AgendaTab() {
 
     return (
         <div>
-            <h1 className="text-lg font-semibold text-neutral-900 mb-4">Agenda</h1>
+            <h1 className="titulo mb-4">Agenda</h1>
 
-            <div className="bg-white border border-neutral-200 rounded-xl p-4 mb-6">
-                <label className="text-xs font-medium text-neutral-500 block mb-2">Ver agenda do dia</label>
-                <input type="date" value={data} onChange={e => setData(e.target.value)} className="border border-neutral-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900" />
+            <div className="cartao p-4 mb-6">
+                <label htmlFor="agenda-data" className="rotulo">Ver agenda do dia</label>
+                <input id="agenda-data" type="date" value={data} onChange={e => setData(e.target.value)} className="campo w-auto" />
             </div>
 
             {carregando ? (
-                <p className="text-neutral-400 text-sm text-center py-8">Carregando...</p>
+                <p className="text-texto-2 text-base text-center py-10">Carregando…</p>
             ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                     {agendamentos.map(agendamento => {
                         const status = STATUS_CONFIG[agendamento.status] ?? STATUS_CONFIG.confirmado;
                         const podeAgir = agendamento.status === 'confirmado';
 
                         return (
-                            <div key={agendamento.id} className="bg-white border border-neutral-200 rounded-xl p-4">
+                            <div key={agendamento.id} className="cartao p-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="bg-neutral-900 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg shrink-0">
+                                    <div className="bg-preenchimento text-texto text-base font-semibold tabular-nums px-2.5 py-1.5 rounded-lg shrink-0">
                                         {formatarHora(agendamento.inicio)}
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="font-medium text-neutral-900 text-sm truncate">{agendamento.servico?.nome}</p>
-                                        <p className="text-xs text-neutral-400 truncate">{agendamento.cliente?.nome} · {agendamento.profissional?.nome}</p>
+                                        <p className="font-semibold text-texto text-base truncate">{agendamento.servico?.nome}</p>
+                                        <p className="text-sm text-texto-2 truncate">{agendamento.cliente?.nome} · {agendamento.profissional?.nome}</p>
                                     </div>
-                                    <span className={`text-xs font-medium px-2 py-1 rounded-lg shrink-0 ${status.className}`}>
+                                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ${status.className}`}>
                                         {status.label}
                                     </span>
                                 </div>
 
                                 {podeAgir && (
-                                    <div className="flex gap-2 mt-3 pt-3 border-t border-neutral-100">
+                                    <div className="flex gap-2 mt-4 pt-4 border-t border-separador">
                                         <button
                                             onClick={() => atualizarStatus(agendamento.id, 'concluido')}
                                             disabled={atualizandoId === agendamento.id}
-                                            className="flex-1 text-xs font-medium bg-neutral-900 text-white rounded-lg py-2 disabled:opacity-50"
+                                            className="btn btn-primario flex-1"
                                         >
                                             Concluir
                                         </button>
                                         <button
                                             onClick={() => atualizarStatus(agendamento.id, 'cancelado')}
                                             disabled={atualizandoId === agendamento.id}
-                                            className="flex-1 text-xs font-medium bg-white border border-neutral-200 text-neutral-600 rounded-lg py-2 disabled:opacity-50"
+                                            className="btn btn-secundario flex-1 text-perigo"
                                         >
                                             Cancelar
                                         </button>
@@ -93,7 +93,7 @@ export default function AgendaTab() {
                             </div>
                         );
                     })}
-                    {agendamentos.length === 0 && <p className="text-neutral-400 text-sm text-center py-8">Nenhum agendamento para esse dia.</p>}
+                    {agendamentos.length === 0 && <p className="text-texto-2 text-base text-center py-10">Nenhum agendamento para esse dia.</p>}
                 </div>
             )}
         </div>

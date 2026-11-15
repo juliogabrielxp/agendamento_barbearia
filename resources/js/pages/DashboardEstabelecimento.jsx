@@ -20,31 +20,31 @@ export default function DashboardEstabelecimento() {
     }, []);
 
     if (carregando) {
-        return <div className="min-h-screen flex items-center justify-center bg-neutral-50 text-neutral-400 text-sm">Carregando...</div>;
+        return <div className="min-h-dvh flex items-center justify-center text-texto-2 text-base">Carregando…</div>;
     }
 
     if (erro || !dados) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 gap-3 px-4">
-                <p className="text-neutral-500 text-sm text-center">Não foi possível carregar seus dados. Faça login novamente.</p>
-                <a href="/app/painel/entrar" className="text-sm font-medium text-neutral-900 underline">Entrar</a>
+            <div className="min-h-dvh flex flex-col items-center justify-center gap-2 px-6">
+                <p className="text-texto-2 text-base text-center">Não foi possível carregar seus dados. Faça login novamente.</p>
+                <a href="/app/painel/entrar" className="btn btn-primario mt-2">Entrar</a>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-neutral-50">
-            <header className="fixed top-0 inset-x-0 bg-white border-b border-neutral-200 px-4 md:px-6 py-3.5 flex items-center gap-3 z-10">
-                {dados.user.avatar && <img src={dados.user.avatar} alt="" className="w-9 h-9 rounded-full" />}
+        <div className="min-h-dvh">
+            <header className="material fixed top-0 inset-x-0 md:left-56 z-10 h-16 border-b border-separador px-4 md:px-8 flex items-center gap-3">
+                {dados.user.avatar && <img src={dados.user.avatar} alt="" className="size-9 rounded-full" />}
                 <div className="min-w-0">
-                    <p className="font-semibold text-neutral-900 text-sm truncate">{dados.estabelecimento?.nome ?? dados.user.nome}</p>
-                    <p className="text-xs text-neutral-400 truncate">{dados.user.email}</p>
+                    <p className="font-semibold text-texto text-base leading-tight truncate">{dados.estabelecimento?.nome ?? dados.user.nome}</p>
+                    <p className="text-sm text-texto-2 leading-tight truncate">{dados.user.email}</p>
                 </div>
             </header>
 
             <NavBar abaAtiva={abaAtiva} onMudarAba={setAbaAtiva} />
 
-            <main className="pt-20 pb-24 md:pb-8 px-4 md:pl-64 md:pr-6 max-w-2xl md:max-w-3xl">
+            <main className="pt-22 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-10 px-4 md:pl-64 md:pr-8 max-w-2xl md:max-w-4xl">
                 {abaAtiva === 'servicos' && <ServicosTab />}
                 {abaAtiva === 'profissionais' && <ProfissionaisTab />}
                 {abaAtiva === 'agenda' && <AgendaTab />}

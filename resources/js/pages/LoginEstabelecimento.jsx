@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutDashboard } from 'lucide-react';
+import { ChevronLeft, LayoutDashboard } from 'lucide-react';
 import api from '../lib/api';
 import { Link } from 'react-router-dom';
 
@@ -30,59 +30,62 @@ export default function LoginEstabelecimento() {
     }
 
     return (
-        <div className="min-h-screen bg-neutral-50 flex flex-col justify-center px-6 py-10">
+        <div className="min-h-dvh flex flex-col justify-center px-6 py-10">
             <div className="max-w-sm mx-auto w-full">
-                <div className="w-12 h-12 bg-neutral-900 rounded-xl flex items-center justify-center mb-6">
-                    <LayoutDashboard size={22} className="text-white" strokeWidth={2} />
+                <div className="size-14 bg-acento rounded-2xl flex items-center justify-center mb-6">
+                    <LayoutDashboard size={26} className="text-sobre-acento" strokeWidth={2} />
                 </div>
 
-                <h1 className="text-2xl font-semibold text-neutral-900 mb-2 leading-tight">
+                <h1 className="titulo-grande mb-2">
                     Área da profissional
                 </h1>
-                <p className="text-sm text-neutral-500 mb-8">
+                <p className="text-base text-texto-2 mb-8">
                     Entre com o e-mail e a senha do estabelecimento para ver a agenda.
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="text-xs font-medium text-neutral-500 block mb-1.5">E-mail</label>
+                        <label htmlFor="painel-email" className="rotulo">E-mail</label>
                         <input
+                            id="painel-email"
                             type="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
                             required
                             autoComplete="email"
-                            className="w-full bg-white border border-neutral-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                            className="campo"
                         />
                     </div>
 
                     <div>
-                        <label className="text-xs font-medium text-neutral-500 block mb-1.5">Senha</label>
+                        <label htmlFor="painel-senha" className="rotulo">Senha</label>
                         <input
+                            id="painel-senha"
                             type="password"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
                             required
                             autoComplete="current-password"
-                            className="w-full bg-white border border-neutral-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                            className="campo"
                         />
                     </div>
 
-                    {erro && <p className="text-xs text-red-600">{erro}</p>}
+                    {erro && <p role="alert" className="nota-erro">{erro}</p>}
 
                     <button
                         type="submit"
                         disabled={enviando}
-                        className="w-full bg-neutral-900 text-white py-3 rounded-lg text-sm font-medium hover:bg-neutral-700 transition disabled:opacity-50"
+                        className="btn btn-primario w-full min-h-[3.125rem]"
                     >
-                        {enviando ? 'Entrando...' : 'Entrar'}
+                        {enviando ? 'Entrando…' : 'Entrar'}
                     </button>
                 </form>
                 <Link
                     to="/app"
-                    className="block text-center text-xs text-neutral-500 hover:text-neutral-800 transition mt-6"
+                    className="btn-texto w-full gap-0.5 mt-4"
                 >
-                  ← Voltar aos serviços
+                    <ChevronLeft size={20} />
+                    Voltar aos serviços
                 </Link>
             </div>
         </div>

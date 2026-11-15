@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ChevronLeft } from 'lucide-react';
 import api from '../lib/api';
 import ImagemComFallback from '../components/ImagemComFallback';
 import { lerPendente } from '../lib/agendamentoPendente';
 
 const ESPERA_PARA_REENVIAR = 60;
 
-const INPUT_CLASSE =
-    'w-full bg-white border border-neutral-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900';
+const INPUT_CLASSE = 'campo';
 
 export default function Login() {
     const [estabelecimento, setEstabelecimento] = useState(null);
@@ -142,24 +142,25 @@ export default function Login() {
     }
 
     return (
-        <div className="min-h-screen bg-neutral-50 px-6 py-6">
+        <div className="min-h-dvh px-6 pt-3 pb-[calc(2rem+env(safe-area-inset-bottom))]">
             <div className="max-w-sm mx-auto w-full">
-                <Link to="/app" className="text-sm text-neutral-400 hover:text-neutral-700 transition">
-                    ← Voltar aos serviços
+                <Link to="/app" className="btn-texto -ml-1.5 gap-0.5">
+                    <ChevronLeft size={20} />
+                    Voltar aos serviços
                 </Link>
 
-                <div className="flex flex-col items-center text-center mt-8 mb-8">
+                <div className="flex flex-col items-center text-center mt-6 mb-8">
                     {estabelecimento && (
-                        <ImagemComFallback src={estabelecimento.imagem_url} nome={estabelecimento.nome} tamanho={64} />
+                        <ImagemComFallback src={estabelecimento.imagem_url} nome={estabelecimento.nome} tamanho={72} />
                     )}
-                    <h1 className="text-xl font-semibold text-neutral-900 mt-4">
+                    <h1 className="titulo-grande mt-4">
                         {confirmando ? 'Confirme seu e-mail' : criando ? 'Crie sua conta' : 'Entre na sua conta'}
                     </h1>
-                    <p className="text-sm text-neutral-500 mt-2">
+                    <p className="text-base text-texto-2 mt-2">
                         {confirmando ? (
                             <>
                                 Enviamos um código de 6 dígitos para{' '}
-                                <span className="font-medium text-neutral-800 break-all">{emailPendente}</span>.
+                                <span className="font-semibold text-texto break-all">{emailPendente}</span>.
                             </>
                         ) : temHorarioGuardado
                             ? 'Falta pouco: seu horário está guardado e você confirma logo depois de entrar.'
@@ -184,16 +185,16 @@ export default function Login() {
 
                     <button
                         onClick={() => { window.location.href = '/auth/google/cliente/redirect'; }}
-                        className="w-full flex items-center justify-center gap-3 bg-white border border-neutral-200 text-neutral-900 py-3 rounded-lg text-sm font-medium hover:border-neutral-400 transition"
+                        className="btn btn-superficie w-full min-h-[3.125rem] gap-3"
                     >
                         <GoogleIcon />
                         Continuar com Google
                     </button>
 
                     <div className="flex items-center gap-3 my-5">
-                        <div className="flex-1 h-px bg-neutral-200" />
-                        <span className="text-xs text-neutral-400">ou com e-mail</span>
-                        <div className="flex-1 h-px bg-neutral-200" />
+                        <div className="flex-1 h-px bg-separador" />
+                        <span className="text-sm text-texto-2">ou com e-mail</span>
+                        <div className="flex-1 h-px bg-separador" />
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-3">
@@ -202,13 +203,14 @@ export default function Login() {
                                 <input
                                     type="text"
                                     placeholder="Seu nome"
+                                    aria-label="Seu nome"
                                     value={form.nome}
                                     onChange={e => handleChange('nome', e.target.value)}
                                     required
                                     autoComplete="name"
                                     className={INPUT_CLASSE}
                                 />
-                                {erro('nome') && <p className="text-xs text-red-600 mt-1">{erro('nome')}</p>}
+                                {erro('nome') && <p role="alert" className="nota-erro mt-1">{erro('nome')}</p>}
                             </div>
                         )}
 
@@ -216,13 +218,14 @@ export default function Login() {
                             <input
                                 type="email"
                                 placeholder="E-mail"
+                                    aria-label="E-mail"
                                 value={form.email}
                                 onChange={e => handleChange('email', e.target.value)}
                                 required
                                 autoComplete="email"
                                 className={INPUT_CLASSE}
                             />
-                            {erro('email') && <p className="text-xs text-red-600 mt-1">{erro('email')}</p>}
+                            {erro('email') && <p role="alert" className="nota-erro mt-1">{erro('email')}</p>}
                         </div>
 
                         {criando && (
@@ -230,6 +233,7 @@ export default function Login() {
                                 <input
                                     type="email"
                                     placeholder="Confirme o e-mail"
+                                    aria-label="Confirme o e-mail"
                                     value={form.email_confirmation}
                                     onChange={e => handleChange('email_confirmation', e.target.value)}
                                     // Obriga a digitar de novo, senão um e-mail errado colado passaria igual
@@ -239,7 +243,7 @@ export default function Login() {
                                     className={INPUT_CLASSE}
                                 />
                                 {erro('email_confirmation') && (
-                                    <p className="text-xs text-red-600 mt-1">{erro('email_confirmation')}</p>
+                                    <p role="alert" className="nota-erro mt-1">{erro('email_confirmation')}</p>
                                 )}
                             </div>
                         )}
@@ -248,19 +252,21 @@ export default function Login() {
                             <input
                                 type="password"
                                 placeholder="Senha"
+                                    aria-label="Senha"
                                 value={form.password}
                                 onChange={e => handleChange('password', e.target.value)}
                                 required
                                 autoComplete={criando ? 'new-password' : 'current-password'}
                                 className={INPUT_CLASSE}
                             />
-                            {erro('password') && <p className="text-xs text-red-600 mt-1">{erro('password')}</p>}
+                            {erro('password') && <p role="alert" className="nota-erro mt-1">{erro('password')}</p>}
                         </div>
 
                         {criando && (
                             <input
                                 type="password"
                                 placeholder="Confirme a senha"
+                                aria-label="Confirme a senha"
                                 value={form.password_confirmation}
                                 onChange={e => handleChange('password_confirmation', e.target.value)}
                                 required
@@ -269,20 +275,20 @@ export default function Login() {
                             />
                         )}
 
-                        {erro('geral') && <p className="text-xs text-red-600">{erro('geral')}</p>}
+                        {erro('geral') && <p role="alert" className="nota-erro">{erro('geral')}</p>}
 
                         <button
                             type="submit"
                             disabled={enviando}
-                            className="w-full bg-neutral-900 text-white py-3 rounded-lg text-sm font-medium hover:bg-neutral-700 transition disabled:opacity-50"
+                            className="btn btn-primario w-full min-h-[3.125rem]"
                         >
-                            {enviando ? 'Aguarde...' : criando ? 'Criar conta' : 'Entrar'}
+                            {enviando ? 'Aguarde…' : criando ? 'Criar conta' : 'Entrar'}
                         </button>
                     </form>
 
                     <button
                         onClick={alternarModo}
-                        className="w-full text-sm text-neutral-500 hover:text-neutral-800 transition mt-4"
+                        className="btn-texto w-full mt-3"
                     >
                         {criando ? 'Já tem conta? Entrar' : 'Primeira vez aqui? Criar conta'}
                     </button>
@@ -310,36 +316,36 @@ function ConfirmarCodigo({ codigo, onChangeCodigo, onSubmit, onReenviar, onTroca
                         onChange={e => onChangeCodigo(e.target.value.replace(/\D/g, '').slice(0, 6))}
                         required
                         autoFocus
-                        className={`${INPUT_CLASSE} text-center text-2xl tracking-[0.5em] font-mono`}
+                        className={`${INPUT_CLASSE} min-h-14 text-center text-2xl font-semibold tracking-[0.4em] tabular-nums`}
                     />
-                    {erro && <p className="text-xs text-red-600 mt-1">{erro}</p>}
-                    {aviso && !erro && <p className="text-xs text-green-700 mt-1">{aviso}</p>}
+                    {erro && <p role="alert" className="nota-erro mt-1.5">{erro}</p>}
+                    {aviso && !erro && <p role="status" className="text-sm font-medium text-sucesso mt-1.5">{aviso}</p>}
                 </div>
 
                 <button
                     type="submit"
                     disabled={enviando || codigo.length !== 6}
-                    className="w-full bg-neutral-900 text-white py-3 rounded-lg text-sm font-medium hover:bg-neutral-700 transition disabled:opacity-50"
+                    className="btn btn-primario w-full min-h-[3.125rem]"
                 >
-                    {enviando ? 'Aguarde...' : 'Confirmar e criar conta'}
+                    {enviando ? 'Aguarde…' : 'Confirmar e criar conta'}
                 </button>
             </form>
 
-            <p className="text-xs text-neutral-400 text-center mt-4">
+            <p className="text-sm text-texto-2 text-center mt-4">
                 Não chegou? Confira a caixa de spam.
             </p>
 
-            <div className="flex justify-between gap-3 mt-3">
+            <div className="flex justify-between gap-3 mt-1">
                 <button
                     onClick={onTrocarEmail}
-                    className="text-sm text-neutral-500 hover:text-neutral-800 transition"
+                    className="btn-texto"
                 >
                     Trocar e-mail
                 </button>
                 <button
                     onClick={onReenviar}
                     disabled={segundosParaReenviar > 0}
-                    className="text-sm text-neutral-500 hover:text-neutral-800 transition disabled:opacity-50 disabled:hover:text-neutral-500"
+                    className="btn-texto tabular-nums"
                 >
                     {segundosParaReenviar > 0 ? `Reenviar em ${segundosParaReenviar}s` : 'Reenviar código'}
                 </button>
@@ -350,7 +356,7 @@ function ConfirmarCodigo({ codigo, onChangeCodigo, onSubmit, onReenviar, onTroca
 
 function GoogleIcon() {
     return (
-        <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
             <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.7-.4-3.5z"/>
             <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l6-6C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
             <path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.3-5.1l-6.6-5.4C29.6 35.5 27 36.5 24 36.5c-5.2 0-9.6-3.3-11.3-8l-6.6 5.1C9.6 39.6 16.3 44 24 44z"/>

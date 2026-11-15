@@ -31,8 +31,8 @@ final class SpaController extends Controller
             'start_url' => '/app',
             'scope' => '/',
             'display' => 'standalone',
-            'background_color' => '#fafafa',
-            'theme_color' => '#171717',
+            'background_color' => '#f2f2f7',
+            'theme_color' => '#f2f2f7',
             'lang' => 'pt-BR',
             'icons' => [
                 ['src' => '/icons/icon-192.png', 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any'],
