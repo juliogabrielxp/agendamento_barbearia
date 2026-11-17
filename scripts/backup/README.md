@@ -46,8 +46,8 @@ que já está autenticado. Troque `NOME-DO-BUCKET`, `ID-DA-CONTA` e a região on
 
 **Bucket** (privado por padrão, com versionamento e retenção):
 ```bash
-aws s3api create-bucket --bucket NOME-DO-BUCKET --region us-east-2 \
-    --create-bucket-configuration LocationConstraint=us-east-2
+aws s3api create-bucket --bucket NOME-DO-BUCKET --region sa-east-1 \
+    --create-bucket-configuration LocationConstraint=sa-east-1
 aws s3api put-bucket-versioning --bucket NOME-DO-BUCKET --versioning-configuration Status=Enabled
 aws s3api put-bucket-lifecycle-configuration --bucket NOME-DO-BUCKET \
     --lifecycle-configuration file://ciclo-de-vida-s3.json     # o arquivo está em aws/

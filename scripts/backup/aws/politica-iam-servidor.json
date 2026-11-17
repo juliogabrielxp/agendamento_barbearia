@@ -18,7 +18,7 @@
             "Sid": "LerSenhasDoBackup",
             "Effect": "Allow",
             "Action": "ssm:GetParameter",
-            "Resource": "arn:aws:ssm:us-east-2:ID-DA-CONTA:parameter/agendamento/backup/*"
+            "Resource": "arn:aws:ssm:sa-east-1:ID-DA-CONTA:parameter/agendamento/backup/*"
         }
     ]
 }
