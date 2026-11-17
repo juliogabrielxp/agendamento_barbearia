@@ -54,6 +54,32 @@ class UploadDeImagemTest extends TestCase
         $this->assertNull($estabelecimento->fresh()->imagem_path);
     }
 
+    public function test_aceita_imagem_de_ate_5_mb(): void
+    {
+        $estabelecimento = $this->criarEstabelecimentoComDono('dono@estabelecimento.com');
+        $this->actingAs(UserModel::find($estabelecimento->user_id));
+
+        $response = $this->postJson('/api/perfil-estabelecimento/imagem', [
+            'imagem' => UploadedFile::fake()->image('foto.jpg')->size(5120),
+        ]);
+
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent());
+        $this->assertNotNull($estabelecimento->fresh()->imagem_path);
+    }
+
+    public function test_recusa_imagem_maior_que_5_mb(): void
+    {
+        $estabelecimento = $this->criarEstabelecimentoComDono('dono@estabelecimento.com');
+        $this->actingAs(UserModel::find($estabelecimento->user_id));
+
+        $response = $this->postJson('/api/perfil-estabelecimento/imagem', [
+            'imagem' => UploadedFile::fake()->image('foto.jpg')->size(5121),
+        ]);
+
+        $this->assertSame(422, $response->getStatusCode(), $response->getContent());
+        $this->assertNull($estabelecimento->fresh()->imagem_path);
+    }
+
     public function test_trocar_a_imagem_apaga_a_anterior(): void
     {
         $estabelecimento = $this->criarEstabelecimentoComDono('dono@estabelecimento.com');

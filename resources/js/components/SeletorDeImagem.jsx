@@ -3,7 +3,7 @@ import { Camera } from 'lucide-react';
 import ImagemComFallback from './ImagemComFallback';
 
 const TIPOS_ACEITOS = ['image/jpeg', 'image/png', 'image/webp'];
-const TAMANHO_MAXIMO_MB = 2;
+const TAMANHO_MAXIMO_MB = 5;
 
 export default function SeletorDeImagem({
     imagemAtualUrl = null,
