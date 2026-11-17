@@ -58,7 +58,9 @@ aws s3api put-bucket-lifecycle-configuration --bucket NOME-DO-BUCKET \
 Actions → Security → Modify IAM role). Se a instância já tiver uma role, só adicione a política
 a ela. Não crie access keys: a role dá credenciais temporárias.
 
-**Usuários do MySQL** (na EC2, `sudo mysql`). Gere senhas fortes e guarde-as só no SSM:
+**Usuários do MySQL** (na EC2, `sudo mysql`). Gere senhas fortes e guarde-as só no SSM. O MySQL de
+produção usa `validate_password` MEDIUM: a senha precisa de maiúscula, minúscula, dígito **e** um
+caractere especial, senão o `CREATE USER` falha com o erro 1819:
 ```sql
 CREATE USER 'backup'@'localhost' IDENTIFIED BY '<senha-backup>';
 GRANT SELECT, SHOW VIEW, TRIGGER ON agendamento.* TO 'backup'@'localhost';
