@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 class ImagemController extends Controller
 {
     private const REGRAS = [
-        'imagem' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+        'imagem' => 'required|image|mimes:jpg,jpeg,png,webp|max:6144',
     ];
 
     public function __construct(
